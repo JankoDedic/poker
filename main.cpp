@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <poker/card.hpp>
+#include <poker/span.hpp>
 
 namespace poker {
 
