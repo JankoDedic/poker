@@ -9,7 +9,15 @@ cmake_minimum_required(VERSION 3.11)
 project(Poker)
 
 # =============================================================================
+# Library
+# =============================================================================
+add_library(Poker INTERFACE)
+target_compile_features(Poker INTERFACE cxx_std_17)
+target_include_directories(Poker INTERFACE include/)
+
+# =============================================================================
 # Executable
 # =============================================================================
-add_executable(Poker main.cpp)
-target_compile_features(Poker PRIVATE cxx_std_17)
+add_executable(PokerExe main.cpp)
+target_compile_features(PokerExe PRIVATE cxx_std_17)
+target_link_libraries(PokerExe PRIVATE Poker)
