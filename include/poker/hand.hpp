@@ -257,3 +257,16 @@ hand::hand(span<card, 7> cards) noexcept
 }
 
 } // namespace poker
+
+namespace poker::debug {
+
+inline
+hand
+make_hand(std::string_view str) noexcept
+{
+    auto cards = make_cards<7>(str);
+    return hand(cards);
+}
+
+
+} // namespace poker::debug
