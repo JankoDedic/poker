@@ -8,6 +8,7 @@ int
 main()
 {
     using namespace poker;
+    using namespace poker::debug;
     card cards[] = {
         {card_rank::A, card_suit::clubs},
         {card_rank::A, card_suit::clubs},

@@ -64,6 +64,11 @@ enum class hand_ranking {
     royal_flush
 };
 
+} // namespace poker
+
+namespace poker::debug {
+
+inline
 std::ostream&
 operator<<(std::ostream& os, hand_ranking hr)
 {
@@ -81,6 +86,10 @@ operator<<(std::ostream& os, hand_ranking hr)
     };
     return os << hand_ranking_names[static_cast<std::size_t>(hr)];
 }
+
+} // namespace poker::debug
+
+namespace poker {
 
 class hand {
     hand_ranking _ranking;
@@ -126,6 +135,10 @@ public:
     }
 };
 
+} // namespace poker
+
+namespace poker::detail {
+
 struct rank_info {
     card_rank rank;
     int count;
@@ -162,10 +175,16 @@ get_strength(span<const card, 5> arg_cards) noexcept
     return sum;
 }
 
+} // namespace poker::detail
+
+namespace poker {
+
 inline
 hand
 hand::_high_low_hand_eval(span<card, 7> cards) noexcept
 {
+    using poker::detail::get_strength, poker::detail::next_rank;
+
     auto rank_occurrences = std::array<int, 13>();
     const auto get_rank_occurrences = [&] (card c) -> int& {
         return rank_occurrences[static_cast<std::size_t>(c.rank)];

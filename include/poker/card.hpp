@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cassert>
 #include <iostream>
 
 #include <poker/span.hpp>
@@ -29,6 +28,11 @@ operator!=(card lhs, card rhs) noexcept
     return !(lhs == rhs);
 }
 
+} // namespace poker
+
+namespace poker::debug {
+
+inline
 std::ostream&
 operator<<(std::ostream& os, card_rank rank)
 {
@@ -38,6 +42,7 @@ operator<<(std::ostream& os, card_rank rank)
     return os << rank_symbols[static_cast<std::size_t>(rank)];
 }
 
+inline
 std::ostream&
 operator<<(std::ostream& os, card_suit suit)
 {
@@ -45,10 +50,11 @@ operator<<(std::ostream& os, card_suit suit)
     return os << suit_symbols[static_cast<std::size_t>(suit)];
 }
 
+inline
 std::ostream&
 operator<<(std::ostream& os, card c)
 {
     return os << c.rank << c.suit;
 }
 
-} // namespace poker
+} // namespace poker::debug
