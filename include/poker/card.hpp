@@ -1,6 +1,9 @@
 #pragma once
 
+#include <algorithm>
+#include <cassert>
 #include <iostream>
+#include <string_view>
 
 #include <poker/span.hpp>
 
@@ -31,6 +34,31 @@ operator!=(card lhs, card rhs) noexcept
 } // namespace poker
 
 namespace poker::debug {
+
+inline
+card
+make_card(std::string_view str) noexcept
+{
+    const auto rank = [&] {
+        constexpr char rank_symbols[] = {
+            '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'
+        };
+        const auto first = std::begin(rank_symbols);
+        const auto last = std::end(rank_symbols);
+        const auto it = std::find(first, last, str.front());
+        assert(it != last);
+        return static_cast<card_rank>(it - rank_symbols);
+    }();
+    const auto suit = [&] {
+        constexpr char suit_symbols[] = { 'c', 'd', 'h', 's' };
+        const auto first = std::begin(suit_symbols);
+        const auto last = std::end(suit_symbols);
+        const auto it = std::find(first, last, str.back());
+        assert(it != last);
+        return static_cast<card_suit>(it - suit_symbols);
+    }();
+    return card{rank, suit};
+}
 
 inline
 std::ostream&

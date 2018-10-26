@@ -10,13 +10,13 @@ main()
     using namespace poker;
     using namespace poker::debug;
     card cards[] = {
-        {card_rank::A, card_suit::clubs},
-        {card_rank::A, card_suit::clubs},
-        {card_rank::A, card_suit::clubs},
-        {card_rank::J, card_suit::clubs},
-        {card_rank::K, card_suit::clubs},
-        {card_rank::_2, card_suit::clubs},
-        {card_rank::_2, card_suit::clubs}
+        make_card("Ac"),
+        make_card("Ad"),
+        make_card("Ah"),
+        make_card("Js"),
+        make_card("Kc"),
+        make_card("2c"),
+        make_card("2c")
     };
     const auto h = hand(cards);
     std::cout << h.ranking() << std::endl;

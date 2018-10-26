@@ -144,14 +144,22 @@ struct rank_info {
     int count;
 };
 
+constexpr
 inline
 rank_info
 next_rank(span<const card> cards) noexcept
 {
+    assert(!cards.empty());
     const auto first_rank = cards[0].rank;
-    const auto pred = [&] (card c) -> bool { return c.rank != first_rank; };
-    const auto it = std::find_if(cards.cbegin(), cards.cend(), pred);
-    return rank_info{first_rank, static_cast<int>(it - cards.cbegin())};
+    const auto second_rank_index = [&] {
+        for (auto i = 0; i < cards.size(); ++i) {
+            if (cards[i].rank != cards[0].rank) {
+                return i;
+            }
+        }
+        return static_cast<int>(cards.size());
+    }();
+    return rank_info{first_rank, second_rank_index};
 }
 
 inline
@@ -161,7 +169,6 @@ get_strength(span<const card, 5> arg_cards) noexcept
     auto cards = span<const card>(arg_cards);
     auto sum = 0;
     auto multiplier = static_cast<int>(std::pow(13, 4));
-    auto cards_remaining = 5;
     for (;;) {
         const auto [rank, count] = next_rank(cards);
         sum += multiplier * static_cast<int>(rank);
