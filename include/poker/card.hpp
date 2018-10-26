@@ -60,6 +60,21 @@ make_card(std::string_view str) noexcept
     return card{rank, suit};
 }
 
+template<std::size_t N>
+inline
+std::array<card, N>
+make_cards(std::string_view str) noexcept
+{
+    auto cards = std::array<card, N>();
+    for (auto i = 0; i < N; ++i) {
+        cards[i] = make_card(str.substr(0, 2));
+        if (i != N-1) {
+            str.remove_prefix(3);
+        }
+    }
+    return cards;
+}
+
 inline
 std::ostream&
 operator<<(std::ostream& os, card_rank rank)
