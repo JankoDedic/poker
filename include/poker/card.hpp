@@ -31,6 +31,34 @@ operator!=(card lhs, card rhs) noexcept
     return !(lhs == rhs);
 }
 
+constexpr
+bool
+operator<(card lhs, card rhs) noexcept
+{
+    return std::tie(lhs.suit, lhs.rank) < std::tie(rhs.suit, rhs.rank);
+}
+
+constexpr
+bool
+operator>(card lhs, card rhs) noexcept
+{
+    return rhs < lhs;
+}
+
+constexpr
+bool
+operator<=(card lhs, card rhs) noexcept
+{
+    return !(rhs < lhs);
+}
+
+constexpr
+bool
+operator>=(card lhs, card rhs) noexcept
+{
+    return !(lhs < rhs);
+}
+
 } // namespace poker
 
 namespace poker::debug {
