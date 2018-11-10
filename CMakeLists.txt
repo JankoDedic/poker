@@ -28,6 +28,7 @@ find_path(DOCTEST_INCLUDE_DIR doctest/doctest.h)
 
 add_executable(poker-tests
   tests/main.test.cpp
+  tests/poker/hand.test.cpp
 )
 target_include_directories(poker-tests
   PRIVATE
