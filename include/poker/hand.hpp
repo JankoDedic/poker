@@ -393,7 +393,9 @@ hand::_straight_flush_eval(span<card, 7> cards) noexcept
         const auto u = std::unique(first, last, equal_ranks);
         const auto cards = span<card>(first, u);
 
-        if (auto straight_cards = get_straight_cards(cards)) {
+        if (cards.size() < 5) {
+            return std::nullopt;
+        } else if (auto straight_cards = get_straight_cards(cards)) {
             const auto ranking = hand_ranking::straight;
             const auto strength = static_cast<int>((*straight_cards)[0].rank);
             return hand(ranking, strength, *straight_cards);
