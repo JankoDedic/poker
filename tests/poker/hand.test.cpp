@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <poker/hand.hpp>
+#include <poker/debug/card.hpp>
 
 TEST_CASE("high/low hand evaluation") {
     // TODO: test .cards() and .strength()

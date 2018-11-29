@@ -1,7 +1,9 @@
 #include <iostream>
 
 #include <poker/card.hpp>
+#include <poker/debug/card.hpp>
 #include <poker/hand.hpp>
+#include <poker/debug/hand.hpp>
 
 void
 test_hand(std::string_view str)
