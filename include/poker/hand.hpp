@@ -8,7 +8,7 @@
 #include <tuple>
 
 #include <poker/card.hpp>
-#include <poker/span.hpp>
+#include "poker/detail/span.hpp"
 
 namespace poker {
 

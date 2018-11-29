@@ -2,7 +2,6 @@
 
 #include <poker/card.hpp>
 #include <poker/hand.hpp>
-#include <poker/span.hpp>
 
 void
 test_hand(std::string_view str)

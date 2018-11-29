@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string_view>
 
-#include <poker/span.hpp>
+#include "poker/detail/span.hpp"
 
 namespace poker {
 
