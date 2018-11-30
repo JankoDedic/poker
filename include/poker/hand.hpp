@@ -66,10 +66,6 @@ enum class hand_ranking {
     royal_flush
 };
 
-} // namespace poker
-
-namespace poker {
-
 class hand {
     hand_ranking _ranking;
     int _strength;
