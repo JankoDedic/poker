@@ -18,8 +18,13 @@ add_subdirectory(third_party/span-lite)
 # =============================================================================
 add_library(poker INTERFACE)
 target_compile_features(poker INTERFACE cxx_std_17)
+target_compile_options(poker INTERFACE /permissive-)
 target_include_directories(poker INTERFACE include/)
-target_link_libraries(poker INTERFACE span-lite)
+target_link_libraries(poker
+  INTERFACE
+    span-lite
+)
+
 
 # =============================================================================
 # Tests
@@ -44,4 +49,8 @@ target_link_libraries(poker-tests
 # =============================================================================
 add_executable(poker-exe main.cpp)
 target_compile_features(poker-exe PRIVATE cxx_std_17)
-target_link_libraries(poker-exe PRIVATE poker)
+target_compile_options(poker-exe PRIVATE /permissive-)
+target_link_libraries(poker-exe
+  PRIVATE
+    poker
+)
