@@ -1,0 +1,8 @@
+language: cpp
+compiler: gcc
+dist: trusty
+
+script:
+  - mkdir out && cd out
+  - cmake ..
+  - cmake --build .
