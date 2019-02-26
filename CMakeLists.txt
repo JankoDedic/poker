@@ -28,13 +28,13 @@ target_link_libraries      ( poker INTERFACE span-lite                          
 # Tests
 # =============================================================================
 
-add_executable(test
+add_executable(poker-tests
   tests/main.test.cpp
   tests/poker/hand.test.cpp
 )
-target_compile_features    ( test PRIVATE cxx_std_17             )
-target_include_directories ( test PRIVATE ${DOCTEST_INCLUDE_DIR} )
-target_link_libraries      ( test PRIVATE poker                  )
+target_compile_features    ( poker-tests PRIVATE cxx_std_17             )
+target_include_directories ( poker-tests PRIVATE ${DOCTEST_INCLUDE_DIR} )
+target_link_libraries      ( poker-tests PRIVATE poker                  )
 
 # =============================================================================
 # Executable
