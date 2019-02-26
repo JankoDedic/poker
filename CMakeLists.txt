@@ -20,9 +20,12 @@ set(DOCTEST_INCLUDE_DIR third_party/doctest)
 # =============================================================================
 add_library                ( poker INTERFACE                                     )
 target_compile_features    ( poker INTERFACE cxx_std_17                          )
-target_compile_options     ( poker INTERFACE /permissive-                        )
 target_include_directories ( poker INTERFACE include      ${DOCTEST_INCLUDE_DIR} )
 target_link_libraries      ( poker INTERFACE span-lite                           )
+
+if(MSVC)
+  target_compile_options   ( poker INTERFACE /permissive-                        )
+endif()
 
 # =============================================================================
 # Tests
