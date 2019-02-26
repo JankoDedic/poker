@@ -15,47 +15,39 @@ class player {
 public:
     hole_cards hole_cards;
 
-    constexpr
-    player(chips stack) noexcept
+    constexpr explicit player(chips stack) noexcept
         : _total(stack)
         , _bet_size(0)
     {
     }
 
-    constexpr
-    chips
-    stack() const noexcept
-    {
+    constexpr auto stack() const noexcept -> chips {
         return _total - _bet_size;
     }
 
-    constexpr
-    chips
-    bet_size() const noexcept
-    {
+    constexpr auto bet_size() const noexcept -> chips {
         return _bet_size;
     }
 
-    constexpr
-    void
-    add_to_stack(chips amount) noexcept
-    {
+    constexpr auto total_chips() const noexcept -> chips {
+        return _total;
+    }
+
+    constexpr void add_to_stack(chips amount) noexcept {
         _total += amount;
     }
 
-    constexpr
-    void
-    bet(chips amount) noexcept
-    {
+    constexpr void take_from_stack(chips amount) noexcept {
+        _total -= amount;
+    }
+
+    constexpr void bet(chips amount) noexcept {
         assert(amount <= _total);
-        assert(amount > _bet_size);
+        assert(amount >= _bet_size);
         _bet_size = amount;
     }
 
-    constexpr
-    void
-    take_from_bet(chips amount) noexcept
-    {
+    constexpr void take_from_bet(chips amount) noexcept {
         assert(amount <= _bet_size);
         _total -= amount;
         _bet_size -= amount;

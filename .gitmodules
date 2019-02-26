@@ -1,3 +1,6 @@
 [submodule "third_party/span-lite"]
 	path = third_party/span-lite
 	url = https://github.com/martinmoene/span-lite
+[submodule "third_party/doctest"]
+	path = third_party/doctest
+	url = https://github.com/onqtam/doctest

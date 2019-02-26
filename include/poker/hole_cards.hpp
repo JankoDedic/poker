@@ -4,6 +4,9 @@
 
 namespace poker {
 
-using hole_cards = std::pair<card, card>;
+struct hole_cards {
+    card first;
+    card second;
+};
 
 } // namespace poker
