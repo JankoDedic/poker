@@ -990,7 +990,7 @@ class dealer {
     deck *_deck;
     community_cards *_community_cards;
 
-    round_of_betting _round_of_betting;
+    poker::round_of_betting _round_of_betting;
     bool _betting_round_ended = false;
     pot_manager _pot_manager{};
     // store legal action range?
@@ -1154,7 +1154,7 @@ public:
     }
 
     struct action_range {
-        action action = action::fold; // you can always fold
+        dealer::action action = dealer::action::fold; // you can always fold
         chip_range chips;
 
         auto contains(dealer::action a, poker::chips bet = 0) const noexcept -> bool {

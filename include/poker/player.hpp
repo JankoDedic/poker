@@ -13,11 +13,12 @@ class player {
     chips _bet_size;
 
 public:
-    hole_cards hole_cards;
+    poker::hole_cards hole_cards;
 
     constexpr explicit player(chips stack) noexcept
         : _total(stack)
         , _bet_size(0)
+        , hole_cards{}
     {
     }
 
