@@ -13,3 +13,6 @@ script:
   - mkdir out && cd out
   - CXX=/usr/bin/g++-8 CC=/usr/bin/gcc-8 cmake ..
   - cmake --build .
+  - ls
+  - cd Debug
+  - poker-tests.exe
