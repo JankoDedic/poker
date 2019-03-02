@@ -8,12 +8,14 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-8
+      - lcov
 
 script:
   - mkdir out && cd out
   - CXX=/usr/bin/g++-8 CC=/usr/bin/gcc-8 cmake ..
   - cmake --build .
   - ./poker-tests
+  - bash <(curl -s https://codecov.io/bash)
 
 notifications:
   email:

@@ -8,6 +8,13 @@ cmake_minimum_required(VERSION 3.9.2)
 # =============================================================================
 project(poker)
 
+option(POKER_ENABLE_COVERAGE "Enable coverage reporting for gcc/clang" TRUE)
+
+if(NOT MSVC AND POKER_ENABLE_COVERAGE)
+  add_compile_options(--coverage -O0)
+  set(COVERAGE_LIB --coverage)
+endif()
+
 # =============================================================================
 # Dependencies
 # =============================================================================
@@ -37,7 +44,7 @@ add_executable(poker-tests
 )
 target_compile_features    ( poker-tests PRIVATE cxx_std_17             )
 target_include_directories ( poker-tests PRIVATE ${DOCTEST_INCLUDE_DIR} )
-target_link_libraries      ( poker-tests PRIVATE poker                  )
+target_link_libraries      ( poker-tests PRIVATE poker ${COVERAGE_LIB})
 
 # =============================================================================
 # Executable
