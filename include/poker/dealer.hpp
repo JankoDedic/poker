@@ -34,7 +34,7 @@ namespace poker {
 
 struct blinds {
     chips small;
-    chips big;
+    chips big = 2*small;
     chips ante;
 };
 
@@ -65,7 +65,7 @@ class dealer {
             : _players(players)
             , _player_to_act(_players.begin() + (current - players.begin()))
             , _last_aggressive_actor(_player_to_act)
-            , _num_active_players(_players.size())
+            , _num_active_players(std::count_if(begin(_players), end(_players), [] (auto *p) { return p != nullptr; }))
         {
         }
 
@@ -1039,9 +1039,12 @@ public:
         _button = _players.begin() + std::distance(std::begin(players), button);
     }
 
-    auto player_to_act() const noexcept -> player * { return *_betting_round.player_to_act(); }
+    auto player_to_act() const noexcept -> player_container::const_iterator {
+        /* return *_betting_round.player_to_act(); */
+        return _betting_round.player_to_act();
+    }
 
-    auto players() const noexcept -> span<player *const> { return _players; }
+    auto players() const noexcept -> const player_container & { return _betting_round.players(); }
 
     auto done() const noexcept -> bool {
         return _betting_round.over() && _betting_round_ended && _round_of_betting == round_of_betting::river;
@@ -1094,7 +1097,7 @@ public:
                 }
 
                 THEN("The action is on the button") {
-                    REQUIRE_EQ(d.player_to_act(), &players[0]);
+                    REQUIRE_EQ(*d.player_to_act(), &players[0]);
                 }
             }
         }
@@ -1130,7 +1133,7 @@ public:
                 }
 
                 THEN("The action is on the button+3") {
-                    REQUIRE_EQ(d.player_to_act(), &players[3]);
+                    REQUIRE_EQ(*d.player_to_act(), &players[3]);
                 }
             }
         }
@@ -1163,6 +1166,7 @@ public:
         }
     };
 
+    // TODO: legal_actions() ?
     auto legal_action_range() const noexcept -> action_range {
         const auto &player = **_betting_round.player_to_act();
         const auto actions = _betting_round.valid_actions();
@@ -1198,8 +1202,8 @@ public:
             _betting_round.action_taken(betting_round::action::raise, bet);
         } else {
             assert(bool(a & action::fold));
-            _pot_manager.bet_folded(player_to_act()->bet_size());
-            const auto folded_player_index = std::distance(players().front(), player_to_act());
+            _pot_manager.bet_folded((*player_to_act())->bet_size());
+            const auto folded_player_index = std::distance(players().begin(), player_to_act());
             _players[folded_player_index] = nullptr;
             _betting_round.action_taken(betting_round::action::leave);
         }
@@ -1349,6 +1353,27 @@ public:
                 }
             }
         }
+    }
+
+    TEST_CASE_CLASS("flop, someone folded preflop, now others fold, when 1 remains, the hand should be over") {
+        // A bug where we pass a container of pointers where some are null to the betting_round => round.
+        // round initializes _num_active_players to .size() of the container, instead of counting non-null pointers.
+        //
+        const auto b = blinds{25, 50};
+        auto dck = deck{std::default_random_engine{std::random_device{}()}};
+        auto cc = community_cards{};
+        player players[] = {player{1000}, player{1000}, player{1000}};
+        auto d = dealer{players, &players[0], b, dck, cc};
+
+        d.start_hand();
+        d.action_taken(dealer::action::fold);
+        d.action_taken(dealer::action::call);
+        d.action_taken(dealer::action::check);
+        REQUIRE(d.betting_round_over());
+        d.end_betting_round();
+
+        d.action_taken(dealer::action::fold);
+        REQUIRE(d.betting_round_over());
     }
 
     void showdown() noexcept {
