@@ -88,8 +88,8 @@ class dealer {
         // Last aggressive actor might or might not be active. We don't keep references
         // to inactive players. We can only return an index.
         // FIXME: return an iterator
-        auto last_aggressive_actor_index() const noexcept -> int {
-            return static_cast<int>(_last_aggressive_actor - _players.begin());
+        auto last_aggressive_actor() const noexcept -> player_container::iterator {
+            return _last_aggressive_actor;
         }
 
         auto num_active_players() const noexcept -> std::size_t {
@@ -152,8 +152,8 @@ class dealer {
             auto r = round{player_pointers, player_pointers.begin()};
 
             REQUIRE(!r.over());
-            REQUIRE_EQ(*r.player_to_act(), &players[r.last_aggressive_actor_index()]);
-            REQUIRE_EQ(*r.player_to_act(), &players[0]);
+            REQUIRE_EQ(r.player_to_act(), r.last_aggressive_actor());
+            REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
             REQUIRE_EQ(r.num_active_players(), 3);
         }
 
@@ -164,8 +164,8 @@ class dealer {
             auto r = round{player_pointers, player_pointers.begin()};
 
             GIVEN("there was no action in the round yet") {
-                REQUIRE_EQ(*r.player_to_act(), &players[0]);
-                REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                 REQUIRE(!r.over());
                 REQUIRE_EQ(r.num_active_players(), 2);
 
@@ -173,11 +173,11 @@ class dealer {
                     r.action_taken(action::aggressive);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the second player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[1]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
                     }
 
                     THEN("the round is not over") {
@@ -193,11 +193,11 @@ class dealer {
                     r.action_taken(action::aggressive | action::leave);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the second player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[1]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
                     }
 
                     THEN("the round is not over") {
@@ -213,11 +213,11 @@ class dealer {
                     r.action_taken(action::passive);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the second player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[1]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
                     }
 
                     THEN("the round is not over") {
@@ -249,8 +249,8 @@ class dealer {
             GIVEN("the next player is the last aggressive actor") {
                 r.action_taken(action::aggressive);
 
-                REQUIRE_EQ(*r.player_to_act(), &players[1]);
-                REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
+                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                 REQUIRE(!r.over());
                 REQUIRE_EQ(r.num_active_players(), 2);
 
@@ -258,11 +258,11 @@ class dealer {
                     r.action_taken(action::aggressive);
 
                     THEN("the player to act becomes the last aggressive actor") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 1);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 1);
                     }
 
                     THEN("the last aggressive actor becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[0]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
                     }
 
                     THEN("the round is not over") {
@@ -278,11 +278,11 @@ class dealer {
                     r.action_taken(action::aggressive | action::leave);
 
                     THEN("the player to act becomes the last aggressive actor") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 1);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 1);
                     }
 
                     THEN("the last aggressive actor becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[0]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
                     }
 
                     THEN("the round is not over") {
@@ -329,8 +329,8 @@ class dealer {
             const auto initial_num_active_players = r.num_active_players();
 
             GIVEN("there was no action in the round yet") {
-                REQUIRE_EQ(*r.player_to_act(), &players[0]);
-                REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                 REQUIRE(!r.over());
                 REQUIRE_EQ(r.num_active_players(), 3);
 
@@ -338,11 +338,11 @@ class dealer {
                     r.action_taken(action::aggressive);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[1]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
                     }
 
                     THEN("the round is not over") {
@@ -358,11 +358,11 @@ class dealer {
                     r.action_taken(action::aggressive | action::leave);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[1]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
                     }
 
                     THEN("the round is not over") {
@@ -378,11 +378,11 @@ class dealer {
                     r.action_taken(action::passive);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[1]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
                     }
 
                     THEN("the round is not over") {
@@ -398,11 +398,11 @@ class dealer {
                     r.action_taken(action::passive | action::leave);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[1]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
                     }
 
                     THEN("the round is not over") {
@@ -418,11 +418,11 @@ class dealer {
                     r.action_taken(action::leave);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[1]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
                     }
 
                     THEN("the round is not over") {
@@ -439,8 +439,8 @@ class dealer {
                 r.action_taken(action::aggressive);
                 r.action_taken(action::passive);
 
-                REQUIRE_EQ(*r.player_to_act(), &players[2]);
-                REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
+                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                 REQUIRE(!r.over());
                 REQUIRE_EQ(r.num_active_players(), 3);
 
@@ -448,11 +448,11 @@ class dealer {
                     r.action_taken(action::aggressive);
 
                     THEN("the player to act becomes the last aggressive actor") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 2);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 2);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[0]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
                     }
 
                     THEN("the round is not over") {
@@ -468,11 +468,11 @@ class dealer {
                     r.action_taken(action::aggressive | action::leave);
 
                     THEN("the player to act becomes the last aggressive actor") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 2);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 2);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[0]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
                     }
 
                     THEN("the round is not over") {
@@ -512,8 +512,8 @@ class dealer {
             GIVEN("the next player is not the last aggressive actor") {
                 r.action_taken(action::aggressive);
 
-                REQUIRE_EQ(*r.player_to_act(), &players[1]);
-                REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
+                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                 REQUIRE(!r.over());
                 REQUIRE_EQ(r.num_active_players(), 3);
 
@@ -521,11 +521,11 @@ class dealer {
                     r.action_taken(action::aggressive);
 
                     THEN("the player to act becomes the last aggressive actor") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 1);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 1);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[2]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
                     }
 
                     THEN("the round is not over") {
@@ -541,11 +541,11 @@ class dealer {
                     r.action_taken(action::aggressive | action::leave);
 
                     THEN("the player to act becomes the last aggressive actor") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 1);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 1);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[2]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
                     }
 
                     THEN("the round is not over") {
@@ -561,11 +561,11 @@ class dealer {
                     r.action_taken(action::passive);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[2]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
                     }
 
                     THEN("the round is not over") {
@@ -581,11 +581,11 @@ class dealer {
                     r.action_taken(action::passive | action::leave);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[2]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
                     }
 
                     THEN("the round is not over") {
@@ -601,11 +601,11 @@ class dealer {
                     r.action_taken(action::leave);
 
                     THEN("the last aggressive actor remains unchanged") {
-                        REQUIRE_EQ(r.last_aggressive_actor_index(), 0);
+                        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
                     }
 
                     THEN("the next player becomes the player to act") {
-                        REQUIRE_EQ(*r.player_to_act(), &players[2]);
+                        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
                     }
 
                     THEN("the round is not over") {
@@ -730,7 +730,7 @@ class dealer {
                 player players[] = {player{1}, player{1}, player{1}};
                 auto player_pointers = player_container{&players[0], &players[1], &players[2]};
                 auto r = betting_round{player_pointers, player_pointers.begin(), 50};
-                REQUIRE_EQ(*r.player_to_act(), &players[0]);
+                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
                 REQUIRE_EQ(r.biggest_bet(), 50);
                 REQUIRE_EQ(r.min_raise(), 50);
 
