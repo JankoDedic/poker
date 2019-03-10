@@ -44,12 +44,12 @@ class dealer {
     using player_container = std::array<player *, max_players>;
 
     class round {
-        player_container           _players = {};
-        player_container::iterator _player_to_act;
-        player_container::iterator _last_aggressive_actor;
-        bool                       _contested = false;      // passive or aggressive action was taken this round
-        bool                       _first_action = true;
-        std::size_t                _num_active_players = 0;
+        player_container                 _players = {};
+        player_container::iterator       _player_to_act;
+        player_container::const_iterator _last_aggressive_actor;
+        bool                             _contested = false;      // passive or aggressive action was taken this round
+        bool                             _first_action = true;
+        std::size_t                      _num_active_players = 0;
 
         void increment_player() noexcept {
             do {
@@ -62,9 +62,9 @@ class dealer {
     public:
         round() /*noexcept*/ = default;
 
-        round(const player_container &players, player_container::iterator current) noexcept
+        round(const player_container &players, player_container::const_iterator current) noexcept
             : _players(players)
-            , _player_to_act(_players.begin() + (current - players.begin()))
+            , _player_to_act(_players.begin() + std::distance(players.begin(), current))
             , _last_aggressive_actor(_player_to_act)
             , _num_active_players(std::count_if(begin(_players), end(_players), [] (auto *p) { return p != nullptr; }))
         {
@@ -80,15 +80,12 @@ class dealer {
             return _players;
         }
 
-        auto player_to_act() const noexcept -> player_container::iterator {
+        auto player_to_act() const noexcept -> player_container::const_iterator {
             assert(!over());
             return _player_to_act;
         }
 
-        // Last aggressive actor might or might not be active. We don't keep references
-        // to inactive players. We can only return an index.
-        // FIXME: return an iterator
-        auto last_aggressive_actor() const noexcept -> player_container::iterator {
+        auto last_aggressive_actor() const noexcept -> player_container::const_iterator {
             return _last_aggressive_actor;
         }
 
@@ -690,19 +687,19 @@ class dealer {
     public:
         betting_round() = default;
 
-        betting_round(const player_container &players, player_container::iterator current, chips min_raise) noexcept
+        betting_round(const player_container &players, player_container::const_iterator current, chips min_raise) noexcept
             : _round(players, current)
             , _biggest_bet(min_raise)
             , _min_raise(min_raise)
         {
         }
 
-        auto over()               const noexcept -> bool                       { return _round.over();               }
-        auto player_to_act()      const noexcept -> player_container::iterator { return _round.player_to_act();      }
-        auto biggest_bet()        const noexcept -> chips                      { return _biggest_bet;                }
-        auto min_raise()          const noexcept -> chips                      { return _min_raise;                  }
-        auto players()            const noexcept -> const player_container &   { return _round.players();            }
-        auto num_active_players() const noexcept -> std::size_t                { return _round.num_active_players(); }
+        auto over()               const noexcept -> bool                             { return _round.over();               }
+        auto player_to_act()      const noexcept -> player_container::const_iterator { return _round.player_to_act();      }
+        auto biggest_bet()        const noexcept -> chips                            { return _biggest_bet;                }
+        auto min_raise()          const noexcept -> chips                            { return _min_raise;                  }
+        auto players()            const noexcept -> const player_container &         { return _round.players();            }
+        auto num_active_players() const noexcept -> std::size_t                      { return _round.num_active_players(); }
 
         enum class action { leave, match, raise };
 
@@ -1061,7 +1058,7 @@ public:
     dealer(dealer &&) = delete;
     auto operator=(dealer &&) -> dealer & = delete;
 
-    auto player_to_act() const noexcept -> player_container::iterator {
+    auto player_to_act() const noexcept -> player_container::const_iterator {
         return _betting_round.player_to_act();
     }
 
