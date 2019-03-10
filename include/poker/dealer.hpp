@@ -708,7 +708,7 @@ class dealer {
             chip_range chips = {0, 0};
         };
 
-        auto valid_actions() const noexcept -> action_range {
+        auto legal_actions() const noexcept -> action_range {
             // A player can raise if his stack+bet_size is greater than _biggest_bet
             const auto &player = **_round.player_to_act();
             const auto player_chips = player.total_chips();
@@ -736,7 +736,7 @@ class dealer {
                     REQUIRE_LT(players[0].total_chips(), r.biggest_bet());
 
                     THEN("he cannot raise") {
-                        const auto actions = r.valid_actions();
+                        const auto actions = r.legal_actions();
                         REQUIRE(!actions.can_raise);
                     }
                 }
@@ -746,7 +746,7 @@ class dealer {
                     REQUIRE_EQ(players[0].total_chips(), r.biggest_bet());
 
                     THEN("he cannot raise") {
-                        const auto actions = r.valid_actions();
+                        const auto actions = r.legal_actions();
                         REQUIRE(!actions.can_raise);
                     }
                 }
@@ -757,7 +757,7 @@ class dealer {
                     REQUIRE_LT(players[0].total_chips(), r.biggest_bet() + r.min_raise());
 
                     THEN("he can raise, but only his entire stack") {
-                        const auto actions = r.valid_actions();
+                        const auto actions = r.legal_actions();
                         REQUIRE(actions.can_raise);
                         REQUIRE_EQ(actions.chips.min, players[0].total_chips());
                         REQUIRE_EQ(actions.chips.max, players[0].total_chips());
@@ -769,7 +769,7 @@ class dealer {
                     REQUIRE_EQ(players[0].total_chips(), r.biggest_bet() + r.min_raise());
 
                     THEN("he can raise, but only his entire stack") {
-                        const auto actions = r.valid_actions();
+                        const auto actions = r.legal_actions();
                         REQUIRE(actions.can_raise);
                         REQUIRE_EQ(actions.chips.min, players[0].total_chips());
                         REQUIRE_EQ(actions.chips.max, players[0].total_chips());
@@ -781,7 +781,7 @@ class dealer {
                     REQUIRE_GT(players[0].total_chips(), r.biggest_bet() + r.min_raise());
 
                     THEN("he can raise any amount ranging from min re-raise to his entire stack") {
-                        const auto actions = r.valid_actions();
+                        const auto actions = r.legal_actions();
                         REQUIRE(actions.can_raise);
                         REQUIRE_EQ(actions.chips.min, r.biggest_bet() + r.min_raise());
                         REQUIRE_EQ(actions.chips.max, players[0].total_chips());
@@ -1187,7 +1187,7 @@ public:
     // TODO: legal_actions() ?
     auto legal_action_range() const noexcept -> action_range {
         const auto &player = **_betting_round.player_to_act();
-        const auto actions = _betting_round.valid_actions();
+        const auto actions = _betting_round.legal_actions();
         auto ar = action_range{};
         ar.chips = actions.chips;
         // Below we take care of differentiating between check/call and bet/raise,
