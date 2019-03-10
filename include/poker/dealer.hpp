@@ -1052,6 +1052,16 @@ public:
         _button = _players.begin() + std::distance(std::begin(players), button);
     }
 
+    dealer(const player_container &players, player_container::const_iterator button, blinds b, deck &d, community_cards &cc) noexcept
+        : _blinds(b)
+        , _deck(&d)
+        , _community_cards(&cc)
+        , _round_of_betting(round_of_betting::preflop)
+        , _players(players)
+        , _button(_players.begin() + std::distance(players.begin(), button))
+    {
+    }
+
     dealer(const dealer &) = delete;
     auto operator=(const dealer &) -> dealer & = delete;
 
