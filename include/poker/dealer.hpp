@@ -1055,6 +1055,12 @@ public:
         _button = _players.begin() + std::distance(std::begin(players), button);
     }
 
+    dealer(const dealer &) = delete;
+    auto operator=(const dealer &) -> dealer & = delete;
+
+    dealer(dealer &&) = delete;
+    auto operator=(dealer &&) -> dealer & = delete;
+
     auto player_to_act() const noexcept -> player_container::iterator {
         return _betting_round.player_to_act();
     }
