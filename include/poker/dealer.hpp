@@ -1184,8 +1184,7 @@ public:
         }
     };
 
-    // TODO: legal_actions() ?
-    auto legal_action_range() const noexcept -> action_range {
+    auto legal_actions() const noexcept -> action_range {
         const auto &player = **_betting_round.player_to_act();
         const auto actions = _betting_round.legal_actions();
         auto ar = action_range{};
@@ -1212,7 +1211,7 @@ public:
 
     void action_taken(action a, chips bet = 0) noexcept {
         assert(!betting_round_over());
-        assert(legal_action_range().contains(a, bet));
+        assert(legal_actions().contains(a, bet));
 
         if (bool(a & action::check) || bool(a & action::call)) {
             _betting_round.action_taken(betting_round::action::match);
