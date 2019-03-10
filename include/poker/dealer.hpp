@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <bitset>
+#include <new>
 #include <random>
 
 #include <doctest/doctest.h>
@@ -35,15 +36,15 @@ namespace poker {
 struct blinds {
     chips small;
     chips big = 2*small;
-    chips ante;
+    chips ante = 0;
 };
 
 class dealer {
     static constexpr auto max_players = 9; // for the time being
-    using player_container = std::vector<player *>; // FIXME: static_vector
+    using player_container = std::array<player *, max_players>;
 
     class round {
-        player_container           _players; // FIXME: static_vector
+        player_container           _players = {};
         player_container::iterator _player_to_act;
         player_container::iterator _last_aggressive_actor;
         bool                       _contested = false;      // passive or aggressive action was taken this round
@@ -61,13 +62,19 @@ class dealer {
     public:
         round() /*noexcept*/ = default;
 
-        round(const player_container &players, player_container::iterator current)
+        round(const player_container &players, player_container::iterator current) noexcept
             : _players(players)
             , _player_to_act(_players.begin() + (current - players.begin()))
             , _last_aggressive_actor(_player_to_act)
             , _num_active_players(std::count_if(begin(_players), end(_players), [] (auto *p) { return p != nullptr; }))
         {
         }
+
+        round(const round &) = delete;
+        auto operator=(const round &) -> round & = delete;
+
+        round(round &&) = delete;
+        auto operator=(round &&) -> round & = delete;
 
         auto players() const noexcept -> const player_container & {
             return _players;
@@ -871,7 +878,7 @@ class dealer {
     };
 
     class pot {
-        player_container _eligible_players;
+        std::vector<player *> _eligible_players;
         chips _size;
 
     public:
@@ -886,7 +893,7 @@ class dealer {
             _size += amount;
         }
 
-        auto collect_bets_from(const player_container &players) noexcept -> chips {
+        auto collect_bets_from(span<player *const> players) noexcept -> chips {
             auto it = std::find_if(players.begin(), players.end(), [] (auto p) { return p && p->bet_size() != 0; });
             if (it == players.end()) {
                 for (auto p : players) {
@@ -949,7 +956,7 @@ class dealer {
             _aggregate_folded_bets += amount;
         }
 
-        void collect_bets_from(const player_container &players) noexcept {
+        void collect_bets_from(span<player *const> players) noexcept {
             // TODO: Return a list of transactions.
             for (;;) {
                 const auto min_bet = _pots.back().collect_bets_from(players);
@@ -981,7 +988,7 @@ class dealer {
     };
 
     // Data members
-    player_container _players;
+    player_container _players{};
     player_container::iterator _button;
 
     betting_round _betting_round;
@@ -996,18 +1003,25 @@ class dealer {
     // store legal action range?
 
     auto next_or_wrap(player_container::iterator it) noexcept -> player_container::iterator {
-        ++it;
-        if (it == _players.end()) it = _players.begin();
+        do {
+            ++it;
+            if (it == _players.end()) it = _players.begin();
+        } while (!*it);
         return it;
     }
 
     void collect_ante() noexcept {
-        for (auto p : _players) p->take_from_stack(std::min(_blinds.ante, p->total_chips()));
+        for (auto p : _players) {
+            if (p) {
+                p->take_from_stack(std::min(_blinds.ante, p->total_chips()));
+            }
+        }
     }
 
     auto post_blinds() noexcept -> player_container::iterator {
         auto it = _button;
-        if (_players.size() != 2) it = next_or_wrap(it);
+        const auto num_players = std::count_if(std::begin(_players), std::end(_players), [] (player *p) { return p != nullptr; });
+        if (num_players != 2) it = next_or_wrap(it);
         (**it).bet(std::min(_blinds.small, (**it).total_chips()));
         it = next_or_wrap(it);
         (**it).bet(std::min(_blinds.big, (**it).total_chips()));
@@ -1015,7 +1029,9 @@ class dealer {
     }
 
     void deal_hole_cards() noexcept {
-        for (auto p : _players) p->hole_cards = {_deck->draw(), _deck->draw()};
+        for (auto p : _players) {
+            if (p) p->hole_cards = {_deck->draw(), _deck->draw()};
+        }
     }
 
     // Deals community cards up until the current round of betting.
@@ -1035,12 +1051,11 @@ public:
         , _round_of_betting(round_of_betting::preflop)
     {
         constexpr auto addressof = [] (player &p) { return &p; };
-        std::transform(std::begin(players), std::end(players), std::back_inserter(_players), addressof);
+        std::transform(std::begin(players), std::end(players), std::begin(_players), addressof);
         _button = _players.begin() + std::distance(std::begin(players), button);
     }
 
-    auto player_to_act() const noexcept -> player_container::const_iterator {
-        /* return *_betting_round.player_to_act(); */
+    auto player_to_act() const noexcept -> player_container::iterator {
         return _betting_round.player_to_act();
     }
 
@@ -1072,7 +1087,7 @@ public:
         const auto first_action = next_or_wrap(post_blinds());
         deal_hole_cards();
         if (std::count_if(_players.begin(), _players.end(), [] (auto p) { return p && p->stack() != 0; }) > 1) {
-            _betting_round = {_players, first_action, _blinds.big};
+            new (&_betting_round) betting_round(_players, first_action, _blinds.big);
         }
     }
 
@@ -1203,7 +1218,8 @@ public:
         } else {
             assert(bool(a & action::fold));
             _pot_manager.bet_folded((*player_to_act())->bet_size());
-            const auto folded_player_index = std::distance(players().begin(), player_to_act());
+            /* const auto folded_player_index = std::distance(players().begin(), player_to_act()); */
+            const auto folded_player_index = player_to_act() - players().begin();
             _players[folded_player_index] = nullptr;
             _betting_round.action_taken(betting_round::action::leave);
         }
@@ -1229,7 +1245,7 @@ public:
             const auto button_index = std::distance(_players.begin(), _button);
             _players = _betting_round.players();
             _button = _players.begin() + button_index;
-            _betting_round = {_players, next_or_wrap(_button), 0};
+            new (&_betting_round) betting_round(_players, next_or_wrap(_button), 0);
             deal_community_cards();
             // _betting_round_ended = false;
         } else {
