@@ -1039,8 +1039,22 @@ class dealer {
         _community_cards->deal(cards);
     }
 
+    template<typename R>
+    struct range_value_type {
+        using type = typename R::value_type;
+    };
+
+    template<typename T, std::size_t N>
+    struct range_value_type<T[N]> {
+        using type = T;
+    };
+
+    template<typename R>
+    using range_value_type_t = typename range_value_type<R>::type;
+
 public:
-    template<typename PlayerRange>
+
+    template<typename PlayerRange, typename = std::enable_if_t<std::is_same_v<range_value_type_t<PlayerRange>, player>>>
     dealer(PlayerRange &players, decltype(std::begin(players)) button, blinds b, deck &d, community_cards &cc) noexcept
         : _blinds(b)
         , _deck(&d)
