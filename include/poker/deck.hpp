@@ -10,7 +10,7 @@ namespace poker {
 
 class deck {
     std::array<card, 52> _cards;
-    std::size_t _size;
+    std::size_t _size{0};
 
 public:
     deck() noexcept = default;
@@ -48,7 +48,7 @@ public:
     card
     draw() noexcept
     {
-        assert(_size >= 0);
+        assert(_size > 0);
         return _cards[--_size];
     }
 
