@@ -13,6 +13,8 @@ class deck {
     std::size_t _size;
 
 public:
+    deck() noexcept = default;
+
     template<class URBG>
     deck(URBG&& g)
         : _size(52)
