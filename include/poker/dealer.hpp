@@ -1053,6 +1053,7 @@ class dealer {
     using range_value_type_t = typename range_value_type<R>::type;
 
 public:
+    dealer() /*noexcept*/ = default;
 
     template<typename PlayerRange, typename = std::enable_if_t<std::is_same_v<range_value_type_t<PlayerRange>, player>>>
     dealer(PlayerRange &players, decltype(std::begin(players)) button, blinds b, deck &d, community_cards &cc) noexcept
