@@ -16,23 +16,6 @@
 
 namespace poker {
 
-#define DEFINE_FRIEND_CONSTEXPR_FLAG_OPERATIONS(Type)                         \
-    friend constexpr auto operator|(Type x, Type y) noexcept -> Type {        \
-        return static_cast<Type>(to_underlying(x) | to_underlying(y));        \
-    }                                                                         \
-                                                                              \
-    friend constexpr auto operator&(Type x, Type y) noexcept -> Type {        \
-        return static_cast<Type>(to_underlying(x) & to_underlying(y));        \
-    }                                                                         \
-                                                                              \
-    friend constexpr auto operator|=(Type &x, Type y) noexcept -> Type & {    \
-        return x = x | y;                                                     \
-    }                                                                         \
-                                                                              \
-    friend constexpr auto operator&=(Type &x, Type y) noexcept -> Type & {    \
-        return x = x & y;                                                     \
-    }
-
 struct blinds {
     chips small;
     chips big = 2*small;
@@ -991,8 +974,8 @@ class dealer {
     betting_round _betting_round;
     blinds _blinds;
 
-    deck *_deck;
-    community_cards *_community_cards;
+    deck *_deck = nullptr;
+    community_cards *_community_cards = nullptr;
 
     poker::round_of_betting _round_of_betting;
     bool _betting_round_ended = false;
