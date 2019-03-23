@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#define DEFINE_FRIEND_CONSTEXPR_FLAG_OPERATIONS(Type)                         \
+#define POKER_DETAIL_DEFINE_FRIEND_FLAG_OPERATIONS(Type)                      \
     friend constexpr auto operator|(Type x, Type y) noexcept -> Type {        \
         return static_cast<Type>(to_underlying(x) | to_underlying(y));        \
     }                                                                         \

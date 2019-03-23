@@ -243,7 +243,7 @@ public:
         bet   = 1 << 3,
         raise = 1 << 4
     };
-    DEFINE_FRIEND_CONSTEXPR_FLAG_OPERATIONS(action)
+    POKER_DETAIL_DEFINE_FRIEND_FLAG_OPERATIONS(action)
 
     static auto is_valid(action a) noexcept -> bool {
         return std::bitset<CHAR_BIT>(static_cast<unsigned char>(a)).count() == 1;

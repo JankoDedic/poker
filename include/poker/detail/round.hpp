@@ -68,7 +68,7 @@ public:
         passive    = 02,
         aggressive = 04
     };
-    DEFINE_FRIEND_CONSTEXPR_FLAG_OPERATIONS(action)
+    POKER_DETAIL_DEFINE_FRIEND_FLAG_OPERATIONS(action)
 
     void action_taken(action a) noexcept {
         assert(!over());
