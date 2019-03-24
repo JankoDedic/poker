@@ -26,7 +26,7 @@ class round {
     }
 
 public:
-    round() /*noexcept*/ = default;
+    round() = default;
 
     round(const player_container &players, player_container::const_iterator current) noexcept
         : _players(players)

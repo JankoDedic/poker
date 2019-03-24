@@ -91,7 +91,7 @@ class dealer {
     }
 
 public:
-    dealer() /*noexcept*/ = default;
+    dealer() = default;
 
     template<typename PlayerRange, typename = std::enable_if_t<std::is_same_v<poker::detail::range_value_t<PlayerRange>, player>>>
     dealer(PlayerRange &players, decltype(std::begin(players)) button, blinds b, deck &d, community_cards &cc) noexcept
