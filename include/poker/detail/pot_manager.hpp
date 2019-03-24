@@ -21,7 +21,7 @@ public:
         // TODO: Return a list of transactions.
         for (;;) {
             const auto min_bet = _pots.back().collect_bets_from(players);
-            _pots.back().add(std::min(_aggregate_folded_bets, (chips)_pots.back().eligible_players().size() * min_bet));
+            _pots.back().add(std::min(_aggregate_folded_bets, static_cast<chips>(_pots.back().eligible_players().size()) * min_bet));
             auto it = std::find_if(players.begin(), players.end(), [] (auto p) { return p && p->bet_size() != 0; });
             if (it != players.end()) {
                 _pots.emplace_back();
