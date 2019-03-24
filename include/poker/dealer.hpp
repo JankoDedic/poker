@@ -243,11 +243,11 @@ public:
 
     struct action_range {
         dealer::action action = dealer::action::fold; // you can always fold
-        chip_range chips;
+        poker::chip_range chip_range;
 
         auto contains(dealer::action a, poker::chips bet = 0) const noexcept -> bool {
             assert(is_valid(a));
-            return static_cast<bool>(a & action) && (is_aggressive(a) ? chips.contains(bet) : true);
+            return static_cast<bool>(a & action) && (is_aggressive(a) ? chip_range.contains(bet) : true);
         }
     };
 
@@ -255,7 +255,7 @@ public:
         const auto &player = **_betting_round.player_to_act();
         const auto actions = _betting_round.legal_actions();
         auto ar = action_range{};
-        ar.chips = actions.chips;
+        ar.chip_range = actions.chip_range;
         // Below we take care of differentiating between check/call and bet/raise,
         // which the betting_round treats as just "match" and "raise".
         if (_betting_round.biggest_bet() - player.bet_size() == 0) {

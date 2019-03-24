@@ -54,7 +54,7 @@ public:
 
     struct action_range {
         bool can_raise;
-        chip_range chips = {0, 0};
+        poker::chip_range chip_range = {0, 0};
     };
 
     auto legal_actions() const noexcept -> action_range {
@@ -108,8 +108,8 @@ public:
                 THEN("he can raise, but only his entire stack") {
                     const auto actions = r.legal_actions();
                     REQUIRE(actions.can_raise);
-                    REQUIRE_EQ(actions.chips.min, players[0].total_chips());
-                    REQUIRE_EQ(actions.chips.max, players[0].total_chips());
+                    REQUIRE_EQ(actions.chip_range.min, players[0].total_chips());
+                    REQUIRE_EQ(actions.chip_range.max, players[0].total_chips());
                 }
             }
 
@@ -120,8 +120,8 @@ public:
                 THEN("he can raise, but only his entire stack") {
                     const auto actions = r.legal_actions();
                     REQUIRE(actions.can_raise);
-                    REQUIRE_EQ(actions.chips.min, players[0].total_chips());
-                    REQUIRE_EQ(actions.chips.max, players[0].total_chips());
+                    REQUIRE_EQ(actions.chip_range.min, players[0].total_chips());
+                    REQUIRE_EQ(actions.chip_range.max, players[0].total_chips());
                 }
             }
 
@@ -132,8 +132,8 @@ public:
                 THEN("he can raise any amount ranging from min re-raise to his entire stack") {
                     const auto actions = r.legal_actions();
                     REQUIRE(actions.can_raise);
-                    REQUIRE_EQ(actions.chips.min, r.biggest_bet() + r.min_raise());
-                    REQUIRE_EQ(actions.chips.max, players[0].total_chips());
+                    REQUIRE_EQ(actions.chip_range.min, r.biggest_bet() + r.min_raise());
+                    REQUIRE_EQ(actions.chip_range.max, players[0].total_chips());
                 }
             }
         }
