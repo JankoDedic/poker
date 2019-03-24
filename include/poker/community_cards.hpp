@@ -21,7 +21,11 @@ enum class round_of_betting {
 
 constexpr auto next(round_of_betting rob) noexcept -> round_of_betting {
     using poker::detail::to_underlying;
-    return rob == round_of_betting::preflop ? round_of_betting::flop : static_cast<round_of_betting>(to_underlying(rob) + 1);
+    if (rob == round_of_betting::preflop) {
+        return round_of_betting::flop;
+    } else {
+        return static_cast<round_of_betting>(to_underlying(rob) + 1);
+    }
 }
 
 class community_cards {
