@@ -83,6 +83,7 @@ class dealer {
 
     // Deals community cards up until the current round of betting.
     void deal_community_cards() noexcept {
+        using poker::detail::to_underlying;
         auto cards = std::vector<card>();
         const auto num_cards_to_deal = to_underlying(_round_of_betting) - _community_cards->cards().size();
         std::generate_n(std::back_inserter(cards), num_cards_to_deal, [&] { return _deck->draw(); });

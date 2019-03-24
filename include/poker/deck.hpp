@@ -19,7 +19,7 @@ public:
     deck(URBG&& g)
         : _size(52)
     {
-        /* using poker::detail::to_underlying; */
+        using poker::detail::to_underlying;
         constexpr auto first_suit = to_underlying(card_suit::clubs);
         constexpr auto last_suit = to_underlying(card_suit::spades);
         constexpr auto first_rank = to_underlying(card_rank::_2);
