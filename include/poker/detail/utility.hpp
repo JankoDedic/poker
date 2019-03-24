@@ -42,4 +42,17 @@ constexpr auto to_underlying(Enum value) noexcept {
     return static_cast<std::underlying_type_t<Enum>>(value);
 }
 
+template<typename R>
+struct range_value {
+    using type = typename R::value_type;
+};
+
+template<typename T, std::size_t N>
+struct range_value<T[N]> {
+    using type = T;
+};
+
+template<typename R>
+using range_value_t = typename range_value<R>::type;
+
 } // namespace poker::detail
