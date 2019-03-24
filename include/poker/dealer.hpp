@@ -21,8 +21,12 @@
 namespace poker {
 
 struct blinds {
-    chips small;
+    chips small = 0;
     chips big = 2*small;
+};
+
+struct forced_bets {
+    poker::blinds blinds = {};
     chips ante = 0;
 };
 
@@ -39,7 +43,7 @@ class dealer {
     player_container::iterator _button;
 
     betting_round _betting_round;
-    blinds _blinds;
+    forced_bets _forced_bets;
 
     deck *_deck = nullptr;
     community_cards *_community_cards = nullptr;
@@ -60,7 +64,7 @@ class dealer {
     void collect_ante() noexcept {
         for (auto p : _players) {
             if (p) {
-                p->take_from_stack(std::min(_blinds.ante, p->total_chips()));
+                p->take_from_stack(std::min(_forced_bets.ante, p->total_chips()));
             }
         }
     }
@@ -69,9 +73,9 @@ class dealer {
         auto it = _button;
         const auto num_players = std::count_if(std::begin(_players), std::end(_players), [] (player *p) { return p != nullptr; });
         if (num_players != 2) it = next_or_wrap(it);
-        (**it).bet(std::min(_blinds.small, (**it).total_chips()));
+        (**it).bet(std::min(_forced_bets.blinds.small, (**it).total_chips()));
         it = next_or_wrap(it);
-        (**it).bet(std::min(_blinds.big, (**it).total_chips()));
+        (**it).bet(std::min(_forced_bets.blinds.big, (**it).total_chips()));
         return it;
     }
 
@@ -94,8 +98,8 @@ public:
     dealer() = default;
 
     template<typename PlayerRange, typename = std::enable_if_t<std::is_same_v<poker::detail::range_value_t<PlayerRange>, player>>>
-    dealer(PlayerRange &players, decltype(std::begin(players)) button, blinds b, deck &d, community_cards &cc) noexcept
-        : _blinds(b)
+    dealer(PlayerRange &players, decltype(std::begin(players)) button, forced_bets fb, deck &d, community_cards &cc) noexcept
+        : _forced_bets(fb)
         , _deck(&d)
         , _community_cards(&cc)
         , _round_of_betting(round_of_betting::preflop)
@@ -105,8 +109,8 @@ public:
         _button = _players.begin() + std::distance(std::begin(players), button);
     }
 
-    dealer(const player_container &players, player_container::const_iterator button, blinds b, deck &d, community_cards &cc) noexcept
-        : _blinds(b)
+    dealer(const player_container &players, player_container::const_iterator button, forced_bets fb, deck &d, community_cards &cc) noexcept
+        : _forced_bets(fb)
         , _deck(&d)
         , _community_cards(&cc)
         , _round_of_betting(round_of_betting::preflop)
@@ -157,12 +161,12 @@ public:
         const auto first_action = next_or_wrap(post_blinds());
         deal_hole_cards();
         if (std::count_if(_players.begin(), _players.end(), [] (auto p) { return p && p->stack() != 0; }) > 1) {
-            new (&_betting_round) betting_round(_players, first_action, _blinds.big);
+            new (&_betting_round) betting_round(_players, first_action, _forced_bets.blinds.big);
         }
     }
 
     TEST_CASE_CLASS("Starting the hand") {
-        const auto b = blinds{25, 50};
+        const auto b = forced_bets{25, 50};
         auto dck = deck{std::default_random_engine{std::random_device{}()}};
         auto cc = community_cards{};
 
@@ -325,7 +329,7 @@ public:
     }
 
     TEST_CASE_CLASS("Ending the betting round") {
-        const auto b = blinds{25, 50};
+        const auto b = forced_bets{25, 50};
         auto dck = deck{std::default_random_engine{std::random_device{}()}};
         auto cc = community_cards{};
         player players[] = {player{1000}, player{1000}, player{1000}};
@@ -444,7 +448,7 @@ public:
         // A bug where we pass a container of pointers where some are null to the betting_round => round.
         // round initializes _num_active_players to .size() of the container, instead of counting non-null pointers.
         //
-        const auto b = blinds{25, 50};
+        const auto b = forced_bets{25, 50};
         auto dck = deck{std::default_random_engine{std::random_device{}()}};
         auto cc = community_cards{};
         player players[] = {player{1000}, player{1000}, player{1000}};
@@ -492,7 +496,7 @@ public:
 
     TEST_CASE_CLASS("Showdown") {
         SUBCASE("single pot single player") {
-            const auto b = blinds{25, 50};
+            const auto b = forced_bets{25, 50};
             auto dck = deck{std::default_random_engine{std::random_device{}()}};
             auto cc = community_cards{};
             player players[] = {player{1000}, player{1000}, player{1000}};
@@ -511,7 +515,7 @@ public:
         }
 
         SUBCASE("multiple pots, multiple winners") {
-            const auto b = blinds{25, 50};
+            const auto b = forced_bets{25, 50};
             auto dck = deck{std::default_random_engine{std::random_device{}()}};
             auto cc = community_cards{};
             player players[] = {player{300}, player{200}, player{100}};
