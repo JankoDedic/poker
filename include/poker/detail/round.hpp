@@ -46,7 +46,7 @@ public:
     auto player_to_act()         const noexcept -> player_container::const_iterator;
     auto last_aggressive_actor() const noexcept -> player_container::const_iterator;
     auto num_active_players()    const noexcept -> std::size_t;
-    auto over()                  const          -> bool;
+    auto over()                  const noexcept -> bool;
 
     //
     // Modifiers
@@ -623,7 +623,7 @@ inline auto round::num_active_players() const noexcept -> std::size_t {
     return _num_active_players;
 }
 
-inline auto round::over() const -> bool {
+inline auto round::over() const noexcept -> bool {
     return (!_contested && _num_active_players <= 1) || (!_first_action && _player_to_act == _last_aggressive_actor);
 }
 
