@@ -31,10 +31,12 @@ endif()
 # Tests
 # =============================================================================
 
-add_executable(poker-tests
-  tests/main.test.cpp
-  tests/poker/hand.test.cpp
-  tests/poker/detail/round.test.cpp
+add_executable(
+  poker-tests
+    tests/main.test.cpp
+    tests/poker/hand.test.cpp
+    tests/poker/detail/round.test.cpp
+    tests/poker/detail/betting_round.test.cpp
 )
 target_compile_features    ( poker-tests PRIVATE cxx_std_17             )
 target_include_directories ( poker-tests PRIVATE ${DOCTEST_INCLUDE_DIR} )
