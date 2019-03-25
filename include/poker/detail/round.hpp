@@ -19,9 +19,9 @@ public:
     using player_container = std::array<player *, max_players>;
 
     enum class action {
-        leave      = 01,
-        passive    = 02,
-        aggressive = 04
+        leave      = 1 << 0,
+        passive    = 1 << 1,
+        aggressive = 1 << 2
     };
     POKER_DETAIL_DEFINE_FRIEND_FLAG_OPERATIONS(action)
 
