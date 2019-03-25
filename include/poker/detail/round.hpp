@@ -16,7 +16,7 @@ public:
     //
     // Types
     //
-    using player_container = std::array<player *, max_players>;
+    using player_container = std::array<player*, max_players>;
 
     enum class action {
         leave      = 1 << 0,
@@ -29,20 +29,20 @@ public:
     // Special functions
     //
     round()              = default;
-    round(const round &) = delete;
-    round(round &&)      = delete;
-    auto operator=(const round &) -> round & = delete;
-    auto operator=(round &&)      -> round & = delete;
+    round(const round&)  = delete;
+    round(round&&)       = delete;
+    auto operator=(const round&) -> round& = delete;
+    auto operator=(round&&)      -> round& = delete;
 
     //
     // Constructors
     //
-    round(const player_container &players, player_container::const_iterator current) noexcept;
+    round(const player_container& players, player_container::const_iterator current) noexcept;
 
     //
     // Observers
     //
-    auto players()               const noexcept -> const player_container &;
+    auto players()               const noexcept -> const player_container&;
     auto player_to_act()         const noexcept -> player_container::const_iterator;
     auto last_aggressive_actor() const noexcept -> player_container::const_iterator;
     auto num_active_players()    const noexcept -> std::size_t;
@@ -54,7 +54,7 @@ public:
     void action_taken(action) noexcept;
 
     // Used for testing betting_round.
-    friend auto operator==(const round &, const round &) noexcept -> bool;
+    friend auto operator==(const round&, const round&) noexcept -> bool;
 
 private:
     void increment_player() noexcept;
@@ -68,15 +68,15 @@ private:
     std::size_t                      _num_active_players = 0;
 };
 
-inline round::round(const player_container &players, player_container::const_iterator current) noexcept
+inline round::round(const player_container& players, player_container::const_iterator current) noexcept
     : _players(players)
     , _player_to_act(_players.begin() + std::distance(players.begin(), current))
     , _last_aggressive_actor(_player_to_act)
-    , _num_active_players(std::count_if(begin(_players), end(_players), [] (auto *p) { return p != nullptr; }))
+    , _num_active_players(std::count_if(begin(_players), end(_players), [] (player* p) { return p != nullptr; }))
 {
 }
 
-inline auto round::players() const noexcept -> const player_container & {
+inline auto round::players() const noexcept -> const player_container& {
     return _players;
 }
 
@@ -115,7 +115,7 @@ inline void round::action_taken(action a) noexcept {
     increment_player();
 }
 
-inline auto operator==(const round &x, const round &y) noexcept -> bool {
+inline auto operator==(const round& x, const round& y) noexcept -> bool {
     return x._players == y._players
         && (x._player_to_act - x._players.begin()) == (y._player_to_act - y._players.begin())
         && (x._last_aggressive_actor - x._players.begin()) == (y._last_aggressive_actor - y._players.begin())
