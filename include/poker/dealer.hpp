@@ -40,7 +40,7 @@ public:
     //
     // Types
     //
-    using player_container = std::array<player *, max_players>;
+    using player_container = std::array<player*, max_players>;
 
     enum class action : unsigned char {
         fold  = 1 << 0,
@@ -77,16 +77,16 @@ public:
     // Construction
     //
     template<typename PlayerRange, typename = std::enable_if_t<std::is_same_v<poker::detail::range_value_t<PlayerRange>, player>>>
-    dealer(PlayerRange &players, decltype(std::begin(players)) button, forced_bets, deck &, community_cards &) noexcept;
+    dealer(PlayerRange& players, decltype(std::begin(players)) button, forced_bets, deck&, community_cards&) noexcept;
 
-    dealer(const player_container &players, player_container::const_iterator button, forced_bets, deck &, community_cards &) noexcept;
+    dealer(const player_container& players, player_container::const_iterator button, forced_bets, deck&, community_cards&) noexcept;
 
     //
     // Observers
     //
     auto done()               const noexcept -> bool;
     auto player_to_act()      const noexcept -> player_container::const_iterator;
-    auto players()            const noexcept -> const player_container &;
+    auto players()            const noexcept -> const player_container&;
     auto round_of_betting()   const noexcept -> poker::round_of_betting;
     auto num_active_players() const noexcept -> std::size_t;
     auto biggest_bet()        const noexcept -> chips;
@@ -116,8 +116,8 @@ private:
     detail::betting_round _betting_round;
     forced_bets _forced_bets;
 
-    deck *_deck = nullptr;
-    community_cards *_community_cards = nullptr;
+    deck* _deck = nullptr;
+    community_cards* _community_cards = nullptr;
 
     poker::round_of_betting _round_of_betting;
     bool _betting_round_ended = false;
@@ -139,19 +139,19 @@ inline constexpr auto dealer::is_aggressive(action a) noexcept -> bool {
 }
 
 template<typename PlayerRange, typename>
-dealer::dealer(PlayerRange &players, decltype(std::begin(players)) button, forced_bets fb, deck &d, community_cards &cc) noexcept
+dealer::dealer(PlayerRange& players, decltype(std::begin(players)) button, forced_bets fb, deck& d, community_cards& cc) noexcept
     : _forced_bets(fb)
     , _deck(&d)
     , _community_cards(&cc)
     , _round_of_betting(round_of_betting::preflop)
 {
-    constexpr auto addressof = [] (player &p) { return &p; };
+    constexpr auto addressof = [] (player& p) { return &p; };
     std::transform(std::begin(players), std::end(players), std::begin(_players), addressof);
     _button = _players.begin() + std::distance(std::begin(players), button);
 }
 
 inline dealer::dealer(
-    const player_container &players, player_container::const_iterator button, forced_bets fb, deck &d, community_cards &cc) noexcept
+    const player_container& players, player_container::const_iterator button, forced_bets fb, deck& d, community_cards& cc) noexcept
     : _forced_bets(fb)
     , _deck(&d)
     , _community_cards(&cc)
@@ -166,7 +166,7 @@ inline auto dealer::done() const noexcept -> bool {
 }
 
 inline auto dealer::player_to_act()      const noexcept -> player_container::const_iterator { return _betting_round.player_to_act();      }
-inline auto dealer::players()            const noexcept -> const player_container &         { return _betting_round.players();            }
+inline auto dealer::players()            const noexcept -> const player_container&          { return _betting_round.players();            }
 inline auto dealer::round_of_betting()   const noexcept -> poker::round_of_betting          { return _round_of_betting;                   }
 // TODO: What happens when d.done() ? Do we assert or return a special value? Special value sounds bad.
 inline auto dealer::num_active_players() const noexcept -> std::size_t                      { return _betting_round.num_active_players(); }
@@ -174,7 +174,7 @@ inline auto dealer::biggest_bet()        const noexcept -> chips                
 inline auto dealer::betting_round_over() const noexcept -> bool                             { return _betting_round.over();               }
 
 inline auto dealer::legal_actions() const noexcept -> action_range {
-    const auto &player = **_betting_round.player_to_act();
+    const auto& player = **_betting_round.player_to_act();
     const auto actions = _betting_round.legal_actions();
     auto ar = action_range{};
     ar.chip_range = actions.chip_range;
@@ -184,8 +184,10 @@ inline auto dealer::legal_actions() const noexcept -> action_range {
         ar.action |= action::check;
         assert(actions.can_raise); // If you can check, you can always bet or raise.
         // If this guy can check, with his existing bet_size, he is the big blind.
-        if (player.bet_size() > 0) ar.action |= action::raise;
-        else ar.action |= action::bet;
+        if (player.bet_size() > 0)
+            ar.action |= action::raise;
+        else
+            ar.action |= action::bet;
     } else {
         ar.action |= action::call;
         // If you can call, you may or may not be able to raise.
@@ -260,21 +262,21 @@ inline void dealer::showdown() noexcept {
         // TODO: Also, no reveals in this case. Reveals are only necessary when there is >=2 players.
     }
     for (auto p : _pot_manager.pots()) {
-        auto player_results = std::vector<std::pair<player *, hand>>();
+        auto player_results = std::vector<std::pair<player*, hand>>();
         player_results.reserve(p.eligible_players().size());
-        std::transform(p.eligible_players().begin(), p.eligible_players().end(), std::back_inserter(player_results), [&] (player *p) {
+        std::transform(p.eligible_players().begin(), p.eligible_players().end(), std::back_inserter(player_results), [&] (player* p) {
             return std::make_pair(p, hand{p->hole_cards, *_community_cards});
         });
-        std::sort(player_results.begin(), player_results.end(), [] (auto &&lhs, auto &&rhs) {
+        std::sort(player_results.begin(), player_results.end(), [] (auto&& lhs, auto&& rhs) {
             return lhs.second < rhs.second;
         });
         auto first_winner = player_results.begin();
-        auto last_winner = std::adjacent_find(player_results.begin(), player_results.end(), [] (auto &&lhs, auto &&rhs) {
+        auto last_winner = std::adjacent_find(player_results.begin(), player_results.end(), [] (auto&& lhs, auto&& rhs) {
             return lhs.second != rhs.second;
         });
         if (last_winner != player_results.end()) ++last_winner;
         const auto payout = static_cast<chips>(p.size() / std::distance(first_winner, last_winner));
-        std::for_each(first_winner, last_winner, [&] (auto &&winner) {
+        std::for_each(first_winner, last_winner, [&] (auto&& winner) {
             winner.first->add_to_stack(payout);
         });
     }
@@ -298,7 +300,7 @@ inline void dealer::collect_ante() noexcept {
 
 inline auto dealer::post_blinds() noexcept -> player_container::iterator {
     auto it = _button;
-    const auto num_players = std::count_if(std::begin(_players), std::end(_players), [] (player *p) { return p != nullptr; });
+    const auto num_players = std::count_if(std::begin(_players), std::end(_players), [] (player* p) { return p != nullptr; });
     if (num_players != 2) it = next_or_wrap(it);
     (**it).bet(std::min(_forced_bets.blinds.small, (**it).total_chips()));
     it = next_or_wrap(it);
