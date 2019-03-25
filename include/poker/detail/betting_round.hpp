@@ -27,7 +27,7 @@ public:
     //
     // Types
     //
-    using player_container = std::array<player *, max_players>;
+    using player_container = std::array<player*, max_players>;
 
     enum class action { leave, match, raise };
 
@@ -48,7 +48,7 @@ public:
     //
     // Constructors
     //
-    betting_round(const player_container &players, player_container::const_iterator current, chips min_raise) noexcept;
+    betting_round(const player_container& players, player_container::const_iterator current, chips min_raise) noexcept;
 
     //
     // Observers
@@ -57,7 +57,7 @@ public:
     auto player_to_act()      const noexcept -> player_container::const_iterator;
     auto biggest_bet()        const noexcept -> chips;
     auto min_raise()          const noexcept -> chips;
-    auto players()            const noexcept -> const player_container &;
+    auto players()            const noexcept -> const player_container&;
     auto num_active_players() const noexcept -> std::size_t;
     auto legal_actions()      const noexcept -> action_range;
 
@@ -76,7 +76,7 @@ private:
     chips _min_raise = 0;
 };
 
-inline betting_round::betting_round(const player_container &players, player_container::const_iterator current, chips min_raise) noexcept
+inline betting_round::betting_round(const player_container& players, player_container::const_iterator current, chips min_raise) noexcept
     : _round(players, current)
     , _biggest_bet(min_raise)
     , _min_raise(min_raise)
@@ -87,12 +87,12 @@ inline auto betting_round::over()               const noexcept -> bool          
 inline auto betting_round::player_to_act()      const noexcept -> player_container::const_iterator { return _round.player_to_act();      }
 inline auto betting_round::biggest_bet()        const noexcept -> chips                            { return _biggest_bet;                }
 inline auto betting_round::min_raise()          const noexcept -> chips                            { return _min_raise;                  }
-inline auto betting_round::players()            const noexcept -> const player_container &         { return _round.players();            }
+inline auto betting_round::players()            const noexcept -> const player_container&          { return _round.players();            }
 inline auto betting_round::num_active_players() const noexcept -> std::size_t                      { return _round.num_active_players(); }
 
 inline auto betting_round::legal_actions() const noexcept -> action_range {
     // A player can raise if his stack+bet_size is greater than _biggest_bet
-    const auto &player = **_round.player_to_act();
+    const auto& player = **_round.player_to_act();
     const auto player_chips = player.total_chips();
     const auto can_raise = player_chips > _biggest_bet;
     if (can_raise) {
@@ -106,7 +106,7 @@ inline auto betting_round::legal_actions() const noexcept -> action_range {
 
 inline void betting_round::action_taken(action a, chips bet/*= 0*/) noexcept {
     // chips bet is ignored when not needed
-    auto &player = **_round.player_to_act();
+    auto& player = **_round.player_to_act();
     if (a == action::raise) {
         assert(is_raise_valid(bet));
         player.bet(bet);
@@ -127,11 +127,13 @@ inline void betting_round::action_taken(action a, chips bet/*= 0*/) noexcept {
 }
 
 inline auto betting_round::is_raise_valid(chips bet) const noexcept -> bool {
-    const auto &player = **_round.player_to_act();
+    const auto& player = **_round.player_to_act();
     const auto player_chips = player.stack() + player.bet_size();
     const auto min_bet = _biggest_bet + _min_raise;
-    if (player_chips > _biggest_bet && player_chips < min_bet) return bet == player_chips;
-    else return bet >= min_bet && bet <= player_chips;
+    if (player_chips > _biggest_bet && player_chips < min_bet)
+        return bet == player_chips;
+    else
+        return bet >= min_bet && bet <= player_chips;
 }
 
 } // namespace poker::detail
