@@ -51,10 +51,10 @@ public:
     //
     // Modifiers
     //
-    void action_taken(action a) noexcept;
+    void action_taken(action) noexcept;
 
     // Used for testing betting_round.
-    friend auto operator==(const round &x, const round &y) noexcept -> bool;
+    friend auto operator==(const round &, const round &) noexcept -> bool;
 
 private:
     void increment_player() noexcept;
