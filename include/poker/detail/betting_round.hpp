@@ -64,7 +64,7 @@ public:
     //
     // Modifiers
     //
-    void action_taken(action a, chips bet = 0) noexcept;
+    void action_taken(action, chips bet = 0) noexcept;
 
 private:
     auto is_raise_valid(chips bet) const noexcept -> bool;
