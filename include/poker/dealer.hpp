@@ -273,7 +273,7 @@ inline void dealer::showdown() noexcept {
             return lhs.second != rhs.second;
         });
         if (last_winner != player_results.end()) ++last_winner;
-        const auto payout = static_cast<chips>(p.size() / std::distance(first_winner, last_winner));
+        const auto payout = p.size() / static_cast<chips>(std::distance(first_winner, last_winner));
         std::for_each(first_winner, last_winner, [&] (auto&& winner) {
             winner.first->add_to_stack(payout);
         });
