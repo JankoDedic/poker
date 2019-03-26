@@ -99,8 +99,8 @@ inline auto round::over() const noexcept -> bool {
 
 inline void round::action_taken(action a) noexcept {
     assert(!over());
-    if (_first_action) _first_action = false;
     assert(!(bool(a & action::passive) && bool(a & action::aggressive)));
+    if (_first_action) _first_action = false;
     // Implication: if there is aggressive action => the next player is contested
     if (bool(a & action::aggressive)) {
         _last_aggressive_actor = _player_to_act;
