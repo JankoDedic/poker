@@ -216,8 +216,7 @@ inline void dealer::action_taken(action a, chips bet/* = 0*/) noexcept {
     } else {
         assert(bool(a & action::fold));
         _pot_manager.bet_folded((*player_to_act())->bet_size());
-        /* const auto folded_player_index = std::distance(players().begin(), player_to_act()); */
-        const auto folded_player_index = player_to_act() - players().begin();
+        const auto folded_player_index = std::distance(std::begin(players()), player_to_act());
         _players[folded_player_index] = nullptr;
         _betting_round.action_taken(detail::betting_round::action::leave);
     }
