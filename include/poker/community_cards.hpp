@@ -30,7 +30,7 @@ constexpr auto next(round_of_betting rob) noexcept -> round_of_betting {
 
 class community_cards {
     std::array<card, 5> _cards;
-    std::size_t _size{0};
+    std::size_t _size = {0};
 
 public:
     community_cards() noexcept = default;

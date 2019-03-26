@@ -69,10 +69,10 @@ private:
 };
 
 inline round::round(const player_container& players, player_container::const_iterator current) noexcept
-    : _players(players)
-    , _player_to_act(_players.begin() + std::distance(players.begin(), current))
-    , _last_aggressive_actor(_player_to_act)
-    , _num_active_players(std::count_if(begin(_players), end(_players), [] (player* p) { return p != nullptr; }))
+    : _players{players}
+    , _player_to_act{_players.begin() + std::distance(players.begin(), current)}
+    , _last_aggressive_actor{_player_to_act}
+    , _num_active_players{static_cast<std::size_t>(std::count_if(begin(_players), end(_players), [] (player* p) { return p != nullptr; }))}
 {
 }
 

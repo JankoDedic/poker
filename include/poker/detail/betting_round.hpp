@@ -77,9 +77,9 @@ private:
 };
 
 inline betting_round::betting_round(const player_container& players, player_container::const_iterator current, chips min_raise) noexcept
-    : _round(players, current)
-    , _biggest_bet(min_raise)
-    , _min_raise(min_raise)
+    : _round{players, current}
+    , _biggest_bet{min_raise}
+    , _min_raise{min_raise}
 {
 }
 
@@ -98,9 +98,9 @@ inline auto betting_round::legal_actions() const noexcept -> action_range {
     if (can_raise) {
         const auto min_bet = _biggest_bet + _min_raise;
         const auto raise_range = chip_range{std::min(min_bet, player_chips), player_chips};
-        return action_range{can_raise, raise_range};
+        return {can_raise, raise_range};
     } else {
-        return action_range{can_raise};
+        return {can_raise};
     }
 }
 

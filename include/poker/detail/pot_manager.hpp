@@ -6,10 +6,10 @@ namespace poker::detail {
 
 class pot_manager {
     std::vector<pot> _pots; // FIXME: static_vector with max_players-1 capacity
-    chips _aggregate_folded_bets = 0;
+    chips _aggregate_folded_bets = {0};
 
 public:
-    pot_manager() noexcept : _pots(1) {}
+    pot_manager() noexcept : _pots{1} {}
 
     auto pots() const noexcept -> span<const pot> { return _pots; }
 

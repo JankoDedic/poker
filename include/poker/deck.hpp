@@ -10,21 +10,21 @@ namespace poker {
 
 class deck {
     std::array<card, 52> _cards;
-    std::size_t _size{0};
+    std::size_t _size = {0};
 
 public:
     deck() noexcept = default;
 
     template<class URBG>
     deck(URBG&& g)
-        : _size(52)
+        : _size{52}
     {
         using poker::detail::to_underlying;
         constexpr auto first_suit = to_underlying(card_suit::clubs);
         constexpr auto last_suit = to_underlying(card_suit::spades);
         constexpr auto first_rank = to_underlying(card_rank::_2);
         constexpr auto last_rank = to_underlying(card_rank::A);
-        auto i = static_cast<std::size_t>(0);
+        auto i =  std::size_t{0};
         for (auto suit = first_suit; suit <= last_suit; ++suit) {
             for (auto rank = first_rank; rank <= last_rank; ++rank) {
                 const auto arank = static_cast<card_rank>(rank);

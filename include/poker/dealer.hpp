@@ -109,18 +109,18 @@ private:
 
 private:
     // Data members
-    player_container _players{};
+    player_container           _players = {};
     player_container::iterator _button;
 
-    detail::betting_round _betting_round;
-    forced_bets _forced_bets;
+    detail::betting_round      _betting_round;
+    forced_bets                _forced_bets;
 
-    deck* _deck = nullptr;
-    community_cards* _community_cards = nullptr;
+    deck*                      _deck = nullptr;
+    community_cards*           _community_cards = nullptr;
 
-    poker::round_of_betting _round_of_betting;
-    bool _betting_round_ended = false;
-    detail::pot_manager _pot_manager{};
+    poker::round_of_betting    _round_of_betting;
+    bool                       _betting_round_ended = false;
+    detail::pot_manager        _pot_manager = {};
     // store legal action range?
 };
 
@@ -139,10 +139,10 @@ inline constexpr auto dealer::is_aggressive(action a) noexcept -> bool {
 
 template<typename PlayerRange, typename>
 dealer::dealer(PlayerRange& players, decltype(std::begin(players)) button, forced_bets fb, deck& d, community_cards& cc) noexcept
-    : _forced_bets(fb)
-    , _deck(&d)
-    , _community_cards(&cc)
-    , _round_of_betting(round_of_betting::preflop)
+    : _forced_bets{fb}
+    , _deck{&d}
+    , _community_cards{&cc}
+    , _round_of_betting{round_of_betting::preflop}
 {
     constexpr auto addressof = [] (player& p) { return &p; };
     std::transform(std::begin(players), std::end(players), std::begin(_players), addressof);
@@ -151,12 +151,12 @@ dealer::dealer(PlayerRange& players, decltype(std::begin(players)) button, force
 
 inline dealer::dealer(
     const player_container& players, player_container::const_iterator button, forced_bets fb, deck& d, community_cards& cc) noexcept
-    : _forced_bets(fb)
-    , _deck(&d)
-    , _community_cards(&cc)
-    , _round_of_betting(round_of_betting::preflop)
-    , _players(players)
-    , _button(_players.begin() + std::distance(players.begin(), button))
+    : _forced_bets{fb}
+    , _deck{&d}
+    , _community_cards{&cc}
+    , _round_of_betting{round_of_betting::preflop}
+    , _players{players}
+    , _button{_players.begin() + std::distance(players.begin(), button)}
 {
 }
 
@@ -200,7 +200,7 @@ inline void dealer::start_hand() noexcept {
     const auto first_action = next_or_wrap(post_blinds());
     deal_hole_cards();
     if (std::count_if(_players.begin(), _players.end(), [] (auto p) { return p && p->stack() != 0; }) > 1) {
-        new (&_betting_round) detail::betting_round(_players, first_action, _forced_bets.blinds.big);
+        new (&_betting_round) detail::betting_round{_players, first_action, _forced_bets.blinds.big};
     }
 }
 
@@ -241,7 +241,7 @@ inline void dealer::end_betting_round() noexcept {
         const auto button_index = std::distance(_players.begin(), _button);
         _players = _betting_round.players();
         _button = _players.begin() + button_index;
-        new (&_betting_round) detail::betting_round(_players, next_or_wrap(_button), 0);
+        new (&_betting_round) detail::betting_round{_players, next_or_wrap(_button), 0};
         deal_community_cards();
         // _betting_round_ended = false;
     } else {
@@ -260,7 +260,7 @@ inline void dealer::showdown() noexcept {
         // TODO: Also, no reveals in this case. Reveals are only necessary when there is >=2 players.
     }
     for (auto p : _pot_manager.pots()) {
-        auto player_results = std::vector<std::pair<player*, hand>>();
+        auto player_results = std::vector<std::pair<player*, hand>>{};
         player_results.reserve(p.eligible_players().size());
         std::transform(p.eligible_players().begin(), p.eligible_players().end(), std::back_inserter(player_results), [&] (player* p) {
             return std::pair{p, hand{p->hole_cards, *_community_cards}};
@@ -313,7 +313,7 @@ inline void dealer::deal_hole_cards() noexcept {
 // Deals community cards up until the current round of betting.
 inline void dealer::deal_community_cards() noexcept {
     using poker::detail::to_underlying;
-    auto cards = std::vector<card>();
+    auto cards = std::vector<card>{};
     const auto num_cards_to_deal = to_underlying(_round_of_betting) - _community_cards->cards().size();
     std::generate_n(std::back_inserter(cards), num_cards_to_deal, [&] { return _deck->draw(); });
     _community_cards->deal(cards);

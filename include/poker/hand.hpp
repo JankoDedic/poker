@@ -36,8 +36,8 @@ class hand {
         hand_ranking ranking,
         int strength,
         span<const card, 5> cards) noexcept
-        : _ranking(ranking)
-        , _strength(strength)
+        : _ranking{ranking}
+        , _strength{strength}
     {
         std::copy(cards.cbegin(), cards.cend(), _cards.begin());
     }
@@ -147,7 +147,7 @@ next_rank(span<const card> cards) noexcept
         }
         return static_cast<int>(cards.size());
     }();
-    return rank_info{first_rank, second_rank_index};
+    return {first_rank, second_rank_index};
 }
 
 inline
@@ -180,7 +180,7 @@ hand::_high_low_hand_eval(span<card, 7> cards) noexcept
 {
     using poker::detail::get_strength, poker::detail::next_rank;
 
-    auto rank_occurrences = std::array<int, 13>();
+    auto rank_occurrences = std::array<int, 13>{};
     const auto get_rank_occurrences = [&] (card c) -> int& {
         return rank_occurrences[static_cast<std::size_t>(c.rank)];
     };
@@ -196,7 +196,7 @@ hand::_high_low_hand_eval(span<card, 7> cards) noexcept
     };
     std::sort(cards.begin(), cards.end(), cmp);
 
-    auto ranking = hand_ranking();
+    auto ranking = hand_ranking{};
     const auto [rank, count] = next_rank(cards);
     if (count == 4) {
         const auto greater_rank = [] (card x, card y) -> bool {
@@ -224,7 +224,7 @@ hand::_high_low_hand_eval(span<card, 7> cards) noexcept
 
     const auto hand_cards = cards.first<5>();
     const auto strength = get_strength(hand_cards);
-    return hand(ranking, strength, hand_cards);
+    return {ranking, strength, hand_cards};
 }
 
 } // namespace poker
@@ -237,14 +237,14 @@ inline
 std::optional<span<card>>
 get_suited_cards(span<card, 7> cards) noexcept
 {
-    std::sort(cards.begin(), cards.end(), std::greater<card>());
+    std::sort(cards.begin(), cards.end(), std::greater<card>{});
     auto first = cards.begin();
     for (;;) {
         auto last = std::find_if_not(first+1, cards.end(), [&] (auto card) {
             return card.suit == (*first).suit;
         });
         if (last-first >= 5) {
-            return span<card>(first, last);
+            return span<card>{first, last};
         } else if (last == cards.end()) {
             return std::nullopt;
         }
@@ -272,12 +272,11 @@ get_straight_cards(span<card> cards) noexcept
             ++it;
         }
         if (it-first >= 5) {
-            return span<card, 5>(first, 5);
+            return span<card, 5>{first, 5};
         } else if (it-first == 4) {
-            if (first->rank == card_rank::_5 && cards[0].rank == card_rank::A)
-            {
+            if (first->rank == card_rank::_5 && cards[0].rank == card_rank::A) {
                 std::rotate(cards.begin(), first, cards.end());
-                return span<card, 5>(cards.begin(), 5);
+                return span<card, 5>{cards.begin(), 5};
             }
         } else if (last-it < 4) {
             return std::nullopt;
@@ -297,8 +296,8 @@ hand::_straight_flush_eval(span<card, 7> cards) noexcept
     using detail::get_suited_cards, detail::get_straight_cards;
     if (auto suited_cards = get_suited_cards(cards)) {
         if (auto straight_cards = get_straight_cards(*suited_cards)) {
-            auto ranking = hand_ranking();
-            auto strength = int();
+            auto ranking = hand_ranking{};
+            auto strength = int{};
             if ((*straight_cards)[0].rank == card_rank::A) {
                 ranking = hand_ranking::royal_flush;
                 strength = 0;
@@ -307,12 +306,12 @@ hand::_straight_flush_eval(span<card, 7> cards) noexcept
                 strength = static_cast<int>((*straight_cards)[0].rank);
             }
             const auto cards = straight_cards->first<5>();
-            return hand(ranking, strength, cards);
+            return hand{ranking, strength, cards};
         } else {
             const auto ranking = hand_ranking::flush;
             const auto cards = suited_cards->first<5>();
             const auto strength = detail::get_strength(cards);
-            return hand(ranking, strength, cards);
+            return hand{ranking, strength, cards};
         }
     } else {
         const auto first = cards.begin();
@@ -324,14 +323,14 @@ hand::_straight_flush_eval(span<card, 7> cards) noexcept
             return c1.rank == c2.rank;
         };
         const auto u = std::unique(first, last, equal_ranks);
-        const auto cards = span<card>(first, u);
+        const auto cards = span<card>{first, u};
 
         if (cards.size() < 5) {
             return std::nullopt;
         } else if (auto straight_cards = get_straight_cards(cards)) {
             const auto ranking = hand_ranking::straight;
             const auto strength = static_cast<int>((*straight_cards)[0].rank);
-            return hand(ranking, strength, *straight_cards);
+            return hand{ranking, strength, *straight_cards};
         }
     }
     return std::nullopt;
@@ -341,11 +340,11 @@ inline
 hand::hand(const hole_cards& hc, const community_cards& cc) noexcept
 {
     assert(cc.cards().size() == 5);
-    auto cards = std::array<card, 7>();
+    auto cards = std::array<card, 7>{};
     cards[0] = hc.first;
     cards[1] = hc.second;
     std::copy(cc.cards().cbegin(), cc.cards().cend(), cards.begin() + 2);
-    *this = hand(cards);
+    *this = hand{cards};
 }
 
 inline
