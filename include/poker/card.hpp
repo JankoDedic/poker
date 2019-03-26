@@ -14,47 +14,12 @@ struct card {
     card_suit suit;
 };
 
-constexpr
-bool
-operator==(card lhs, card rhs) noexcept
-{
-    return lhs.rank == rhs.rank && lhs.suit == rhs.suit;
-}
-
-constexpr
-bool
-operator!=(card lhs, card rhs) noexcept
-{
-    return !(lhs == rhs);
-}
-
-constexpr
-bool
-operator<(card lhs, card rhs) noexcept
-{
-    return std::tie(lhs.suit, lhs.rank) < std::tie(rhs.suit, rhs.rank);
-}
-
-constexpr
-bool
-operator>(card lhs, card rhs) noexcept
-{
-    return rhs < lhs;
-}
-
-constexpr
-bool
-operator<=(card lhs, card rhs) noexcept
-{
-    return !(rhs < lhs);
-}
-
-constexpr
-bool
-operator>=(card lhs, card rhs) noexcept
-{
-    return !(lhs < rhs);
-}
+constexpr auto operator== ( card lhs, card rhs ) noexcept -> bool { return lhs.rank == rhs.rank && lhs.suit == rhs.suit;                }
+constexpr auto operator!= ( card lhs, card rhs ) noexcept -> bool { return !(lhs == rhs);                                               }
+constexpr auto operator<  ( card lhs, card rhs ) noexcept -> bool { return std::tie(lhs.suit, lhs.rank) < std::tie(rhs.suit, rhs.rank); }
+constexpr auto operator>  ( card lhs, card rhs ) noexcept -> bool { return rhs < lhs;                                                   }
+constexpr auto operator<= ( card lhs, card rhs ) noexcept -> bool { return !(rhs < lhs);                                                }
+constexpr auto operator>= ( card lhs, card rhs ) noexcept -> bool { return !(lhs < rhs);                                                }
 
 } // namespace poker
 

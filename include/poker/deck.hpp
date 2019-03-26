@@ -37,24 +37,18 @@ public:
     }
 
     template<class URBG>
-    void
-    fill_and_shuffle(URBG&& g) noexcept
-    {
+    void fill_and_shuffle(URBG&& g) noexcept {
         _size = 52;
         std::shuffle(begin(_cards), end(_cards), std::forward<URBG>(g));
     }
 
     [[nodiscard]]
-    card
-    draw() noexcept
-    {
+    auto draw() noexcept -> card {
         assert(_size > 0);
         return _cards[--_size];
     }
 
-    std::size_t
-    size() const noexcept
-    {
+    auto size() const noexcept -> std::size_t {
         return _size;
     }
 };

@@ -32,10 +32,7 @@ class hand {
     int _strength;
     std::array<card, 5> _cards;
 
-    hand(
-        hand_ranking ranking,
-        int strength,
-        span<const card, 5> cards) noexcept
+    hand(hand_ranking ranking, int strength, span<const card, 5> cards) noexcept
         : _ranking{ranking}
         , _strength{strength}
     {
@@ -43,58 +40,30 @@ class hand {
     }
 
 public:
-    static
-    hand
-    _high_low_hand_eval(span<card, 7> cards) noexcept;
-
-    static
-    std::optional<hand>
-    _straight_flush_eval(span<card, 7> cards) noexcept;
+    static auto _high_low_hand_eval(span<card, 7> cards) noexcept -> hand;
+    static auto _straight_flush_eval(span<card, 7> cards) noexcept -> std::optional<hand>;
 
 public:
-    hand() noexcept = default;
+    hand() = default;
 
     hand(const hole_cards& hc, const community_cards& cc) noexcept;
 
     hand(span<card, 7> cards) noexcept;
 
-    hand_ranking
-    ranking() const noexcept
-    {
-        return _ranking;
-    }
-
-    int
-    strength() const noexcept
-    {
-        return _strength;
-    }
-
-    span<const card, 5>
-    cards() const noexcept
-    {
-        return _cards;
-    }
+    auto ranking()  const noexcept -> hand_ranking        { return _ranking;  }
+    auto strength() const noexcept -> int                 { return _strength; }
+    auto cards()    const noexcept -> span<const card, 5> { return _cards;    }
 };
 
-inline
-bool
-operator==(const hand& lhs, const hand& rhs) noexcept
-{
+inline auto operator==(const hand& lhs, const hand& rhs) noexcept -> bool {
     return lhs.ranking() == rhs.ranking() && lhs.strength() == rhs.strength();
 }
 
-inline
-bool
-operator!=(const hand& lhs, const hand& rhs) noexcept
-{
+inline auto operator!=(const hand& lhs, const hand& rhs) noexcept -> bool {
     return !(lhs == rhs);
 }
 
-inline
-bool
-operator<(const hand& lhs, const hand& rhs) noexcept
-{
+inline auto operator<(const hand& lhs, const hand& rhs) noexcept -> bool {
     const auto r1 = lhs.ranking();
     const auto s1 = lhs.strength();
     const auto r2 = rhs.ranking();
@@ -102,24 +71,15 @@ operator<(const hand& lhs, const hand& rhs) noexcept
     return std::tie(r1, s1) < std::tie(r2, s2);
 }
 
-inline
-bool
-operator>(const hand& lhs, const hand& rhs) noexcept
-{
+inline auto operator>(const hand& lhs, const hand& rhs) noexcept -> bool {
     return rhs < lhs;
 }
 
-inline
-bool
-operator<=(const hand& lhs, const hand& rhs) noexcept
-{
+inline auto operator<=(const hand& lhs, const hand& rhs) noexcept -> bool {
     return !(rhs < lhs);
 }
 
-inline
-bool
-operator>=(const hand& lhs, const hand& rhs) noexcept
-{
+inline auto operator>=(const hand& lhs, const hand& rhs) noexcept -> bool {
     return !(lhs < rhs);
 }
 
@@ -132,11 +92,7 @@ struct rank_info {
     int count;
 };
 
-constexpr
-inline
-rank_info
-next_rank(span<const card> cards) noexcept
-{
+constexpr auto next_rank(span<const card> cards) noexcept -> rank_info {
     assert(!cards.empty());
     const auto first_rank = cards[0].rank;
     const auto second_rank_index = [&] {
@@ -150,10 +106,7 @@ next_rank(span<const card> cards) noexcept
     return {first_rank, second_rank_index};
 }
 
-inline
-int
-get_strength(span<const card, 5> arg_cards) noexcept
-{
+inline auto get_strength(span<const card, 5> arg_cards) noexcept -> int {
     auto cards = span<const card>(arg_cards);
     auto sum = 0;
     auto multiplier = static_cast<int>(std::pow(13, 4));
@@ -174,10 +127,7 @@ get_strength(span<const card, 5> arg_cards) noexcept
 
 namespace poker {
 
-inline
-hand
-hand::_high_low_hand_eval(span<card, 7> cards) noexcept
-{
+inline auto hand::_high_low_hand_eval(span<card, 7> cards) noexcept -> hand {
     using poker::detail::get_strength, poker::detail::next_rank;
 
     auto rank_occurrences = std::array<int, 13>{};
@@ -233,10 +183,7 @@ namespace poker::detail {
 
 // If there are >=5 cards with the same suit, return a span containing all of
 // them.
-inline
-std::optional<span<card>>
-get_suited_cards(span<card, 7> cards) noexcept
-{
+inline auto get_suited_cards(span<card, 7> cards) noexcept -> std::optional<span<card>> {
     std::sort(cards.begin(), cards.end(), std::greater<card>{});
     auto first = cards.begin();
     for (;;) {
@@ -255,10 +202,7 @@ get_suited_cards(span<card, 7> cards) noexcept
 // EXPECTS: 'cards' is a descending range of cards with unique ranks.
 // Returns the subrange which contains the cards forming a straight. Ranks of
 // cards in the resulting range are r, r-1, r-2... except for the wheel.
-inline
-std::optional<span<card, 5>>
-get_straight_cards(span<card> cards) noexcept
-{
+inline auto get_straight_cards(span<card> cards) noexcept -> std::optional<span<card, 5>> {
     assert(cards.size() >= 5);
 
     auto first = cards.begin();
@@ -289,10 +233,7 @@ get_straight_cards(span<card> cards) noexcept
 
 namespace poker {
 
-inline
-std::optional<hand>
-hand::_straight_flush_eval(span<card, 7> cards) noexcept
-{
+inline auto hand::_straight_flush_eval(span<card, 7> cards) noexcept -> std::optional<hand> {
     using detail::get_suited_cards, detail::get_straight_cards;
     if (auto suited_cards = get_suited_cards(cards)) {
         if (auto straight_cards = get_straight_cards(*suited_cards)) {
@@ -336,9 +277,7 @@ hand::_straight_flush_eval(span<card, 7> cards) noexcept
     return std::nullopt;
 }
 
-inline
-hand::hand(const hole_cards& hc, const community_cards& cc) noexcept
-{
+inline hand::hand(const hole_cards& hc, const community_cards& cc) noexcept {
     assert(cc.cards().size() == 5);
     auto cards = std::array<card, 7>{};
     cards[0] = hc.first;
@@ -347,9 +286,7 @@ hand::hand(const hole_cards& hc, const community_cards& cc) noexcept
     *this = hand{cards};
 }
 
-inline
-hand::hand(span<card, 7> cards) noexcept
-{
+inline hand::hand(span<card, 7> cards) noexcept {
     auto h1 = _high_low_hand_eval(cards);
     if (auto h2 = _straight_flush_eval(cards)) {
         *this = std::max(h1, *h2);

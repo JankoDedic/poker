@@ -6,10 +6,7 @@
 
 namespace poker::debug {
 
-inline
-std::ostream&
-operator<<(std::ostream& os, hand_ranking hr)
-{
+inline auto operator<<(std::ostream& os, hand_ranking hr) -> std::ostream& {
     constexpr const char* hand_ranking_names[] = {
         "high card",
         "pair",
@@ -25,12 +22,9 @@ operator<<(std::ostream& os, hand_ranking hr)
     return os << hand_ranking_names[static_cast<std::size_t>(hr)];
 }
 
-inline
-hand
-make_hand(std::string_view str) noexcept
-{
+inline auto make_hand(std::string_view str) noexcept -> hand {
     auto cards = make_cards<7>(str);
-    return hand(cards);
+    return {cards};
 }
 
 } // namespace poker::debug

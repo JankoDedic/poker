@@ -8,10 +8,7 @@
 
 namespace poker::debug {
 
-inline
-card
-make_card(std::string_view str) noexcept
-{
+inline auto make_card(std::string_view str) noexcept -> card {
     const auto rank = [&] {
         constexpr char rank_symbols[] = {
             '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'
@@ -34,10 +31,7 @@ make_card(std::string_view str) noexcept
 }
 
 template<std::size_t N>
-inline
-std::array<card, N>
-make_cards(std::string_view str) noexcept
-{
+inline auto make_cards(std::string_view str) noexcept -> std::array<card, N> {
     auto cards = std::array<card, N>();
     for (auto i = 0; i < N; ++i) {
         cards[i] = make_card(str.substr(0, 2));
@@ -48,28 +42,19 @@ make_cards(std::string_view str) noexcept
     return cards;
 }
 
-inline
-std::ostream&
-operator<<(std::ostream& os, card_rank rank)
-{
+inline auto operator<<(std::ostream& os, card_rank rank) -> std::ostream& {
     constexpr char rank_symbols[] = {
         '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'
     };
     return os << rank_symbols[static_cast<std::size_t>(rank)];
 }
 
-inline
-std::ostream&
-operator<<(std::ostream& os, card_suit suit)
-{
+inline auto operator<<(std::ostream& os, card_suit suit) -> std::ostream& {
     constexpr char suit_symbols[] = { 5, 4, 3, 6 };
     return os << suit_symbols[static_cast<std::size_t>(suit)];
 }
 
-inline
-std::ostream&
-operator<<(std::ostream& os, card c)
-{
+inline auto operator<<(std::ostream& os, card c) -> std::ostream& {
     return os << c.rank << c.suit;
 }
 
