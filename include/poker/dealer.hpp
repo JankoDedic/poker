@@ -263,7 +263,7 @@ inline void dealer::showdown() noexcept {
         auto player_results = std::vector<std::pair<player*, hand>>();
         player_results.reserve(p.eligible_players().size());
         std::transform(p.eligible_players().begin(), p.eligible_players().end(), std::back_inserter(player_results), [&] (player* p) {
-            return std::make_pair(p, hand{p->hole_cards, *_community_cards});
+            return std::pair{p, hand{p->hole_cards, *_community_cards}};
         });
         std::sort(player_results.begin(), player_results.end(), [] (auto&& lhs, auto&& rhs) {
             return lhs.second < rhs.second;
@@ -290,9 +290,7 @@ inline auto dealer::next_or_wrap(player_container::iterator it) noexcept -> play
 
 inline void dealer::collect_ante() noexcept {
     for (auto p : _players) {
-        if (p) {
-            p->take_from_stack(std::min(_forced_bets.ante, p->total_chips()));
-        }
+        if (p) p->take_from_stack(std::min(_forced_bets.ante, p->total_chips()));
     }
 }
 
