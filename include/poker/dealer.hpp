@@ -134,7 +134,7 @@ inline auto dealer::is_valid(action a) noexcept -> bool {
 }
 
 inline constexpr auto dealer::is_aggressive(action a) noexcept -> bool {
-    return bool(a & action::bet) || bool(a & action::raise);
+    return static_cast<bool>(a & action::bet) || static_cast<bool>(a & action::raise);
 }
 
 template<typename PlayerRange, typename>
@@ -208,12 +208,12 @@ inline void dealer::action_taken(action a, chips bet/* = 0*/) noexcept {
     assert(!betting_round_over());
     assert(legal_actions().contains(a, bet));
 
-    if (bool(a & action::check) || bool(a & action::call)) {
+    if (static_cast<bool>(a & action::check) || static_cast<bool>(a & action::call)) {
         _betting_round.action_taken(detail::betting_round::action::match);
-    } else if (bool(a & action::bet) || bool(a & action::raise)) {
+    } else if (static_cast<bool>(a & action::bet) || static_cast<bool>(a & action::raise)) {
         _betting_round.action_taken(detail::betting_round::action::raise, bet);
     } else {
-        assert(bool(a & action::fold));
+        assert(static_cast<bool>(a & action::fold));
         _pot_manager.bet_folded((*player_to_act())->bet_size());
         const auto folded_player_index = std::distance(std::begin(players()), player_to_act());
         _players[folded_player_index] = nullptr;
