@@ -4,19 +4,18 @@
 #include <array>
 #include <bitset>
 #include <new>
-#include <random>
 
 #include <doctest/doctest.h>
 
-#include <poker/deck.hpp>
-#include <poker/player.hpp>
-#include <poker/hand.hpp>
 #include <poker/community_cards.hpp>
-#include "poker/detail/utility.hpp"
+#include <poker/deck.hpp>
+#include <poker/hand.hpp>
+#include <poker/player.hpp>
 
 #include "poker/detail/betting_round.hpp"
 #include "poker/detail/pot.hpp"
 #include "poker/detail/pot_manager.hpp"
+#include "poker/detail/utility.hpp"
 
 namespace poker {
 

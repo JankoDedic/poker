@@ -1,5 +1,7 @@
 #include <doctest/doctest.h>
 
+#include <random>
+
 #include <poker/dealer.hpp>
 
 using namespace poker;
