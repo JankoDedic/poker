@@ -91,12 +91,14 @@ public:
     auto biggest_bet()        const noexcept -> chips;
     auto betting_round_over() const noexcept -> bool;
     auto legal_actions()      const noexcept -> action_range;
+    auto pots()               const noexcept -> span<const pot>;
+    auto button()             const noexcept -> player_container::const_iterator;
 
     //
     // Modifiers
     //
     void start_hand()                          noexcept;
-    void action_taken(action, chips bet = 0)   noexcept;
+    void action_taken(action, chips bet = {0}) noexcept;
     void end_betting_round()                   noexcept;
     void showdown()                            noexcept;
 
@@ -193,6 +195,14 @@ inline auto dealer::legal_actions() const noexcept -> action_range {
         if (actions.can_raise) ar.action |= action::raise;
     }
     return ar;
+}
+
+inline auto dealer::pots() const noexcept -> span<const pot> {
+    return _pot_manager.pots();
+}
+
+inline auto dealer::button() const noexcept -> player_container::const_iterator {
+    return _button;
 }
 
 inline void dealer::start_hand() noexcept {
