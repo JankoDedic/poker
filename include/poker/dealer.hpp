@@ -202,7 +202,7 @@ inline auto dealer::pots() const noexcept -> span<const pot> {
 }
 
 inline auto dealer::button() const noexcept -> player_container::const_iterator {
-    return _button;
+    return std::cbegin(_betting_round.players()) + (_button - std::cbegin(_players));
 }
 
 inline void dealer::start_hand() noexcept {
