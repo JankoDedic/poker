@@ -46,7 +46,7 @@ public:
     auto player_to_act()         const noexcept -> player_container::const_iterator;
     auto last_aggressive_actor() const noexcept -> player_container::const_iterator;
     auto num_active_players()    const noexcept -> std::size_t;
-    auto over()                  const noexcept -> bool;
+    auto in_progress()           const noexcept -> bool;
 
     //
     // Modifiers
@@ -81,7 +81,7 @@ inline auto round::players() const noexcept -> const player_container& {
 }
 
 inline auto round::player_to_act() const noexcept -> player_container::const_iterator {
-    assert(!over());
+    assert(in_progress());
     return _player_to_act;
 }
 
@@ -93,12 +93,12 @@ inline auto round::num_active_players() const noexcept -> std::size_t {
     return _num_active_players;
 }
 
-inline auto round::over() const noexcept -> bool {
-    return (!_contested && _num_active_players <= 1) || (!_first_action && _player_to_act == _last_aggressive_actor);
+inline auto round::in_progress() const noexcept -> bool {
+    return (_contested || _num_active_players > 1) && (_first_action || _player_to_act != _last_aggressive_actor);
 }
 
 inline void round::action_taken(action a) noexcept {
-    assert(!over());
+    assert(in_progress());
     assert(!(static_cast<bool>(a & action::passive) && static_cast<bool>(a & action::aggressive)));
     if (_first_action) _first_action = false;
     // Implication: if there is aggressive action => the next player is contested

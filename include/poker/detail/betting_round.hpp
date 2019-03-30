@@ -83,7 +83,7 @@ inline betting_round::betting_round(const player_container& players, player_cont
 {
 }
 
-inline auto betting_round::over()               const noexcept -> bool                             { return _round.over();               }
+inline auto betting_round::over()               const noexcept -> bool                             { return !_round.in_progress();       }
 inline auto betting_round::player_to_act()      const noexcept -> player_container::const_iterator { return _round.player_to_act();      }
 inline auto betting_round::biggest_bet()        const noexcept -> chips                            { return _biggest_bet;                }
 inline auto betting_round::min_raise()          const noexcept -> chips                            { return _min_raise;                  }
