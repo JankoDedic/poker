@@ -163,7 +163,7 @@ inline dealer::dealer(
 }
 
 inline auto dealer::done() const noexcept -> bool {
-    return _betting_round.over() && _betting_round_ended && _round_of_betting == round_of_betting::river;
+    return !_betting_round.in_progress() && _betting_round_ended && _round_of_betting == round_of_betting::river;
 }
 
 inline auto dealer::player_to_act()      const noexcept -> player_container::const_iterator { return _betting_round.player_to_act();      }
@@ -172,7 +172,7 @@ inline auto dealer::round_of_betting()   const noexcept -> poker::round_of_betti
 // TODO: What happens when d.done() ? Do we assert or return a special value? Special value sounds bad.
 inline auto dealer::num_active_players() const noexcept -> std::size_t                      { return _betting_round.num_active_players(); }
 inline auto dealer::biggest_bet()        const noexcept -> chips                            { return _betting_round.biggest_bet();        }
-inline auto dealer::betting_round_over() const noexcept -> bool                             { return _betting_round.over();               }
+inline auto dealer::betting_round_over() const noexcept -> bool                             { return !_betting_round.in_progress();       }
 
 inline auto dealer::legal_actions() const noexcept -> action_range {
     const auto& player = **_betting_round.player_to_act();
