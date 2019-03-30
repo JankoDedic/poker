@@ -83,16 +83,16 @@ public:
     //
     // Observers
     //
-    auto done()               const noexcept -> bool;
-    auto player_to_act()      const noexcept -> player_container::const_iterator;
-    auto players()            const noexcept -> const player_container&;
-    auto round_of_betting()   const noexcept -> poker::round_of_betting;
-    auto num_active_players() const noexcept -> std::size_t;
-    auto biggest_bet()        const noexcept -> chips;
-    auto betting_round_over() const noexcept -> bool;
-    auto legal_actions()      const noexcept -> action_range;
-    auto pots()               const noexcept -> span<const pot>;
-    auto button()             const noexcept -> player_container::const_iterator;
+    auto done()                      const noexcept -> bool;
+    auto player_to_act()             const noexcept -> player_container::const_iterator;
+    auto players()                   const noexcept -> const player_container&;
+    auto round_of_betting()          const noexcept -> poker::round_of_betting;
+    auto num_active_players()        const noexcept -> std::size_t;
+    auto biggest_bet()               const noexcept -> chips;
+    auto betting_round_in_progress() const noexcept -> bool;
+    auto legal_actions()             const noexcept -> action_range;
+    auto pots()                      const noexcept -> span<const pot>;
+    auto button()                    const noexcept -> player_container::const_iterator;
 
     //
     // Modifiers
@@ -163,7 +163,7 @@ inline dealer::dealer(
 }
 
 inline auto dealer::done() const noexcept -> bool {
-    return !_betting_round.in_progress() && _betting_round_ended && _round_of_betting == round_of_betting::river;
+    return !betting_round_in_progress() && _betting_round_ended && _round_of_betting == round_of_betting::river;
 }
 
 inline auto dealer::player_to_act()      const noexcept -> player_container::const_iterator { return _betting_round.player_to_act();      }
@@ -172,7 +172,7 @@ inline auto dealer::round_of_betting()   const noexcept -> poker::round_of_betti
 // TODO: What happens when d.done() ? Do we assert or return a special value? Special value sounds bad.
 inline auto dealer::num_active_players() const noexcept -> std::size_t                      { return _betting_round.num_active_players(); }
 inline auto dealer::biggest_bet()        const noexcept -> chips                            { return _betting_round.biggest_bet();        }
-inline auto dealer::betting_round_over() const noexcept -> bool                             { return !_betting_round.in_progress();       }
+inline auto dealer::betting_round_in_progress() const noexcept -> bool                      { return _betting_round.in_progress();        }
 
 inline auto dealer::legal_actions() const noexcept -> action_range {
     const auto& player = **_betting_round.player_to_act();
@@ -217,7 +217,7 @@ inline void dealer::start_hand() noexcept {
 }
 
 inline void dealer::action_taken(action a, chips bet/* = 0*/) noexcept {
-    assert(!betting_round_over());
+    assert(betting_round_in_progress());
     assert(legal_actions().contains(a, bet));
 
     if (static_cast<bool>(a & action::check) || static_cast<bool>(a & action::call)) {
@@ -235,7 +235,7 @@ inline void dealer::action_taken(action a, chips bet/* = 0*/) noexcept {
 
 inline void dealer::end_betting_round() noexcept {
     assert(!_betting_round_ended);
-    assert(betting_round_over());
+    assert(!betting_round_in_progress());
     _pot_manager.collect_bets_from(_players);
     if (_betting_round.num_active_players() <= 1) {
         _round_of_betting = round_of_betting::river;

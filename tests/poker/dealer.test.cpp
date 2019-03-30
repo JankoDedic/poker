@@ -48,7 +48,7 @@ TEST_CASE("Starting the hand") {
             d.start_hand();
 
             THEN("The hand has ended") {
-                REQUIRE(d.betting_round_over());
+                REQUIRE(!d.betting_round_in_progress());
                 d.end_betting_round();
                 REQUIRE(d.done());
             }
@@ -90,7 +90,7 @@ TEST_CASE("Ending the betting round") {
         d.action_taken(dealer::action::call);
         d.action_taken(dealer::action::check);
 
-        REQUIRE(d.betting_round_over());
+        REQUIRE(!d.betting_round_in_progress());
         REQUIRE_GE(d.num_active_players(), 2);
         REQUIRE_NE(d.round_of_betting(), poker::round_of_betting::river);
         REQUIRE_EQ(cc.cards().size(), 0);
@@ -99,7 +99,7 @@ TEST_CASE("Ending the betting round") {
             d.end_betting_round();
 
             THEN("The next betting round begins") {
-                REQUIRE(!d.betting_round_over());
+                REQUIRE(d.betting_round_in_progress());
                 REQUIRE_EQ(d.round_of_betting(), poker::round_of_betting::flop);
                 REQUIRE_EQ(cc.cards().size(), 3);
             }
@@ -133,7 +133,7 @@ TEST_CASE("Ending the betting round") {
         d.action_taken(dealer::action::check);
         // not ended yet
 
-        REQUIRE(d.betting_round_over());
+        REQUIRE(!d.betting_round_in_progress());
         REQUIRE_EQ(d.round_of_betting(), poker::round_of_betting::river);
         REQUIRE_EQ(cc.cards().size(), 5);
 
@@ -152,7 +152,7 @@ TEST_CASE("Ending the betting round") {
         d.action_taken(dealer::action::call);
         d.action_taken(dealer::action::fold);
 
-        REQUIRE(d.betting_round_over());
+        REQUIRE(!d.betting_round_in_progress());
         REQUIRE_LE(d.num_active_players(), 1);
         REQUIRE_NE(d.round_of_betting(), poker::round_of_betting::river);
         REQUIRE_EQ(cc.cards().size(), 0);
@@ -175,7 +175,7 @@ TEST_CASE("Ending the betting round") {
         d.action_taken(dealer::action::fold);
         d.action_taken(dealer::action::fold);
 
-        REQUIRE(d.betting_round_over());
+        REQUIRE(!d.betting_round_in_progress());
         REQUIRE_LE(d.num_active_players(), 1);
         REQUIRE_NE(d.round_of_betting(), poker::round_of_betting::river);
         REQUIRE_EQ(cc.cards().size(), 0);
@@ -207,11 +207,11 @@ TEST_CASE("flop, someone folded preflop, now others fold, when 1 remains, the ha
     d.action_taken(dealer::action::fold);
     d.action_taken(dealer::action::call);
     d.action_taken(dealer::action::check);
-    REQUIRE(d.betting_round_over());
+    REQUIRE(!d.betting_round_in_progress());
     d.end_betting_round();
 
     d.action_taken(dealer::action::fold);
-    REQUIRE(d.betting_round_over());
+    REQUIRE(!d.betting_round_in_progress());
 }
 
 TEST_CASE("Showdown") {
