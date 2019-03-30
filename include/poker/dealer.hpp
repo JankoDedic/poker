@@ -120,8 +120,8 @@ private:
     deck*                      _deck = nullptr;
     community_cards*           _community_cards = nullptr;
 
-    poker::round_of_betting    _round_of_betting;
-    bool                       _betting_round_ended = false;
+    poker::round_of_betting    _round_of_betting = poker::round_of_betting::river;
+    bool                       _betting_round_ended = true;
     detail::pot_manager        _pot_manager = {};
     // store legal action range?
 };
@@ -206,6 +206,8 @@ inline auto dealer::button() const noexcept -> player_container::const_iterator 
 }
 
 inline void dealer::start_hand() noexcept {
+    _betting_round_ended = false;
+    _round_of_betting = round_of_betting::preflop;
     collect_ante();
     const auto first_action = next_or_wrap(post_blinds());
     deal_hole_cards();
