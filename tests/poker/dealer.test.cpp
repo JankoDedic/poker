@@ -50,7 +50,7 @@ TEST_CASE("Starting the hand") {
             THEN("The hand has ended") {
                 REQUIRE(!d.betting_round_in_progress());
                 d.end_betting_round();
-                REQUIRE(d.done());
+                REQUIRE(!d.hand_in_progress());
             }
         }
     }
@@ -141,7 +141,7 @@ TEST_CASE("Ending the betting round") {
             d.end_betting_round();
 
             THEN("The hand is over") {
-                REQUIRE(d.done());
+                REQUIRE(!d.hand_in_progress());
             }
         }
     }
@@ -161,7 +161,7 @@ TEST_CASE("Ending the betting round") {
             d.end_betting_round();
 
             THEN("The hand is over") {
-                REQUIRE(d.done());
+                REQUIRE(!d.hand_in_progress());
             }
             THEN("The undealt community cards (if any) are dealt") {
                 REQUIRE_EQ(cc.cards().size(), 5);
@@ -184,7 +184,7 @@ TEST_CASE("Ending the betting round") {
             d.end_betting_round();
 
             THEN("The hand is over") {
-                REQUIRE(d.done());
+                REQUIRE(!d.hand_in_progress());
             }
             THEN("The undealt community cards (if any) are not dealt") {
                 REQUIRE_EQ(cc.cards().size(), 0);
@@ -228,7 +228,7 @@ TEST_CASE("Showdown") {
         d.action_taken(dealer::action::fold);
         d.end_betting_round();
 
-        REQUIRE(d.done());
+        REQUIRE(!d.hand_in_progress());
 
         d.showdown();
         REQUIRE_EQ(players[0].stack(), 1075);
@@ -247,7 +247,7 @@ TEST_CASE("Showdown") {
         d.action_taken(dealer::action::call);
         d.end_betting_round();
 
-        REQUIRE(d.done());
+        REQUIRE(!d.hand_in_progress());
 
         cc = {};
         cc.deal(std::array{
