@@ -144,7 +144,6 @@ dealer::dealer(PlayerRange& players, decltype(std::begin(players)) button, force
     : _forced_bets{fb}
     , _deck{&d}
     , _community_cards{&cc}
-    , _round_of_betting{round_of_betting::preflop}
 {
     constexpr auto addressof = [] (player& p) { return &p; };
     std::transform(std::begin(players), std::end(players), std::begin(_players), addressof);
@@ -156,7 +155,6 @@ inline dealer::dealer(
     : _forced_bets{fb}
     , _deck{&d}
     , _community_cards{&cc}
-    , _round_of_betting{round_of_betting::preflop}
     , _players{players}
     , _button{_players.begin() + std::distance(players.begin(), button)}
 {
@@ -205,6 +203,7 @@ inline auto dealer::button() const noexcept -> player_container::const_iterator 
 }
 
 inline void dealer::start_hand() noexcept {
+    assert(!hand_in_progress());
     _betting_round_ended = false;
     _round_of_betting = round_of_betting::preflop;
     collect_ante();
