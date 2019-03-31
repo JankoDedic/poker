@@ -21,15 +21,20 @@ public:
         // TODO: Return a list of transactions.
         for (;;) {
             const auto min_bet = _pots.back().collect_bets_from(players);
-            _pots.back().add(std::min(_aggregate_folded_bets, static_cast<chips>(_pots.back().eligible_players().size()) * min_bet));
+            const auto num_eligible_players = static_cast<chips>(_pots.back().eligible_players().size());
+            const auto aggregate_folded_bets_consumed_amount = std::min(_aggregate_folded_bets, num_eligible_players * min_bet);
+            _pots.back().add(aggregate_folded_bets_consumed_amount);
+            _aggregate_folded_bets -= aggregate_folded_bets_consumed_amount;
             auto it = std::find_if(players.begin(), players.end(), [] (auto p) { return p && p->bet_size() != 0; });
             if (it != players.end()) {
                 _pots.emplace_back();
                 continue;
+            } else if (_aggregate_folded_bets != 0) {
+                _pots.back().add(_aggregate_folded_bets);
+                _aggregate_folded_bets = 0;
             }
             break;
         }
-        _aggregate_folded_bets = 0;
     }
 
     TEST_CASE_CLASS("whatever") {
