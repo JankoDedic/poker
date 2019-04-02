@@ -262,6 +262,9 @@ inline void dealer::end_betting_round() noexcept {
 }
 
 inline void dealer::showdown() noexcept {
+    assert(!betting_round_in_progress());
+    assert(_round_of_betting == round_of_betting::river);
+
     if (_pot_manager.pots().size() == 1 && _pot_manager.pots()[0].eligible_players().size() == 1) {
         // No need to evaluate the hand. There is only one player.
         _pot_manager.pots()[0].eligible_players()[0]->add_to_stack(_pot_manager.pots()[0].size());
