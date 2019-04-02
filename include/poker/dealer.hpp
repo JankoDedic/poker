@@ -253,7 +253,7 @@ inline void dealer::end_betting_round() noexcept {
         _button = _players.begin() + button_index;
         new (&_betting_round) detail::betting_round{_players, next_or_wrap(_button), 0};
         deal_community_cards();
-        // _betting_round_ended = false;
+        assert(_betting_round_ended == false);
     } else {
         assert(_round_of_betting == round_of_betting::river);
         _betting_round_ended = true;
