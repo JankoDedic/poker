@@ -84,6 +84,7 @@ public:
     // Observers
     //
     auto hand_in_progress()          const noexcept -> bool;
+    auto betting_round_ended()       const noexcept -> bool;
     auto player_to_act()             const noexcept -> player_container::const_iterator;
     auto players()                   const noexcept -> const player_container&;
     auto round_of_betting()          const noexcept -> poker::round_of_betting;
@@ -111,18 +112,19 @@ private:
 
 private:
     // Data members
-    player_container           _players = {};
+    player_container           _players             = {};
     player_container::iterator _button;
 
     detail::betting_round      _betting_round;
     forced_bets                _forced_bets;
 
-    deck*                      _deck = nullptr;
-    community_cards*           _community_cards = nullptr;
+    deck*                      _deck                = nullptr;
+    community_cards*           _community_cards     = nullptr;
 
-    poker::round_of_betting    _round_of_betting = poker::round_of_betting::river;
-    bool                       _betting_round_ended = true;
-    detail::pot_manager        _pot_manager = {};
+    bool                       _hand_in_progress    = false;
+    poker::round_of_betting    _round_of_betting    = poker::round_of_betting::preflop;
+    bool                       _betting_round_ended = false;
+    detail::pot_manager        _pot_manager         = {};
     // store legal action range?
 };
 
@@ -161,7 +163,11 @@ inline dealer::dealer(
 }
 
 inline auto dealer::hand_in_progress() const noexcept -> bool {
-    return betting_round_in_progress() || !_betting_round_ended || _round_of_betting != round_of_betting::river;
+    return _hand_in_progress;
+}
+
+inline auto dealer::betting_round_ended() const noexcept -> bool {
+    return _betting_round_ended;
 }
 
 inline auto dealer::player_to_act()      const noexcept -> player_container::const_iterator { return _betting_round.player_to_act();      }
@@ -212,6 +218,7 @@ inline void dealer::start_hand() noexcept {
     if (std::count_if(_players.begin(), _players.end(), [] (auto p) { return p && p->stack() != 0; }) > 1) {
         new (&_betting_round) detail::betting_round{_players, first_action, _forced_bets.blinds.big};
     }
+    _hand_in_progress = true;
 }
 
 inline void dealer::action_taken(action a, chips bet/* = 0*/) noexcept {
@@ -262,9 +269,11 @@ inline void dealer::end_betting_round() noexcept {
 }
 
 inline void dealer::showdown() noexcept {
-    assert(!betting_round_in_progress());
     assert(_round_of_betting == round_of_betting::river);
+    assert(!betting_round_in_progress());
+    assert(betting_round_ended());
 
+    _hand_in_progress = false;
     if (_pot_manager.pots().size() == 1 && _pot_manager.pots()[0].eligible_players().size() == 1) {
         // No need to evaluate the hand. There is only one player.
         _pot_manager.pots()[0].eligible_players()[0]->add_to_stack(_pot_manager.pots()[0].size());

@@ -47,9 +47,17 @@ TEST_CASE("Starting the hand") {
         WHEN("The hand starts") {
             d.start_hand();
 
-            THEN("The hand has ended") {
+            THEN("The betting round is not in progress") {
                 REQUIRE(!d.betting_round_in_progress());
+
                 d.end_betting_round();
+
+                REQUIRE(!d.betting_round_in_progress());
+                REQUIRE(d.betting_round_ended());
+                REQUIRE(d.round_of_betting() == round_of_betting::river);
+
+                d.showdown();
+
                 REQUIRE(!d.hand_in_progress());
             }
         }
@@ -140,6 +148,12 @@ TEST_CASE("Ending the betting round") {
         WHEN("The betting round is ended") {
             d.end_betting_round();
 
+            REQUIRE(!d.betting_round_in_progress());
+            REQUIRE(d.betting_round_ended());
+            REQUIRE(d.round_of_betting() == round_of_betting::river);
+
+            d.showdown();
+
             THEN("The hand is over") {
                 REQUIRE(!d.hand_in_progress());
             }
@@ -159,6 +173,7 @@ TEST_CASE("Ending the betting round") {
 
         WHEN("The betting round is ended") {
             d.end_betting_round();
+            d.showdown();
 
             THEN("The hand is over") {
                 REQUIRE(!d.hand_in_progress());
@@ -182,6 +197,7 @@ TEST_CASE("Ending the betting round") {
 
         WHEN("The betting round is ended") {
             d.end_betting_round();
+            d.showdown();
 
             THEN("The hand is over") {
                 REQUIRE(!d.hand_in_progress());
@@ -227,10 +243,10 @@ TEST_CASE("Showdown") {
         d.action_taken(dealer::action::fold);
         d.action_taken(dealer::action::fold);
         d.end_betting_round();
+        d.showdown();
 
         REQUIRE(!d.hand_in_progress());
 
-        d.showdown();
         REQUIRE_EQ(players[0].stack(), 1075);
     }
 
@@ -246,8 +262,6 @@ TEST_CASE("Showdown") {
         d.action_taken(dealer::action::call);
         d.action_taken(dealer::action::call);
         d.end_betting_round();
-
-        REQUIRE(!d.hand_in_progress());
 
         cc = {};
         cc.deal(std::array{
@@ -265,6 +279,8 @@ TEST_CASE("Showdown") {
         }
 
         d.showdown();
+
+        REQUIRE(!d.hand_in_progress());
 
         REQUIRE_EQ(players[0].stack(), 300);
         REQUIRE_EQ(players[1].stack(), 200);
