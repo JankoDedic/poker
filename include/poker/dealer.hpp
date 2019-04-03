@@ -170,14 +170,27 @@ inline auto dealer::betting_round_ended() const noexcept -> bool {
     return _betting_round_ended;
 }
 
-inline auto dealer::player_to_act()      const noexcept -> player_container::const_iterator { return _betting_round.player_to_act();      }
+inline auto dealer::player_to_act() const noexcept -> player_container::const_iterator {
+    assert(betting_round_in_progress());
+
+    return _betting_round.player_to_act();
+}
+
 inline auto dealer::players()            const noexcept -> const player_container&          { return _betting_round.players();            }
-inline auto dealer::round_of_betting()   const noexcept -> poker::round_of_betting          { return _round_of_betting;                   }
+
+inline auto dealer::round_of_betting() const noexcept -> poker::round_of_betting {
+    assert(hand_in_progress());
+
+    return _round_of_betting;
+}
+
 inline auto dealer::num_active_players() const noexcept -> std::size_t                      { return _betting_round.num_active_players(); }
 inline auto dealer::biggest_bet()        const noexcept -> chips                            { return _betting_round.biggest_bet();        }
 inline auto dealer::betting_round_in_progress() const noexcept -> bool                      { return _betting_round.in_progress();        }
 
 inline auto dealer::legal_actions() const noexcept -> action_range {
+    assert(betting_round_in_progress());
+
     const auto& player = **_betting_round.player_to_act();
     const auto actions = _betting_round.legal_actions();
     auto ar = action_range{};
@@ -201,6 +214,8 @@ inline auto dealer::legal_actions() const noexcept -> action_range {
 }
 
 inline auto dealer::pots() const noexcept -> span<const pot> {
+    assert(hand_in_progress());
+
     return _pot_manager.pots();
 }
 
@@ -210,6 +225,7 @@ inline auto dealer::button() const noexcept -> player_container::const_iterator 
 
 inline void dealer::start_hand() noexcept {
     assert(!hand_in_progress());
+
     _betting_round_ended = false;
     _round_of_betting = round_of_betting::preflop;
     collect_ante();
@@ -241,6 +257,7 @@ inline void dealer::action_taken(action a, chips bet/* = 0*/) noexcept {
 inline void dealer::end_betting_round() noexcept {
     assert(!_betting_round_ended);
     assert(!betting_round_in_progress());
+
     _pot_manager.collect_bets_from(_players);
     if (_betting_round.num_active_players() <= 1) {
         _round_of_betting = round_of_betting::river;
