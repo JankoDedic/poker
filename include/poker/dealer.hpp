@@ -113,7 +113,7 @@ private:
 private:
     // Data members
     player_container           _players             = {};
-    player_container::iterator _button;
+    player_container::iterator _button              = std::begin(_players);
 
     detail::betting_round      _betting_round;
     forced_bets                _forced_bets;
