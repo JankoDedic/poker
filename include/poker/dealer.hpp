@@ -24,10 +24,26 @@ struct blinds {
     chips big = 2*small;
 };
 
+constexpr auto operator==(const blinds& x, const blinds& y) noexcept -> bool {
+    return x.small == y.small && x.big == y.big;
+}
+
+constexpr auto operator!=(const blinds& x, const blinds& y) noexcept -> bool {
+    return !(x == y);
+}
+
 struct forced_bets {
     poker::blinds blinds = {};
     chips ante = 0;
 };
+
+constexpr auto operator==(const forced_bets& x, const forced_bets& y) noexcept -> bool {
+    return x.blinds == y.blinds && x.ante == y.ante;
+}
+
+constexpr auto operator!=(const forced_bets& x, const forced_bets& y) noexcept -> bool {
+    return !(x == y);
+}
 
 class dealer {
 public:
