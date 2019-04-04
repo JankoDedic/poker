@@ -2,3 +2,4 @@
 #include <doctest/doctest.h>
 
 #include <poker/dealer.hpp>
+#include <poker/table.hpp>
