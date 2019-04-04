@@ -43,11 +43,3 @@ add_executable(
 target_compile_features    ( poker-tests PRIVATE cxx_std_17             )
 target_include_directories ( poker-tests PRIVATE ${DOCTEST_INCLUDE_DIR} )
 target_link_libraries      ( poker-tests PRIVATE poker                  )
-
-# =============================================================================
-# Executable
-# =============================================================================
-# add_executable          ( poker-exe main.cpp             )
-# target_compile_features ( poker-exe PRIVATE cxx_std_17   )
-# target_compile_options  ( poker-exe PRIVATE /permissive- )
-# target_link_libraries   ( poker-exe PRIVATE poker        )
