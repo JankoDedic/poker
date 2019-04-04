@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <bitset>
+#include <climits>
 #include <new>
 
 #include <doctest/doctest.h>
