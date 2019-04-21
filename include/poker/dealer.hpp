@@ -6,8 +6,6 @@
 #include <climits>
 #include <new>
 
-#include <doctest/doctest.h>
-
 #include <poker/community_cards.hpp>
 #include <poker/deck.hpp>
 #include <poker/hand.hpp>
