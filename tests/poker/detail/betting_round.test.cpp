@@ -22,7 +22,7 @@ TEST_CASE("testing valid actions") {
 
             THEN("he cannot raise") {
                 const auto actions = r.legal_actions();
-                REQUIRE(!actions.can_raise);
+                REQUIRE_FALSE(actions.can_raise);
             }
         }
 
@@ -32,7 +32,7 @@ TEST_CASE("testing valid actions") {
 
             THEN("he cannot raise") {
                 const auto actions = r.legal_actions();
-                REQUIRE(!actions.can_raise);
+                REQUIRE_FALSE(actions.can_raise);
             }
         }
 

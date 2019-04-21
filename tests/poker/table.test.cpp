@@ -412,13 +412,13 @@ TEST_CASE("When second to last player stands up, the hand ends") {
     t.stand_up(2);
     t.sit_down(1, 1000);
     t.sit_down(2, 1000);
-    REQUIRE(!t.betting_round_in_progress());
+    REQUIRE_FALSE(t.betting_round_in_progress());
     t.end_betting_round();
 
     REQUIRE_EQ(t.seats()[0].value().stack(), 950);
 
     t.showdown();
-    REQUIRE(!t.hand_in_progress());
+    REQUIRE_FALSE(t.hand_in_progress());
 
     REQUIRE_EQ(t.seats()[0].value().stack(), 1075);
 
@@ -426,12 +426,12 @@ TEST_CASE("When second to last player stands up, the hand ends") {
     REQUIRE_EQ(1, t.button());
     t.stand_up(2);
     t.stand_up(0);
-    REQUIRE(!t.betting_round_in_progress());
+    REQUIRE_FALSE(t.betting_round_in_progress());
     REQUIRE(t.hand_in_progress());
     t.end_betting_round();
     REQUIRE(t.hand_in_progress());
     t.showdown();
-    REQUIRE(!t.hand_in_progress());
+    REQUIRE_FALSE(t.hand_in_progress());
 }
 
 TEST_CASE("testing the special case") {

@@ -113,7 +113,7 @@ SCENARIO("there are only 2 players in the round") {
             r.action_taken(round::action::leave);
 
             THEN("the round is over") {
-                REQUIRE(!r.in_progress());
+                REQUIRE_FALSE(r.in_progress());
             }
         }
     }
@@ -170,7 +170,7 @@ SCENARIO("there are only 2 players in the round") {
             r.action_taken(round::action::passive);
 
             THEN("the round is over") {
-                REQUIRE(!r.in_progress());
+                REQUIRE_FALSE(r.in_progress());
             }
         }
 
@@ -178,7 +178,7 @@ SCENARIO("there are only 2 players in the round") {
             r.action_taken(round::action::passive | round::action::leave);
 
             THEN("the round is over") {
-                REQUIRE(!r.in_progress());
+                REQUIRE_FALSE(r.in_progress());
             }
         }
 
@@ -186,7 +186,7 @@ SCENARIO("there are only 2 players in the round") {
             r.action_taken(round::action::leave);
 
             THEN("the round is over") {
-                REQUIRE(!r.in_progress());
+                REQUIRE_FALSE(r.in_progress());
             }
         }
     }
@@ -360,7 +360,7 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::passive);
 
             THEN("the round is over") {
-                REQUIRE(!r.in_progress());
+                REQUIRE_FALSE(r.in_progress());
             }
         }
 
@@ -368,7 +368,7 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::passive | round::action::leave);
 
             THEN("the round is over") {
-                REQUIRE(!r.in_progress());
+                REQUIRE_FALSE(r.in_progress());
             }
         }
 
@@ -376,7 +376,7 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::leave);
 
             THEN("the round is over") {
-                REQUIRE(!r.in_progress());
+                REQUIRE_FALSE(r.in_progress());
             }
         }
     }
@@ -511,7 +511,7 @@ SCENARIO("there are 3 players and the first one acts first") {
             r.action_taken(round::action::leave);
 
             THEN("the round is over") {
-                REQUIRE(!r.in_progress());
+                REQUIRE_FALSE(r.in_progress());
                 // Round should end because of _num_active_players being 1
                 REQUIRE_EQ(r.num_active_players(), 1);
             }
@@ -528,7 +528,7 @@ SCENARIO("there are 3 players and the first one acts first") {
             r.action_taken(round::action::passive);
 
             THEN("the round is over") {
-                REQUIRE(!r.in_progress());
+                REQUIRE_FALSE(r.in_progress());
                 // Round should end because the _player_to_act is _last_aggressive_actor
                 // NOTE: We cannot do this because access to player_to_act() is disallowed.
                 // We could allow it and make it "UB". We could also not test it (because it's internals).
