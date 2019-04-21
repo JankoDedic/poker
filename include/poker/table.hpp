@@ -53,7 +53,7 @@ public:
     // Dealer
     auto hand_in_progress()          const noexcept -> bool;
     auto betting_round_in_progress() const noexcept -> bool;
-    auto betting_round_ended()       const noexcept -> bool;
+    auto betting_rounds_completed()  const noexcept -> bool;
     auto hand_players()              const noexcept -> span<player* const, num_seats>;
     auto button()                    const noexcept -> seat;
     auto player_to_act()             const noexcept -> seat;
@@ -248,8 +248,8 @@ inline auto table::betting_round_in_progress() const noexcept -> bool {
     return _dealer.betting_round_in_progress();
 }
 
-inline auto table::betting_round_ended() const noexcept -> bool {
-    return _dealer.betting_round_ended();
+inline auto table::betting_rounds_completed() const noexcept -> bool {
+    return _dealer.betting_rounds_completed();
 }
 
 inline auto table::round_of_betting() const noexcept -> poker::round_of_betting {
@@ -274,7 +274,7 @@ inline void table::action_taken(action a, chips bet) noexcept {
 
 inline void table::end_betting_round() noexcept {
     assert(!betting_round_in_progress());
-    assert(!betting_round_ended());
+    assert(!betting_rounds_completed());
 
     _dealer.end_betting_round();
     amend_automatic_actions();
@@ -282,7 +282,7 @@ inline void table::end_betting_round() noexcept {
 }
 
 inline void table::showdown() noexcept {
-    assert(betting_round_ended());
+    assert(betting_rounds_completed());
     assert(round_of_betting() == poker::round_of_betting::river);
 
     _dealer.showdown();

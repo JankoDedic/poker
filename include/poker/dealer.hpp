@@ -101,7 +101,7 @@ public:
     // Observers
     //
     auto hand_in_progress()          const noexcept -> bool;
-    auto betting_round_ended()       const noexcept -> bool;
+    auto betting_rounds_completed()       const noexcept -> bool;
     auto player_to_act()             const noexcept -> player_container::const_iterator;
     auto players()                   const noexcept -> const player_container&;
     auto round_of_betting()          const noexcept -> poker::round_of_betting;
@@ -129,19 +129,19 @@ private:
 
 private:
     // Data members
-    player_container           _players             = {};
-    player_container::iterator _button              = std::begin(_players);
+    player_container           _players                  = {};
+    player_container::iterator _button                   = std::begin(_players);
 
     detail::betting_round      _betting_round;
     forced_bets                _forced_bets;
 
-    deck*                      _deck                = nullptr;
-    community_cards*           _community_cards     = nullptr;
+    deck*                      _deck                     = nullptr;
+    community_cards*           _community_cards          = nullptr;
 
-    bool                       _hand_in_progress    = false;
-    poker::round_of_betting    _round_of_betting    = poker::round_of_betting::preflop;
-    bool                       _betting_round_ended = false;
-    detail::pot_manager        _pot_manager         = {};
+    bool                       _hand_in_progress         = false;
+    poker::round_of_betting    _round_of_betting         = poker::round_of_betting::preflop;
+    bool                       _betting_rounds_completed = false;
+    detail::pot_manager        _pot_manager              = {};
     // store legal action range?
 };
 
@@ -183,8 +183,8 @@ inline auto dealer::hand_in_progress() const noexcept -> bool {
     return _hand_in_progress;
 }
 
-inline auto dealer::betting_round_ended() const noexcept -> bool {
-    return _betting_round_ended;
+inline auto dealer::betting_rounds_completed() const noexcept -> bool {
+    return _betting_rounds_completed;
 }
 
 inline auto dealer::player_to_act() const noexcept -> player_container::const_iterator {
@@ -243,7 +243,7 @@ inline auto dealer::button() const noexcept -> player_container::const_iterator 
 inline void dealer::start_hand() noexcept {
     assert(!hand_in_progress());
 
-    _betting_round_ended = false;
+    _betting_rounds_completed = false;
     _round_of_betting = round_of_betting::preflop;
     collect_ante();
     const auto first_action = next_or_wrap(post_blinds());
@@ -272,7 +272,7 @@ inline void dealer::action_taken(action a, chips bet/* = 0*/) noexcept {
 }
 
 inline void dealer::end_betting_round() noexcept {
-    assert(!_betting_round_ended);
+    assert(!_betting_rounds_completed);
     assert(!betting_round_in_progress());
 
     _pot_manager.collect_bets_from(_players);
@@ -284,7 +284,7 @@ inline void dealer::end_betting_round() noexcept {
         } else {
             deal_community_cards();
         }
-        _betting_round_ended = true;
+        _betting_rounds_completed = true;
         // Now you call showdown()
     } else if (_round_of_betting < round_of_betting::river) {
         // Start the next betting round.
@@ -294,10 +294,10 @@ inline void dealer::end_betting_round() noexcept {
         _button = _players.begin() + button_index;
         new (&_betting_round) detail::betting_round{_players, next_or_wrap(_button), 0};
         deal_community_cards();
-        assert(_betting_round_ended == false);
+        assert(_betting_rounds_completed == false);
     } else {
         assert(_round_of_betting == round_of_betting::river);
-        _betting_round_ended = true;
+        _betting_rounds_completed = true;
         // Now you call showdown()
     }
 }
@@ -305,7 +305,7 @@ inline void dealer::end_betting_round() noexcept {
 inline void dealer::showdown() noexcept {
     assert(_round_of_betting == round_of_betting::river);
     assert(!betting_round_in_progress());
-    assert(betting_round_ended());
+    assert(betting_rounds_completed());
 
     _hand_in_progress = false;
     if (_pot_manager.pots().size() == 1 && _pot_manager.pots()[0].eligible_players().size() == 1) {

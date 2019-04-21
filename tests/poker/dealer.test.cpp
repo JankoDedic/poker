@@ -53,7 +53,7 @@ TEST_CASE("Starting the hand") {
                 d.end_betting_round();
 
                 REQUIRE(!d.betting_round_in_progress());
-                REQUIRE(d.betting_round_ended());
+                REQUIRE(d.betting_rounds_completed());
                 REQUIRE(d.round_of_betting() == round_of_betting::river);
 
                 d.showdown();
@@ -149,7 +149,7 @@ TEST_CASE("Ending the betting round") {
             d.end_betting_round();
 
             REQUIRE(!d.betting_round_in_progress());
-            REQUIRE(d.betting_round_ended());
+            REQUIRE(d.betting_rounds_completed());
             REQUIRE(d.round_of_betting() == round_of_betting::river);
 
             d.showdown();
