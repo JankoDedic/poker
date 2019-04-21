@@ -65,7 +65,7 @@ public:
     // Automatic actions
     auto automatic_actions()            const noexcept -> span<const std::optional<automatic_action>, num_seats>;
     auto can_set_automatic_action(seat) const noexcept -> bool;
-    auto legal_automatic_actions(seat)  const          -> automatic_action;
+    auto legal_automatic_actions(seat)  const noexcept -> automatic_action;
 
     //
     // Modifiers
@@ -304,7 +304,7 @@ inline auto table::can_set_automatic_action(seat s) const noexcept -> bool {
     return !_staged[s] && _table_players[s];
 }
 
-inline auto table::legal_automatic_actions(seat s) const -> automatic_action {
+inline auto table::legal_automatic_actions(seat s) const noexcept -> automatic_action {
     assert(can_set_automatic_action(s));
 
     // fold, all_in -- always viable
