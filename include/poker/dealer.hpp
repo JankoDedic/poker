@@ -184,6 +184,8 @@ inline auto dealer::hand_in_progress() const noexcept -> bool {
 }
 
 inline auto dealer::betting_rounds_completed() const noexcept -> bool {
+    assert(hand_in_progress());
+
     return _betting_rounds_completed;
 }
 
