@@ -17,7 +17,7 @@ public:
         _aggregate_folded_bets += amount;
     }
 
-    void collect_bets_from(span<player *const> players) noexcept {
+    void collect_bets_from(span<player* const> players) noexcept {
         // TODO: Return a list of transactions.
         for (;;) {
             const auto min_bet = _pots.back().collect_bets_from(players);
