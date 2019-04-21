@@ -140,7 +140,6 @@ private:
     poker::round_of_betting    _round_of_betting         = poker::round_of_betting::preflop;
     bool                       _betting_rounds_completed = false;
     detail::pot_manager        _pot_manager              = {};
-    // store legal action range?
 };
 
 inline auto dealer::action_range::contains(dealer::action a, poker::chips bet/* = 0*/) const noexcept -> bool {
