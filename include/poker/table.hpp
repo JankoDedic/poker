@@ -60,7 +60,7 @@ public:
     auto num_active_players()        const noexcept -> std::size_t;
     auto pots()                      const noexcept -> span<const pot>;
     auto round_of_betting()          const noexcept -> poker::round_of_betting;
-    // TODO: community_cards,...
+    auto community_cards()           const noexcept -> const poker::community_cards&;
 
     // Automatic actions
     auto automatic_actions()            const noexcept -> span<const std::optional<automatic_action>, num_seats>;
@@ -98,7 +98,7 @@ private:
     std::array<std::optional<player>,num_seats>::iterator _button            = std::begin(_hand_players);
     poker::forced_bets                                    _forced_bets       = {};
     deck                                                  _deck;
-    community_cards                                       _community_cards;
+    poker::community_cards                                _community_cards;
     dealer                                                _dealer;
 
     // All the players physically present at the table
@@ -268,6 +268,12 @@ inline auto table::round_of_betting() const noexcept -> poker::round_of_betting 
     assert(hand_in_progress());
 
     return _dealer.round_of_betting();
+}
+
+inline auto table::community_cards() const noexcept -> const poker::community_cards& {
+    assert(hand_in_progress());
+
+    return _community_cards;
 }
 
 inline void table::action_taken(action a, chips bet) noexcept {
