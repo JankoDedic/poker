@@ -8,7 +8,6 @@
 TEST_CASE("table construction") {
     auto t = poker::table{poker::forced_bets{poker::blinds{25, 50}}};
 
-    REQUIRE_EQ(t.button(), 0);
     REQUIRE(std::all_of(std::cbegin(t.seats()), std::cend(t.seats()), [] (auto&& opt) { return opt == std::nullopt; }));
     REQUIRE_EQ(t.forced_bets(), poker::forced_bets{25, 50});
     REQUIRE_FALSE(t.hand_in_progress());
@@ -24,8 +23,6 @@ TEST_CASE("setting forced bets") {
 
 TEST_CASE("moving the button between hands") {
     auto t = poker::table{poker::forced_bets{poker::blinds{25, 50}}};
-
-    REQUIRE_EQ(t.button(), 0);
 
     t.sit_down(2, 2000);
     t.sit_down(3, 2000);

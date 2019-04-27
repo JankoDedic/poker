@@ -167,6 +167,8 @@ inline auto table::player_to_act() const noexcept -> seat {
 }
 
 inline auto table::button() const noexcept -> seat {
+    assert(hand_in_progress());
+
     return static_cast<std::size_t>(std::distance(std::cbegin(_dealer.players()), _dealer.button()));
 }
 
@@ -175,10 +177,14 @@ inline auto table::seats() const noexcept -> span<const std::optional<player>, n
 }
 
 inline auto table::hand_players() const noexcept -> span<player* const, num_seats> {
+    assert(hand_in_progress());
+
     return _dealer.players();
 }
 
 inline auto table::num_active_players() const noexcept -> std::size_t {
+    assert(hand_in_progress());
+
     return _dealer.num_active_players();
 }
 
@@ -193,6 +199,8 @@ inline auto table::forced_bets() const noexcept -> poker::forced_bets {
 }
 
 inline void table::set_forced_bets(poker::forced_bets fb) noexcept {
+    assert(!hand_in_progress());
+
     _forced_bets = fb;
 }
 
@@ -245,14 +253,20 @@ inline auto table::hand_in_progress() const noexcept -> bool {
 }
 
 inline auto table::betting_round_in_progress() const noexcept -> bool {
+    assert(hand_in_progress());
+
     return _dealer.betting_round_in_progress();
 }
 
 inline auto table::betting_rounds_completed() const noexcept -> bool {
+    assert(!betting_round_in_progress());
+
     return _dealer.betting_rounds_completed();
 }
 
 inline auto table::round_of_betting() const noexcept -> poker::round_of_betting {
+    assert(hand_in_progress());
+
     return _dealer.round_of_betting();
 }
 
@@ -282,8 +296,8 @@ inline void table::end_betting_round() noexcept {
 }
 
 inline void table::showdown() noexcept {
+    assert(!betting_round_in_progress());
     assert(betting_rounds_completed());
-    assert(round_of_betting() == poker::round_of_betting::river);
 
     _dealer.showdown();
     update_table_players();
@@ -296,7 +310,7 @@ inline auto table::automatic_actions() const noexcept -> span<const std::optiona
 }
 
 inline auto table::can_set_automatic_action(seat s) const noexcept -> bool {
-    assert(hand_in_progress());
+    assert(betting_round_in_progress());
 
     // (1) This is only ever true for players that have been in the hand since the start.
     // Every following sit-down is accompanied by a _staged[s] = true
@@ -334,9 +348,8 @@ inline auto table::legal_automatic_actions(seat s) const noexcept -> automatic_a
 }
 
 inline void table::set_automatic_action(seat s, automatic_action a) {
-    assert(betting_round_in_progress());
-    assert(s != player_to_act());
     assert(can_set_automatic_action(s));
+    assert(s != player_to_act());
     assert(std::bitset<CHAR_BIT>(static_cast<unsigned char>(a)).count() == 1);
     assert(static_cast<bool>(a & legal_automatic_actions(s)));
 
