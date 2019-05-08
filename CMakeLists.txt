@@ -43,6 +43,5 @@ add_executable(
     tests/poker/dealer.test.cpp
     tests/poker/table.test.cpp
 )
-target_compile_features    ( poker-tests PRIVATE cxx_std_17             )
 target_include_directories ( poker-tests PRIVATE ${DOCTEST_INCLUDE_DIR} )
 target_link_libraries      ( poker-tests PRIVATE poker                  )
