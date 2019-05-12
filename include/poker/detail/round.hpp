@@ -1,7 +1,8 @@
 #pragma once
 
-#include <poker/player.hpp>
+#include <cassert>
 
+#include "poker/detail/seat_index.hpp"
 #include "poker/detail/utility.hpp"
 
 namespace poker::detail {
@@ -11,13 +12,11 @@ public:
     //
     // Constants
     //
-    static constexpr auto max_players = 9;
+    static constexpr auto num_players = std::size_t{9};
 
     //
     // Types
     //
-    using player_container = std::array<player*, max_players>;
-
     enum class action {
         leave      = 1 << 0,
         passive    = 1 << 1,
@@ -26,25 +25,17 @@ public:
     POKER_DETAIL_DEFINE_FRIEND_FLAG_OPERATIONS(action)
 
     //
-    // Special functions
-    //
-    round()              = default;
-    round(const round&)  = delete;
-    round(round&&)       = delete;
-    auto operator=(const round&) -> round& = delete;
-    auto operator=(round&&)      -> round& = delete;
-
-    //
     // Constructors
     //
-    round(const player_container& players, player_container::const_iterator current) noexcept;
+    round() = default;
+    round(const std::array<bool, num_players>& active_players, seat_index first_to_act) noexcept;
 
     //
     // Observers
     //
-    auto players()               const noexcept -> const player_container&;
-    auto player_to_act()         const noexcept -> player_container::const_iterator;
-    auto last_aggressive_actor() const noexcept -> player_container::const_iterator;
+    auto active_players()        const noexcept -> const std::array<bool,num_players>&;
+    auto player_to_act()         const noexcept -> seat_index;
+    auto last_aggressive_actor() const noexcept -> seat_index;
     auto num_active_players()    const noexcept -> std::size_t;
     auto in_progress()           const noexcept -> bool;
 
@@ -60,32 +51,39 @@ private:
     void increment_player() noexcept;
 
 private:
-    player_container                 _players = {};
-    player_container::iterator       _player_to_act;
-    player_container::const_iterator _last_aggressive_actor;
-    bool                             _contested = false;      // passive or aggressive action was taken this round
-    bool                             _first_action = true;
-    std::size_t                      _num_active_players = 0;
+    std::array<bool,num_players> _active_players     = {};
+    seat_index                   _player_to_act;
+    seat_index                   _last_aggressive_actor;
+    bool                         _contested          = false;      // passive or aggressive action was taken this round
+    bool                         _first_action       = true;
+    std::size_t                  _num_active_players = 0;
 };
 
-inline round::round(const player_container& players, player_container::const_iterator current) noexcept
-    : _players{players}
-    , _player_to_act{_players.begin() + std::distance(players.begin(), current)}
-    , _last_aggressive_actor{_player_to_act}
-    , _num_active_players{static_cast<std::size_t>(std::count_if(begin(_players), end(_players), [] (player* p) { return p != nullptr; }))}
+inline auto operator==(const round& x, const round& y) noexcept -> bool {
+    return x._active_players        == y._active_players
+        && x._player_to_act         == y._player_to_act
+        && x._last_aggressive_actor == y._last_aggressive_actor
+        && x._contested             == y._contested
+        && x._num_active_players    == y._num_active_players;
+}
+
+inline round::round(const std::array<bool, num_players>& active_players, seat_index first_to_act) noexcept
+    : _active_players{active_players}
+    , _player_to_act{first_to_act}
+    , _last_aggressive_actor{first_to_act}
+    , _num_active_players{static_cast<std::size_t>(std::count(std::cbegin(active_players), std::cend(active_players), true))}
 {
 }
 
-inline auto round::players() const noexcept -> const player_container& {
-    return _players;
+inline auto round::active_players() const noexcept -> const std::array<bool,num_players>& {
+    return _active_players;
 }
 
-inline auto round::player_to_act() const noexcept -> player_container::const_iterator {
-    assert(in_progress());
+inline auto round::player_to_act() const noexcept -> seat_index {
     return _player_to_act;
 }
 
-inline auto round::last_aggressive_actor() const noexcept -> player_container::const_iterator {
+inline auto round::last_aggressive_actor() const noexcept -> seat_index {
     return _last_aggressive_actor;
 }
 
@@ -109,26 +107,18 @@ inline void round::action_taken(action a) noexcept {
         _contested = true;
     }
     if (static_cast<bool>(a & action::leave)) {
-        *_player_to_act = nullptr;
+        _active_players[_player_to_act] = false;
         --_num_active_players;
     }
     increment_player();
 }
 
-inline auto operator==(const round& x, const round& y) noexcept -> bool {
-    return x._players == y._players
-        && (x._player_to_act - x._players.begin()) == (y._player_to_act - y._players.begin())
-        && (x._last_aggressive_actor - x._players.begin()) == (y._last_aggressive_actor - y._players.begin())
-        && x._contested == y._contested
-        && x._num_active_players == y._num_active_players;
-}
-
 inline void round::increment_player() noexcept {
     do {
         ++_player_to_act;
-        if (_player_to_act == _players.end()) _player_to_act = _players.begin();
+        if (_player_to_act == num_players) _player_to_act = 0;
         if (_player_to_act == _last_aggressive_actor) break;
-    } while (*_player_to_act == nullptr);
+    } while (!_active_players[_player_to_act]);
 }
 
 } // namespace poker::detail

@@ -1,16 +1,15 @@
 #include <doctest/doctest.h>
 
+#include <array>
+
 #include "poker/detail/round.hpp"
 
 using namespace poker;
 using namespace poker::detail;
-using player_container = round::player_container;
 
 TEST_CASE("two leave, one of which is contesting do not result in round being over") {
-    constexpr auto some_constant = 42;
-    player players[] = {player{some_constant}, player{some_constant}, player{some_constant}};
-    auto player_pointers = player_container{&players[0], &players[1], &players[2]};
-    auto r = poker::detail::round{player_pointers, player_pointers.begin()}; // round is ambigous for some reason here
+    auto players = std::array<bool, 9>{true, true, true};
+    auto r = poker::detail::round{players, 0};
 
     r.action_taken(round::action::aggressive | round::action::leave);
     r.action_taken(round::action::passive | round::action::leave);
@@ -18,26 +17,22 @@ TEST_CASE("two leave, one of which is contesting do not result in round being ov
 }
 
 TEST_CASE("round construction") {
-    constexpr auto some_constant = 42;
-    player players[] = {player{some_constant}, player{some_constant}, player{some_constant}};
-    auto player_pointers = player_container{&players[0], &players[1], &players[2]};
-    auto r = poker::detail::round{player_pointers, player_pointers.begin()};
+    auto players = std::array<bool, 9>{true, true, true};
+    auto r = poker::detail::round{players, 0};
 
     REQUIRE(r.in_progress());
     REQUIRE_EQ(r.player_to_act(), r.last_aggressive_actor());
-    REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
+    REQUIRE_EQ(r.player_to_act(), 0);
     REQUIRE_EQ(r.num_active_players(), 3);
 }
 
 SCENARIO("there are only 2 players in the round") {
-    constexpr auto some_constant = 42;
-    player players[] = {player{some_constant}, player{some_constant}};
-    auto player_pointers = player_container{&players[0], &players[1]};
-    auto r = poker::detail::round{player_pointers, player_pointers.begin()};
+    auto players = std::array<bool, 9>{true, true};
+    auto r = poker::detail::round{players, 0};
 
     GIVEN("there was no action in the round yet") {
-        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
-        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+        REQUIRE_EQ(r.player_to_act(), 0);
+        REQUIRE_EQ(r.last_aggressive_actor(), 0);
         REQUIRE(r.in_progress());
         REQUIRE_EQ(r.num_active_players(), 2);
 
@@ -45,11 +40,11 @@ SCENARIO("there are only 2 players in the round") {
             r.action_taken(round::action::aggressive);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the second player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
+                REQUIRE_EQ(r.player_to_act(), 1);
             }
 
             THEN("the round is not over") {
@@ -65,11 +60,11 @@ SCENARIO("there are only 2 players in the round") {
             r.action_taken(round::action::aggressive | round::action::leave);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the second player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
+                REQUIRE_EQ(r.player_to_act(), 1);
             }
 
             THEN("the round is not over") {
@@ -85,11 +80,11 @@ SCENARIO("there are only 2 players in the round") {
             r.action_taken(round::action::passive);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the second player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
+                REQUIRE_EQ(r.player_to_act(), 1);
             }
 
             THEN("the round is not over") {
@@ -121,8 +116,8 @@ SCENARIO("there are only 2 players in the round") {
     GIVEN("the next player is the last aggressive actor") {
         r.action_taken(round::action::aggressive);
 
-        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
-        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+        REQUIRE_EQ(r.player_to_act(), 1);
+        REQUIRE_EQ(r.last_aggressive_actor(), 0);
         REQUIRE(r.in_progress());
         REQUIRE_EQ(r.num_active_players(), 2);
 
@@ -130,11 +125,11 @@ SCENARIO("there are only 2 players in the round") {
             r.action_taken(round::action::aggressive);
 
             THEN("the player to act becomes the last aggressive actor") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 1);
+                REQUIRE_EQ(r.last_aggressive_actor(), 1);
             }
 
             THEN("the last aggressive actor becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
+                REQUIRE_EQ(r.player_to_act(), 0);
             }
 
             THEN("the round is not over") {
@@ -150,11 +145,11 @@ SCENARIO("there are only 2 players in the round") {
             r.action_taken(round::action::aggressive | round::action::leave);
 
             THEN("the player to act becomes the last aggressive actor") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 1);
+                REQUIRE_EQ(r.last_aggressive_actor(), 1);
             }
 
             THEN("the last aggressive actor becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
+                REQUIRE_EQ(r.player_to_act(), 0);
             }
 
             THEN("the round is not over") {
@@ -193,16 +188,14 @@ SCENARIO("there are only 2 players in the round") {
 }
 
 SCENARIO("there are more than 2 players in the round") {
-    constexpr auto some_constant = 42;
-    player players[] = {player{some_constant}, player{some_constant}, player{some_constant}};
-    auto player_pointers = player_container{&players[0], &players[1], &players[2]};
-    auto r = poker::detail::round{player_pointers, player_pointers.begin()};
+    auto players = std::array<bool, 9>{true, true, true};
+    auto r = poker::detail::round{players, 0};
 
     const auto initial_num_active_players = r.num_active_players();
 
     GIVEN("there was no action in the round yet") {
-        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
-        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+        REQUIRE_EQ(r.player_to_act(), 0);
+        REQUIRE_EQ(r.last_aggressive_actor(), 0);
         REQUIRE(r.in_progress());
         REQUIRE_EQ(r.num_active_players(), 3);
 
@@ -210,11 +203,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::aggressive);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
+                REQUIRE_EQ(r.player_to_act(), 1);
             }
 
             THEN("the round is not over") {
@@ -230,11 +223,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::aggressive | round::action::leave);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
+                REQUIRE_EQ(r.player_to_act(), 1);
             }
 
             THEN("the round is not over") {
@@ -250,11 +243,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::passive);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
+                REQUIRE_EQ(r.player_to_act(), 1);
             }
 
             THEN("the round is not over") {
@@ -270,11 +263,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::passive | round::action::leave);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
+                REQUIRE_EQ(r.player_to_act(), 1);
             }
 
             THEN("the round is not over") {
@@ -290,11 +283,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::leave);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
+                REQUIRE_EQ(r.player_to_act(), 1);
             }
 
             THEN("the round is not over") {
@@ -311,8 +304,8 @@ SCENARIO("there are more than 2 players in the round") {
         r.action_taken(round::action::aggressive);
         r.action_taken(round::action::passive);
 
-        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
-        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+        REQUIRE_EQ(r.player_to_act(), 2);
+        REQUIRE_EQ(r.last_aggressive_actor(), 0);
         REQUIRE(r.in_progress());
         REQUIRE_EQ(r.num_active_players(), 3);
 
@@ -320,11 +313,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::aggressive);
 
             THEN("the player to act becomes the last aggressive actor") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 2);
+                REQUIRE_EQ(r.last_aggressive_actor(), 2);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
+                REQUIRE_EQ(r.player_to_act(), 0);
             }
 
             THEN("the round is not over") {
@@ -340,11 +333,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::aggressive | round::action::leave);
 
             THEN("the player to act becomes the last aggressive actor") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 2);
+                REQUIRE_EQ(r.last_aggressive_actor(), 2);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
+                REQUIRE_EQ(r.player_to_act(), 0);
             }
 
             THEN("the round is not over") {
@@ -384,8 +377,8 @@ SCENARIO("there are more than 2 players in the round") {
     GIVEN("the next player is not the last aggressive actor") {
         r.action_taken(round::action::aggressive);
 
-        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 1);
-        REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+        REQUIRE_EQ(r.player_to_act(), 1);
+        REQUIRE_EQ(r.last_aggressive_actor(), 0);
         REQUIRE(r.in_progress());
         REQUIRE_EQ(r.num_active_players(), 3);
 
@@ -393,11 +386,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::aggressive);
 
             THEN("the player to act becomes the last aggressive actor") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 1);
+                REQUIRE_EQ(r.last_aggressive_actor(), 1);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
+                REQUIRE_EQ(r.player_to_act(), 2);
             }
 
             THEN("the round is not over") {
@@ -413,11 +406,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::aggressive | round::action::leave);
 
             THEN("the player to act becomes the last aggressive actor") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 1);
+                REQUIRE_EQ(r.last_aggressive_actor(), 1);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
+                REQUIRE_EQ(r.player_to_act(), 2);
             }
 
             THEN("the round is not over") {
@@ -433,11 +426,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::passive);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
+                REQUIRE_EQ(r.player_to_act(), 2);
             }
 
             THEN("the round is not over") {
@@ -453,11 +446,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::passive | round::action::leave);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
+                REQUIRE_EQ(r.player_to_act(), 2);
             }
 
             THEN("the round is not over") {
@@ -473,11 +466,11 @@ SCENARIO("there are more than 2 players in the round") {
             r.action_taken(round::action::leave);
 
             THEN("the last aggressive actor remains unchanged") {
-                REQUIRE_EQ(r.last_aggressive_actor(), r.players().begin() + 0);
+                REQUIRE_EQ(r.last_aggressive_actor(), 0);
             }
 
             THEN("the next player becomes the player to act") {
-                REQUIRE_EQ(r.player_to_act(), r.players().begin() + 2);
+                REQUIRE_EQ(r.player_to_act(), 2);
             }
 
             THEN("the round is not over") {
@@ -492,9 +485,8 @@ SCENARIO("there are more than 2 players in the round") {
 }
 
 SCENARIO("there are 3 players and the first one acts first") {
-    player ps[] = {player{300}, player{400}, player{500}};
-    auto players = player_container{&ps[0], &ps[1], &ps[2]};
-    auto current = players.begin();
+    auto players = std::array<bool, 9>{true, true, true};
+    auto current = seat_index{0};
 
     // Test for first action (_is_next_player_contested) exception.
     GIVEN("a round") {

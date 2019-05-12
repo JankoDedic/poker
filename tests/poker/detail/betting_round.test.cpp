@@ -79,7 +79,8 @@ TEST_CASE("betting round actions map to round actions properly") {
     GIVEN("a betting round") {
         player players[] = {player{1000}, player{1000}, player{1000}};
         auto player_pointers = player_container{&players[0], &players[1], &players[2]};
-        auto r = poker::detail::round{player_pointers, player_pointers.begin()};
+        auto active_players = std::array<bool, 9>{true, true, true};
+        auto r = poker::detail::round{active_players, 0};
         auto br = betting_round{player_pointers, player_pointers.begin(), 50};
         REQUIRE_EQ(r, br._round);
         REQUIRE_EQ(*br.player_to_act(), &players[0]);
