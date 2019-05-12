@@ -73,6 +73,7 @@ inline round::round(const std::array<bool, num_players>& active_players, seat_in
     , _last_aggressive_actor{first_to_act}
     , _num_active_players{static_cast<std::size_t>(std::count(std::cbegin(active_players), std::cend(active_players), true))}
 {
+    assert(first_to_act < num_players);
 }
 
 inline auto round::active_players() const noexcept -> const std::array<bool,num_players>& {
