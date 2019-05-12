@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cassert>
 
 #include "poker/detail/seat_index.hpp"
