@@ -30,8 +30,6 @@ public:
     //
     // Types
     //
-    /* using player_container = std::array<player*, max_players>; */
-
     enum class action { leave, match, raise };
 
     struct action_range {
@@ -51,21 +49,17 @@ public:
     //
     // Constructors
     //
-    /* betting_round(const player_container& players, player_container::const_iterator current, chips min_raise) noexcept; */
-    /* betting_round(seat_array& players, std::array<bool, max_players> active_players, seat_index current, chips min_raise) noexcept; */
     betting_round(seat_array_view players, seat_index current, chips min_raise) noexcept;
 
     //
     // Observers
     //
     auto in_progress()        const noexcept -> bool;
-    /* auto player_to_act()      const noexcept -> player_container::const_iterator; */
-    auto player_to_act() const noexcept -> seat_index;
+    auto player_to_act()      const noexcept -> seat_index;
     auto biggest_bet()        const noexcept -> chips;
     auto min_raise()          const noexcept -> chips;
-    /* auto players()            const noexcept -> const player_container&; */
-    auto players() const noexcept -> seat_array_view;
-    auto active_players() const noexcept -> const std::array<bool,max_players>&;
+    auto players()            const noexcept -> seat_array_view;
+    auto active_players()     const noexcept -> const std::array<bool,max_players>&;
     auto num_active_players() const noexcept -> std::size_t;
     auto legal_actions()      const noexcept -> action_range;
 
@@ -80,30 +74,10 @@ private:
 public: // for testing only
     round _round;
 private:
-    /* player_container _players; */
     seat_array* _players = nullptr;
     chips _biggest_bet = 0;
     chips _min_raise = 0;
 };
-
-/* inline betting_round::betting_round(const player_container& players, player_container::const_iterator current, chips min_raise) noexcept */
-/*     : _players{players} */
-/*     , _biggest_bet{min_raise} */
-/*     , _min_raise{min_raise} */
-/* { */
-/*     auto active_players = std::array<bool, max_players>{}; */
-/*     std::transform(std::cbegin(_players), std::cend(_players), std::begin(active_players), [] (player* p) -> bool { return !!p; }); */
-/*     auto first_to_act = static_cast<std::size_t>(std::distance(std::cbegin(players), current)); */
-/*     _round = {active_players, first_to_act}; */
-/* } */
-
-/* inline betting_round::betting_round(seat_array& players, std::array<bool,max_players> active_players, seat_index current, chips min_raise) noexcept */
-/*     : _round{active_players, current} */
-/*     , _players{&players} */
-/*     , _biggest_bet{min_raise} */
-/*     , _min_raise{min_raise} */
-/* { */
-/* } */
 
 inline betting_round::betting_round(seat_array_view players, seat_index current, chips min_raise) noexcept
     : _round{players.filter(), current}
@@ -115,20 +89,12 @@ inline betting_round::betting_round(seat_array_view players, seat_index current,
 
 inline auto betting_round::in_progress()        const noexcept -> bool                             { return _round.in_progress();        }
 
-/* inline auto betting_round::player_to_act() const noexcept -> player_container::const_iterator { */
-/*     return std::cbegin(_players) + _round.player_to_act(); */
-/* } */
-
 inline auto betting_round::player_to_act() const noexcept -> seat_index {
     return _round.player_to_act();
 }
 
 inline auto betting_round::biggest_bet()        const noexcept -> chips                            { return _biggest_bet;                }
 inline auto betting_round::min_raise()          const noexcept -> chips                            { return _min_raise;                  }
-
-/* inline auto betting_round::players() const noexcept -> const player_container& { */
-/*     return _players; */
-/* } */
 
 inline auto betting_round::players() const noexcept -> seat_array_view {
     return {*_players, _round.active_players()};
@@ -165,7 +131,6 @@ inline void betting_round::action_taken(action a, chips bet/*= 0*/) noexcept {
         auto action_flag = round::action::aggressive;
         if (player.stack() == 0) {
             action_flag |= round::action::leave;
-            /* _players[_round.player_to_act()] = nullptr; */
         }
         _round.action_taken(action_flag);
     } else if (a == action::match) {
@@ -173,12 +138,10 @@ inline void betting_round::action_taken(action a, chips bet/*= 0*/) noexcept {
         auto action_flag = round::action::passive;
         if (player.stack() == 0) {
             action_flag |= round::action::leave;
-            /* _players[_round.player_to_act()] = nullptr; */
         }
         _round.action_taken(action_flag);
     } else {
         assert(a == action::leave);
-        /* _players[_round.player_to_act()] = nullptr; */
         _round.action_taken(round::action::leave);
     }
 }

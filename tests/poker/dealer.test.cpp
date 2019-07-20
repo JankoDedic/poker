@@ -20,8 +20,6 @@ TEST_CASE("Starting the hand") {
     auto cc = community_cards{};
 
     GIVEN("A hand with two players who can cover their blinds") {
-        /* player players[] = {player{100}, player{100}}; */
-        /* auto d = dealer{players, &players[0], b, dck, cc}; */
         auto players = seat_array{};
         players.add_player(0, player{100});
         players.add_player(1, player{100});
@@ -46,8 +44,6 @@ TEST_CASE("Starting the hand") {
     }
 
     GIVEN("A hand with two players who can't cover their blinds") {
-        /* player players[] = {player{20}, player{20}}; */
-        /* auto d = dealer{players, &players[0], b, dck, cc}; */
         auto players = seat_array{};
         players.add_player(0, player{20});
         players.add_player(1, player{20});
@@ -73,8 +69,6 @@ TEST_CASE("Starting the hand") {
     }
 
     GIVEN("A hand with more than two players") {
-        /* player players[] = {player{100}, player{100}, player{100}, player{100}}; */
-        /* auto d = dealer{players, &players[0], b, dck, cc}; */
         auto players = seat_array{};
         players.add_player(0, player{100});
         players.add_player(1, player{100});
@@ -94,7 +88,6 @@ TEST_CASE("Starting the hand") {
             }
 
             THEN("The action is on the button+3") {
-                /* REQUIRE_EQ(*d.player_to_act(), &players[3]); */
                 REQUIRE_EQ(d.player_to_act(), 3);
             }
         }
@@ -105,8 +98,6 @@ TEST_CASE("Ending the betting round") {
     const auto b = forced_bets{25, 50};
     auto dck = deck{std::default_random_engine{std::random_device{}()}};
     auto cc = community_cards{};
-    /* player players[] = {player{1000}, player{1000}, player{1000}}; */
-    /* auto d = dealer{players, &players[0], b, dck, cc}; */
     auto players = seat_array{};
     players.add_player(0, player{1000});
     players.add_player(1, player{1000});
@@ -237,8 +228,6 @@ TEST_CASE("flop, someone folded preflop, now others fold, when 1 remains, the ha
     const auto b = forced_bets{25, 50};
     auto dck = deck{std::default_random_engine{std::random_device{}()}};
     auto cc = community_cards{};
-    /* player players[] = {player{1000}, player{1000}, player{1000}}; */
-    /* auto d = dealer{players, &players[0], b, dck, cc}; */
     auto players = seat_array{};
     players.add_player(0, player{1000});
     players.add_player(1, player{1000});
@@ -261,8 +250,6 @@ TEST_CASE("Showdown") {
         const auto b = forced_bets{25, 50};
         auto dck = deck{std::default_random_engine{std::random_device{}()}};
         auto cc = community_cards{};
-        /* player players[] = {player{1000}, player{1000}, player{1000}}; */
-        /* auto d = dealer{players, &players[0], b, dck, cc}; */
         auto players = seat_array{};
         players.add_player(0, player{1000});
         players.add_player(1, player{1000});
@@ -285,8 +272,6 @@ TEST_CASE("Showdown") {
         const auto b = forced_bets{25, 50};
         auto dck = deck{std::default_random_engine{std::random_device{}()}};
         auto cc = community_cards{};
-        /* player players[] = {player{300}, player{200}, player{100}}; */
-        /* auto d = dealer{players, &players[0], b, dck, cc}; */
         auto players = seat_array{};
         players.add_player(0, player{300});
         players.add_player(1, player{200});
