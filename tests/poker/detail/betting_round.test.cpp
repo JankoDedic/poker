@@ -5,14 +5,14 @@
 using namespace poker;
 using namespace poker::detail;
 
-using player_container = betting_round::player_container;
-
 TEST_CASE("testing valid actions") {
     GIVEN("a betting round") {
-        player players[] = {player{1}, player{1}, player{1}};
-        auto player_pointers = player_container{&players[0], &players[1], &players[2]};
-        auto r = betting_round{player_pointers, player_pointers.begin(), 50};
-        REQUIRE_EQ(r.player_to_act(), r.players().begin() + 0);
+        auto players = seat_array{};
+        players.add_player(0, player{1});
+        players.add_player(1, player{1});
+        players.add_player(2, player{1});
+        auto r = betting_round{players, 0, 50};
+        REQUIRE_EQ(r.player_to_act(), 0);
         REQUIRE_EQ(r.biggest_bet(), 50);
         REQUIRE_EQ(r.min_raise(), 50);
 
@@ -77,13 +77,14 @@ TEST_CASE("testing valid actions") {
 
 TEST_CASE("betting round actions map to round actions properly") {
     GIVEN("a betting round") {
-        player players[] = {player{1000}, player{1000}, player{1000}};
-        auto player_pointers = player_container{&players[0], &players[1], &players[2]};
-        auto active_players = std::array<bool, 9>{true, true, true};
-        auto r = poker::detail::round{active_players, 0};
-        auto br = betting_round{player_pointers, player_pointers.begin(), 50};
+        auto players = seat_array{};
+        players.add_player(0, player{1000});
+        players.add_player(1, player{1000});
+        players.add_player(2, player{1000});
+        auto r = poker::detail::round{players.occupancy(), 0};
+        auto br = betting_round{players, 0, 50};
         REQUIRE_EQ(r, br._round);
-        REQUIRE_EQ(*br.player_to_act(), &players[0]);
+        REQUIRE_EQ(br.player_to_act(), 0);
 
         WHEN("a player raises for less than his entire stack") {
             br.action_taken(betting_round::action::raise, 200);

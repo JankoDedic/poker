@@ -8,7 +8,7 @@
 TEST_CASE("table construction") {
     auto t = poker::table{poker::forced_bets{poker::blinds{25, 50}}};
 
-    REQUIRE(std::all_of(std::cbegin(t.seats()), std::cend(t.seats()), [] (auto&& opt) { return opt == std::nullopt; }));
+    REQUIRE(std::find(t.seats().occupancy().begin(), t.seats().occupancy().end(), true) == t.seats().occupancy().end());
     REQUIRE_EQ(t.forced_bets(), poker::forced_bets{25, 50});
     REQUIRE_FALSE(t.hand_in_progress());
 }
@@ -50,7 +50,7 @@ TEST_CASE("adding/removing players") {
             t.sit_down(7, 1000);
 
             THEN("that seat is taken") {
-                REQUIRE(t.seats()[7]);
+                REQUIRE(t.seats().occupancy()[7]);
             }
         }
     }
@@ -63,7 +63,7 @@ TEST_CASE("adding/removing players") {
             t.stand_up(7);
 
             THEN("the seat opens up") {
-                REQUIRE_FALSE(t.seats()[7]);
+                REQUIRE_FALSE(t.seats().occupancy()[7]);
             }
         }
     }
@@ -139,9 +139,9 @@ TEST_CASE("automatic actions") {
             t.start_hand(std::default_random_engine{std::random_device{}()});
 
             THEN("the legal actions for each player are appropriate") {
-                REQUIRE_EQ(t.seats()[1]->bet_size(), 0);
-                REQUIRE_EQ(t.seats()[2]->bet_size(), 25);
-                REQUIRE_EQ(t.seats()[3]->bet_size(), 50);
+                REQUIRE_EQ(t.seats()[1].bet_size(), 0);
+                REQUIRE_EQ(t.seats()[2].bet_size(), 25);
+                REQUIRE_EQ(t.seats()[3].bet_size(), 50);
 
                 auto legal_automatic_actions = poker::table::automatic_action{};
 
@@ -203,9 +203,9 @@ TEST_CASE("automatic actions") {
             t.action_taken(poker::action::call);
 
             THEN("the automatic actions play out") {
-                REQUIRE_EQ(t.seats()[1]->bet_size(), 50);
-                REQUIRE_EQ(t.seats()[2]->bet_size(), 50);
-                REQUIRE_EQ(t.seats()[3]->bet_size(), 50);
+                REQUIRE_EQ(t.seats()[1].bet_size(), 50);
+                REQUIRE_EQ(t.seats()[2].bet_size(), 50);
+                REQUIRE_EQ(t.seats()[3].bet_size(), 50);
             }
             THEN("the betting round ends") {
                 REQUIRE_FALSE(t.betting_round_in_progress());
@@ -323,65 +323,66 @@ TEST_CASE("automatic actions") {
             t.action_taken(poker::action::call);
 
             THEN("he folded") {
-                REQUIRE_EQ(t.hand_players()[2], nullptr);
+                REQUIRE_FALSE(t.hand_players().filter()[2]);
             }
         }
 
         WHEN("a player sets his automatic action to check_fold and it gets triggered") {
-            REQUIRE_EQ(t.seats()[3]->bet_size(), 50);
+            /* REQUIRE_EQ(t.seats()[3]->bet_size(), 50); */
+            REQUIRE_EQ(t.seats()[3].bet_size(), 50);
             t.set_automatic_action(3, poker::table::automatic_action::check_fold);
             t.action_taken(poker::action::call);
             t.action_taken(poker::action::call);
 
             THEN("he checked") {
                 REQUIRE_FALSE(t.betting_round_in_progress());
-                REQUIRE_EQ(t.seats()[3]->bet_size(), 50);
+                REQUIRE_EQ(t.seats()[3].bet_size(), 50);
             }
         }
 
         WHEN("a player sets his automatic action to check and it gets triggered") {
-            REQUIRE_EQ(t.seats()[3]->bet_size(), 50);
+            REQUIRE_EQ(t.seats()[3].bet_size(), 50);
             t.set_automatic_action(3, poker::table::automatic_action::check);
             t.action_taken(poker::action::call);
             t.action_taken(poker::action::call);
 
             THEN("he checked") {
                 REQUIRE_FALSE(t.betting_round_in_progress());
-                REQUIRE_EQ(t.seats()[3]->bet_size(), 50);
+                REQUIRE_EQ(t.seats()[3].bet_size(), 50);
             }
         }
 
         WHEN("a player sets his automatic action to call and it gets triggered") {
-            REQUIRE_EQ(t.seats()[2]->bet_size(), 25);
+            REQUIRE_EQ(t.seats()[2].bet_size(), 25);
             t.set_automatic_action(2, poker::table::automatic_action::call);
             t.action_taken(poker::action::call);
 
             THEN("he called") {
                 REQUIRE_EQ(t.player_to_act(), 3);
-                REQUIRE_EQ(t.seats()[2]->bet_size(), 50);
+                REQUIRE_EQ(t.seats()[2].bet_size(), 50);
             }
         }
 
         WHEN("a player sets his automatic action to call_any and it gets triggered") {
-            REQUIRE_EQ(t.seats()[2]->bet_size(), 25);
+            REQUIRE_EQ(t.seats()[2].bet_size(), 25);
             t.set_automatic_action(2, poker::table::automatic_action::call_any);
             t.action_taken(poker::action::call);
 
             THEN("he called (any)") {
                 REQUIRE_EQ(t.player_to_act(), 3);
-                REQUIRE_EQ(t.seats()[2]->bet_size(), 50);
+                REQUIRE_EQ(t.seats()[2].bet_size(), 50);
             }
         }
 
         WHEN("a player sets his automatic action to all_in and it gets triggered") {
             REQUIRE_EQ(t.player_to_act(), 1);
-            REQUIRE_EQ(t.seats()[2]->bet_size(), 25);
+            REQUIRE_EQ(t.seats()[2].bet_size(), 25);
             t.set_automatic_action(2, poker::table::automatic_action::all_in);
             t.action_taken(poker::action::call);
 
             THEN("he called (any)") {
                 REQUIRE_EQ(t.player_to_act(), 3);
-                REQUIRE_EQ(t.seats()[2]->bet_size(), 2000);
+                REQUIRE_EQ(t.seats()[2].bet_size(), 2000);
             }
         }
     }
@@ -400,9 +401,9 @@ TEST_CASE("When second to last player stands up, the hand ends") {
     t.start_hand(std::default_random_engine{std::random_device{}()});
     REQUIRE_EQ(t.player_to_act(), 0);
 
-    REQUIRE_EQ(t.seats()[0].value().bet_size(), 0);
-    REQUIRE_EQ(t.seats()[1].value().bet_size(), 25);
-    REQUIRE_EQ(t.seats()[2].value().bet_size(), 50);
+    REQUIRE_EQ(t.seats()[0].bet_size(), 0);
+    REQUIRE_EQ(t.seats()[1].bet_size(), 25);
+    REQUIRE_EQ(t.seats()[2].bet_size(), 50);
     REQUIRE_EQ(0, t.button());
 
     t.stand_up(1);
@@ -412,12 +413,12 @@ TEST_CASE("When second to last player stands up, the hand ends") {
     REQUIRE_FALSE(t.betting_round_in_progress());
     t.end_betting_round();
 
-    REQUIRE_EQ(t.seats()[0].value().stack(), 950);
+    REQUIRE_EQ(t.seats()[0].stack(), 950);
 
     t.showdown();
     REQUIRE_FALSE(t.hand_in_progress());
 
-    REQUIRE_EQ(t.seats()[0].value().stack(), 1075);
+    REQUIRE_EQ(t.seats()[0].stack(), 1075);
 
     t.start_hand(std::default_random_engine{std::random_device{}()});
     REQUIRE_EQ(1, t.button());

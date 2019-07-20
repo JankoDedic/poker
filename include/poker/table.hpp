@@ -19,8 +19,6 @@ public:
     //
     // Types
     //
-    using seat = std::size_t;
-
     enum class automatic_action {
         fold       = 1 << 0,
         check_fold = 1 << 1,
@@ -47,16 +45,16 @@ public:
     //
     // Observers
     //
-    auto seats()       const noexcept -> span<const std::optional<player>, num_seats>;
+    auto seats() const noexcept -> const seat_array&;
     auto forced_bets() const noexcept -> poker::forced_bets;
 
     // Dealer
     auto hand_in_progress()          const noexcept -> bool;
     auto betting_round_in_progress() const noexcept -> bool;
     auto betting_rounds_completed()  const noexcept -> bool;
-    auto hand_players()              const noexcept -> span<player* const, num_seats>;
-    auto button()                    const noexcept -> seat;
-    auto player_to_act()             const noexcept -> seat;
+    auto hand_players()              const noexcept -> seat_array_view;
+    auto button()                    const noexcept -> seat_index;
+    auto player_to_act()             const noexcept -> seat_index;
     auto num_active_players()        const noexcept -> std::size_t;
     auto pots()                      const noexcept -> span<const pot>;
     auto round_of_betting()          const noexcept -> poker::round_of_betting;
@@ -64,8 +62,8 @@ public:
 
     // Automatic actions
     auto automatic_actions()            const noexcept -> span<const std::optional<automatic_action>, num_seats>;
-    auto can_set_automatic_action(seat) const noexcept -> bool;
-    auto legal_automatic_actions(seat)  const noexcept -> automatic_action;
+    auto can_set_automatic_action(seat_index) const noexcept -> bool;
+    auto legal_automatic_actions(seat_index)  const noexcept -> automatic_action;
 
     //
     // Modifiers
@@ -73,8 +71,8 @@ public:
     void set_forced_bets(poker::forced_bets) noexcept;
 
     // Adding/removing players
-    void sit_down(seat, chips buy_in) noexcept;
-    void stand_up(seat) noexcept;
+    void sit_down(seat_index, chips buy_in) noexcept;
+    void stand_up(seat_index) noexcept;
 
     // Dealer
     template<class URBG> void start_hand(URBG&&) noexcept;
@@ -83,7 +81,7 @@ public:
     void showdown()                              noexcept;
 
     // Automatic actions
-    void set_automatic_action(seat, automatic_action);
+    void set_automatic_action(seat_index, automatic_action);
 
 private:
     void take_automatic_action(automatic_action) noexcept;
@@ -93,16 +91,16 @@ private:
     void update_table_players() noexcept;
 
 private:
-    std::array<std::optional<player>,num_seats>           _hand_players;
+    seat_array _hand_players;
     bool                                                  _first_time_button = true;
-    std::array<std::optional<player>,num_seats>::iterator _button            = std::begin(_hand_players);
+    seat_index _button = 0;
     poker::forced_bets                                    _forced_bets       = {};
     deck                                                  _deck;
     poker::community_cards                                _community_cards;
     dealer                                                _dealer;
 
     // All the players physically present at the table
-    std::array<std::optional<player>,num_seats>           _table_players;
+    seat_array _table_players;
     // All players who took a seat before the .start_hand()
     std::array<bool,num_seats>                            _staged = {};
     std::array<bool,num_seats>                            _sitting_out = {};
@@ -115,7 +113,7 @@ inline table::table(poker::forced_bets fb) noexcept
 }
 
 inline void table::take_automatic_action(automatic_action a) noexcept {
-    const auto& player = **_dealer.player_to_act();
+    const auto& player = _hand_players[_dealer.player_to_act()];
     const auto biggest_bet = _dealer.biggest_bet();
     const auto bet_gap = biggest_bet - player.bet_size();
     const auto total_chips = player.total_chips();
@@ -144,9 +142,9 @@ inline void table::amend_automatic_actions() noexcept {
     // call_any -- you can lose your ability to call_any, which only leaves the normal call (doubt cleared)
     //          condition: biggest_bet >= total_chips
     const auto biggest_bet = _dealer.biggest_bet();
-    for (auto s = seat{0}; s < num_seats; ++s) {
+    for (auto s = seat_index{0}; s < num_seats; ++s) {
         if (auto& aa = _automatic_actions[s]) {
-            const auto& player = *_hand_players[s];
+            const auto& player = _hand_players[s];
             const auto bet_gap = biggest_bet - player.bet_size();
             const auto total_chips = player.total_chips();
             if (static_cast<bool>(*aa & automatic_action::check_fold) && bet_gap > 0) {
@@ -160,23 +158,23 @@ inline void table::amend_automatic_actions() noexcept {
     }
 }
 
-inline auto table::player_to_act() const noexcept -> seat {
+inline auto table::player_to_act() const noexcept -> seat_index {
     assert(betting_round_in_progress());
 
-    return static_cast<std::size_t>(std::distance(std::cbegin(_dealer.players()), _dealer.player_to_act()));
+    return _dealer.player_to_act();
 }
 
-inline auto table::button() const noexcept -> seat {
+inline auto table::button() const noexcept -> seat_index {
     assert(hand_in_progress());
 
-    return static_cast<std::size_t>(std::distance(std::cbegin(_dealer.players()), _dealer.button()));
+    return _button;
 }
 
-inline auto table::seats() const noexcept -> span<const std::optional<player>, num_seats> {
+inline auto table::seats() const noexcept -> const seat_array& {
     return _table_players;
 }
 
-inline auto table::hand_players() const noexcept -> span<player* const, num_seats> {
+inline auto table::hand_players() const noexcept -> seat_array_view {
     assert(hand_in_progress());
 
     return _dealer.players();
@@ -206,23 +204,21 @@ inline void table::set_forced_bets(poker::forced_bets fb) noexcept {
 
 inline void table::increment_button() noexcept {
     if (_first_time_button) {
-        auto it = std::find_if(std::begin(_hand_players), std::end(_hand_players), [] (auto&& p) { return !!p; });
-        assert(it != std::end(_hand_players)); // There has to be at least one other valid player in every case.
-        _button = it;
+        auto seat = seat_index{_hand_players.begin().index()};
+        assert(seat != num_seats);
+        _button = seat;
         _first_time_button = false;
         return;
     }
-    do {
-        ++_button;
-        if (_button == std::end(_hand_players)) {
-            _button = std::begin(_hand_players);
-        }
-    } while (*_button == std::nullopt);
+    auto it = seat_array::iterator{_hand_players, _button};
+    ++it;
+    _button = it.index();
 }
 
 inline void table::update_table_players() noexcept {
-    for (auto s = seat{0}; s < num_seats; ++s) {
-        if (!_staged[s] && _hand_players[s]) {
+    for (auto s = seat_index{0}; s < num_seats; ++s) {
+        if (!_staged[s] && _hand_players.occupancy()[s]) {
+            assert(_table_players.occupancy()[s]);
             _table_players[s] = _hand_players[s];
         }
     }
@@ -231,19 +227,14 @@ inline void table::update_table_players() noexcept {
 template<class URBG>
 inline void table::start_hand(URBG&& g) noexcept {
     assert(!hand_in_progress());
-    assert(std::count_if(std::cbegin(_table_players), std::cend(_table_players), [] (auto&& p) { return !!p; }) >= 2);
+    assert(std::count(_table_players.occupancy().begin(), _table_players.occupancy().end(), true) >= 2);
 
     _staged = {};
     _automatic_actions = {};
     _hand_players = _table_players;
     increment_button();
     _deck = {std::forward<URBG>(g)};
-    auto players = std::array<player*, num_seats>{};
-    std::transform(std::begin(_hand_players), std::end(_hand_players), std::begin(players), [] (auto& p) -> player* {
-        if (p) return &*p;
-        else return nullptr;
-    });
-    new (&_dealer) dealer{players, std::begin(players) + distance(std::begin(_hand_players), _button), _forced_bets, _deck, _community_cards};
+    new (&_dealer) dealer{_hand_players, _button, _forced_bets, _deck, _community_cards};
     _dealer.start_hand();
     update_table_players();
 }
@@ -315,16 +306,17 @@ inline auto table::automatic_actions() const noexcept -> span<const std::optiona
     return _automatic_actions;
 }
 
-inline auto table::can_set_automatic_action(seat s) const noexcept -> bool {
+inline auto table::can_set_automatic_action(seat_index s) const noexcept -> bool {
     assert(betting_round_in_progress());
 
     // (1) This is only ever true for players that have been in the hand since the start.
     // Every following sit-down is accompanied by a _staged[s] = true
     // (2) If a player is not seated at the table, he obviously cannot set his automatic actions.
-    return !_staged[s] && _table_players[s];
+    /* return !_staged[s] && _table_players[s]; */
+    return !_staged[s] && _table_players.occupancy()[s];
 }
 
-inline auto table::legal_automatic_actions(seat s) const noexcept -> automatic_action {
+inline auto table::legal_automatic_actions(seat_index s) const noexcept -> automatic_action {
     assert(can_set_automatic_action(s));
 
     // fold, all_in -- always viable
@@ -337,7 +329,7 @@ inline auto table::legal_automatic_actions(seat s) const noexcept -> automatic_a
     // check -> nullopt
     // call_any -> check
     const auto biggest_bet = _dealer.biggest_bet();
-    const auto& player = *_table_players[s];
+    const auto& player = _table_players[s];
     const auto bet_size = player.bet_size();
     const auto total_chips = player.total_chips();
     auto legal_actions = automatic_action::fold | automatic_action::all_in;
@@ -353,7 +345,7 @@ inline auto table::legal_automatic_actions(seat s) const noexcept -> automatic_a
     return legal_actions;
 }
 
-inline void table::set_automatic_action(seat s, automatic_action a) {
+inline void table::set_automatic_action(seat_index s, automatic_action a) {
     assert(can_set_automatic_action(s));
     assert(s != player_to_act());
     assert(std::bitset<CHAR_BIT>(static_cast<unsigned char>(a)).count() == 1);
@@ -362,12 +354,12 @@ inline void table::set_automatic_action(seat s, automatic_action a) {
     _automatic_actions[s] = a;
 }
 
-inline void table::sit_down(seat s, chips buy_in) noexcept {
+inline void table::sit_down(seat_index s, chips buy_in) noexcept {
     assert(s >= 0);
     assert(s < table::num_seats);
-    assert(!_table_players[s]);
+    assert(!_table_players.occupancy()[s]);
 
-    _table_players[s] = player(buy_in);
+    _table_players.add_player(s, player{buy_in});
     _staged[s] = true;
 }
 
@@ -385,29 +377,29 @@ inline void table::act_passively() noexcept {
 }
 
 // TODO: return chips?
-inline void table::stand_up(seat s) noexcept {
+inline void table::stand_up(seat_index s) noexcept {
     assert(s >= 0);
     assert(s < table::num_seats);
-    assert(_table_players[s]);
+    assert(_table_players.occupancy()[s]);
 
     if (hand_in_progress()) {
         assert(betting_round_in_progress());
         if (s == player_to_act()) {
             action_taken(action::fold);
-        } else if (_hand_players[s]) {
+        } else if (_hand_players.occupancy()[s]) {
             set_automatic_action(s, automatic_action::fold);
         }
 
-        _table_players[s] = std::nullopt;
+        _table_players.remove_player(s);
         _staged[s] = true;
 
-        const auto player_count = std::count_if(std::cbegin(_table_players), std::cend(_table_players), [] (auto&& p) { return !!p; });
+        const auto player_count = std::count(_table_players.occupancy().begin(), _table_players.occupancy().end(), true);
         if (player_count == 1) {
             // We only need to take action for this one player, and the other automatic actions will unfold automatically.
             act_passively();
         }
     } else {
-        _table_players[s] = std::nullopt;
+        _table_players.remove_player(s);
     }
 }
 
