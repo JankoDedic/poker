@@ -40,6 +40,7 @@ add_executable(
     tests/poker/hand.test.cpp
     tests/poker/detail/round.test.cpp
     tests/poker/detail/betting_round.test.cpp
+    tests/poker/community_cards.test.cpp
     tests/poker/dealer.test.cpp
     tests/poker/table.test.cpp
 )
