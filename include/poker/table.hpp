@@ -32,6 +32,7 @@ public:
     //
     // Special functions
     //
+    table() = default;
     table(const table&) = delete;
     table(table&&)      = delete;
     auto operator=(const table&) -> table& = delete;
