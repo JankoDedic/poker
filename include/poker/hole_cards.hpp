@@ -9,4 +9,12 @@ struct hole_cards {
     card second;
 };
 
+constexpr auto operator==(const hole_cards& x, const hole_cards& y) noexcept -> bool {
+    return x.first == y.first && x.second == y.second;
+}
+
+constexpr auto operator!=(const hole_cards& x, const hole_cards& y) noexcept -> bool {
+    return !(x == y);
+}
+
 } // namespace poker
