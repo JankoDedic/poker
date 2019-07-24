@@ -299,16 +299,17 @@ inline void dealer::showdown() noexcept {
     _hand_in_progress = false;
     if (_pot_manager.pots().size() == 1 && _pot_manager.pots()[0].eligible_players().size() == 1) {
         // No need to evaluate the hand. There is only one player.
-        _pot_manager.pots()[0].eligible_players()[0]->add_to_stack(_pot_manager.pots()[0].size());
+        const auto index = _pot_manager.pots().front().eligible_players().front();
+        _players[index].add_to_stack(_pot_manager.pots().front().size());
         return;
 
         // TODO: Also, no reveals in this case. Reveals are only necessary when there is >=2 players.
     }
     for (auto& p : _pot_manager.pots()) {
-        auto player_results = std::vector<std::pair<player*, hand>>{};
+        auto player_results = std::vector<std::pair<seat_index, hand>>{};
         player_results.reserve(p.eligible_players().size());
-        std::transform(p.eligible_players().begin(), p.eligible_players().end(), std::back_inserter(player_results), [&] (player* p) {
-            return std::pair{p, hand{p->hole_cards, *_community_cards}};
+        std::transform(p.eligible_players().begin(), p.eligible_players().end(), std::back_inserter(player_results), [&] (seat_index i) {
+            return std::pair{i, hand{_players[i].hole_cards, *_community_cards}};
         });
         std::sort(player_results.begin(), player_results.end(), [] (auto&& lhs, auto&& rhs) {
             return lhs.second < rhs.second;
@@ -320,7 +321,7 @@ inline void dealer::showdown() noexcept {
         if (last_winner != player_results.end()) ++last_winner;
         const auto payout = p.size() / static_cast<chips>(std::distance(first_winner, last_winner));
         std::for_each(first_winner, last_winner, [&] (auto&& winner) {
-            winner.first->add_to_stack(payout);
+            _players[winner.first].add_to_stack(payout);
         });
     }
 }
