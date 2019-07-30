@@ -356,7 +356,6 @@ inline void table::set_automatic_action(seat_index s, automatic_action a) {
 }
 
 inline void table::sit_down(seat_index s, chips buy_in) noexcept {
-    assert(s >= 0);
     assert(s < table::num_seats);
     assert(!_table_players.occupancy()[s]);
 
@@ -379,7 +378,6 @@ inline void table::act_passively() noexcept {
 
 // TODO: return chips?
 inline void table::stand_up(seat_index s) noexcept {
-    assert(s >= 0);
     assert(s < table::num_seats);
     assert(_table_players.occupancy()[s]);
 
