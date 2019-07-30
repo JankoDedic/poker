@@ -3,8 +3,7 @@
 #include <array>
 
 #include <poker/player.hpp>
-
-#include "poker/detail/seat_index.hpp"
+#include <poker/seat_index.hpp>
 
 namespace poker {
 

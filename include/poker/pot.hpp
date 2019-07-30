@@ -3,7 +3,7 @@
 #include <vector>
 
 #include <poker/player.hpp>
-#include <poker/detail/seat_array.hpp>
+#include <poker/seat_array.hpp>
 
 namespace poker {
 

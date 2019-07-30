@@ -10,9 +10,9 @@
 #include <poker/deck.hpp>
 #include <poker/hand.hpp>
 #include <poker/player.hpp>
+#include <poker/pot.hpp>
 
 #include "poker/detail/betting_round.hpp"
-#include "poker/detail/pot.hpp"
 #include "poker/detail/pot_manager.hpp"
 #include "poker/detail/utility.hpp"
 

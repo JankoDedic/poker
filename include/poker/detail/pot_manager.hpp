@@ -1,6 +1,6 @@
 #pragma once
 
-#include "poker/detail/pot.hpp"
+#include <poker/pot.hpp>
 
 namespace poker::detail {
 

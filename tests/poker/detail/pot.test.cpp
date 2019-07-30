@@ -1,6 +1,6 @@
 #include <doctest/doctest.h>
 
-#include "poker/detail/pot.hpp"
+#include <poker/pot.hpp>
 
 using namespace poker;
 

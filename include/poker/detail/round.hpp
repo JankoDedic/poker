@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "poker/detail/seat_index.hpp"
+#include <poker/seat_index.hpp>
 #include "poker/detail/utility.hpp"
 
 namespace poker::detail {
