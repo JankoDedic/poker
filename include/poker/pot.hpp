@@ -22,8 +22,8 @@ public:
         return _eligible_players;
     }
 
-    void add(chips amount) noexcept {
-        assert(amount >= 0);
+    void add(chips amount) POKER_DETAIL_NOEXCEPT {
+        POKER_DETAIL_ASSERT(amount >= 0, "Cannot add a negative amount to the pot");
         _size += amount;
     }
 

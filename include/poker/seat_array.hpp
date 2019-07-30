@@ -15,24 +15,24 @@ public:
         return _occupancy;
     }
 
-    constexpr auto operator[](seat_index seat) noexcept -> player& {
-        assert(occupancy()[seat]);
+    constexpr auto operator[](seat_index seat) POKER_DETAIL_NOEXCEPT -> player& {
+        POKER_DETAIL_ASSERT(occupancy()[seat], "Given seat must be occupied");
         return _players[seat];
     }
 
-    constexpr auto operator[](seat_index seat) const noexcept -> const player& {
-        assert(occupancy()[seat]);
+    constexpr auto operator[](seat_index seat) const POKER_DETAIL_NOEXCEPT -> const player& {
+        POKER_DETAIL_ASSERT(occupancy()[seat], "Given seat must be occupied");
         return _players[seat];
     }
 
-    constexpr void add_player(seat_index seat, player p) noexcept {
-        assert(!occupancy()[seat]);
+    constexpr void add_player(seat_index seat, player p) POKER_DETAIL_NOEXCEPT {
+        POKER_DETAIL_ASSERT(!occupancy()[seat], "Given seat must not be occupied");
         _players[seat] = p;
         _occupancy[seat] = true;
     }
 
-    constexpr void remove_player(seat_index seat) noexcept {
-        assert(occupancy()[seat]);
+    constexpr void remove_player(seat_index seat) POKER_DETAIL_NOEXCEPT {
+        POKER_DETAIL_ASSERT(occupancy()[seat], "Given seat must be occupied");
         _occupancy[seat] = false;
     }
 
@@ -118,7 +118,7 @@ public:
     {
         // CONTRACT CHECK
         for (auto i = 0; i < num_seats; ++i) {
-            if (filter[i]) assert(players.occupancy()[i]);
+            if (filter[i]) POKER_DETAIL_ASSERT(players.occupancy()[i], "All filtered seats must be occupied");
         }
     }
 
@@ -134,18 +134,18 @@ public:
         return _filter;
     }
 
-    constexpr auto operator[](seat_index seat) noexcept -> player& {
-        assert(filter()[seat]);
+    constexpr auto operator[](seat_index seat) POKER_DETAIL_NOEXCEPT -> player& {
+        POKER_DETAIL_ASSERT(filter()[seat], "Given seat must be in the filter");
         return (*_players)[seat];
     }
 
-    constexpr auto operator[](seat_index seat) const noexcept -> const player& {
-        assert(filter()[seat]);
+    constexpr auto operator[](seat_index seat) const POKER_DETAIL_NOEXCEPT -> const player& {
+        POKER_DETAIL_ASSERT(filter()[seat], "Given seat must be in the filter");
         return (*_players)[seat];
     }
 
-    constexpr void exclude_player(seat_index seat) noexcept {
-        assert(filter()[seat]);
+    constexpr void exclude_player(seat_index seat) POKER_DETAIL_NOEXCEPT {
+        POKER_DETAIL_ASSERT(filter()[seat], "Given seat must be in the filter");
         _filter[seat] = false;
     }
 

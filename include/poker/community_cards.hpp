@@ -1,10 +1,10 @@
 #pragma once
 
 #include <array>
-#include <cassert>
 
 #include <poker/card.hpp>
 #include <poker/deck.hpp>
+#include "poker/detail/error.hpp"
 #include "poker/detail/span.hpp"
 #include "poker/detail/utility.hpp"
 
@@ -37,8 +37,8 @@ public:
         return span<const card>(_cards).first(_size);
     }
 
-    void deal(span<const card> cards) {
-        assert(static_cast<std::size_t>(cards.size()) <= 5 - _size);
+    void deal(span<const card> cards) POKER_DETAIL_NOEXCEPT {
+        POKER_DETAIL_ASSERT(static_cast<std::size_t>(cards.size()) <= 5 - _size, "Cannot deal more than there is undealt cards");
         for (auto c : cards) _cards[_size++] = c;
     }
 };

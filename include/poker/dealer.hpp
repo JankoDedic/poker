@@ -13,6 +13,7 @@
 #include <poker/pot.hpp>
 
 #include "poker/detail/betting_round.hpp"
+#include "poker/detail/error.hpp"
 #include "poker/detail/pot_manager.hpp"
 #include "poker/detail/utility.hpp"
 
@@ -67,7 +68,7 @@ public:
         dealer::action action = dealer::action::fold; // you can always fold
         poker::chip_range chip_range;
 
-        auto contains(dealer::action, poker::chips bet = 0) const noexcept -> bool;
+        auto contains(dealer::action, poker::chips bet = 0) const POKER_DETAIL_NOEXCEPT -> bool;
     };
 
     //
@@ -94,24 +95,24 @@ public:
     // Observers
     //
     auto hand_in_progress()          const noexcept -> bool;
-    auto betting_rounds_completed()  const noexcept -> bool;
-    auto player_to_act()             const noexcept -> seat_index;
+    auto betting_rounds_completed()  const POKER_DETAIL_NOEXCEPT -> bool;
+    auto player_to_act()             const POKER_DETAIL_NOEXCEPT -> seat_index;
     auto players()                   const noexcept -> seat_array_view;
-    auto round_of_betting()          const noexcept -> poker::round_of_betting;
+    auto round_of_betting()          const POKER_DETAIL_NOEXCEPT -> poker::round_of_betting;
     auto num_active_players()        const noexcept -> std::size_t;
     auto biggest_bet()               const noexcept -> chips;
     auto betting_round_in_progress() const noexcept -> bool;
-    auto legal_actions()             const noexcept -> action_range;
-    auto pots()                      const noexcept -> span<const pot>;
+    auto legal_actions()             const POKER_DETAIL_NOEXCEPT -> action_range;
+    auto pots()                      const POKER_DETAIL_NOEXCEPT -> span<const pot>;
     auto button()                    const noexcept -> seat_index;
 
     //
     // Modifiers
     //
-    void start_hand()                          noexcept;
-    void action_taken(action, chips bet = {0}) noexcept;
-    void end_betting_round()                   noexcept;
-    void showdown()                            noexcept;
+    void start_hand()                          POKER_DETAIL_NOEXCEPT;
+    void action_taken(action, chips bet = {0}) POKER_DETAIL_NOEXCEPT;
+    void end_betting_round()                   POKER_DETAIL_NOEXCEPT;
+    void showdown()                            POKER_DETAIL_NOEXCEPT;
 
 private:
     auto next_or_wrap(seat_index) noexcept -> seat_index;
@@ -136,8 +137,8 @@ private:
     detail::pot_manager        _pot_manager              = {};
 };
 
-inline auto dealer::action_range::contains(dealer::action a, poker::chips bet/* = 0*/) const noexcept -> bool {
-    assert(is_valid(a));
+inline auto dealer::action_range::contains(dealer::action a, poker::chips bet/* = 0*/) const POKER_DETAIL_NOEXCEPT -> bool {
+    POKER_DETAIL_ASSERT(is_valid(a), "The dealer::action representation must be valid");
     return static_cast<bool>(a & action) && (is_aggressive(a) ? chip_range.contains(bet) : true);
 }
 
@@ -162,14 +163,14 @@ inline auto dealer::hand_in_progress() const noexcept -> bool {
     return _hand_in_progress;
 }
 
-inline auto dealer::betting_rounds_completed() const noexcept -> bool {
-    assert(hand_in_progress());
+inline auto dealer::betting_rounds_completed() const POKER_DETAIL_NOEXCEPT -> bool {
+    POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _betting_rounds_completed;
 }
 
-inline auto dealer::player_to_act() const noexcept -> seat_index {
-    assert(betting_round_in_progress());
+inline auto dealer::player_to_act() const POKER_DETAIL_NOEXCEPT -> seat_index {
+    POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
 
     return _betting_round.player_to_act();
 }
@@ -178,8 +179,8 @@ inline auto dealer::players() const noexcept -> seat_array_view {
     return _betting_round.players();
 }
 
-inline auto dealer::round_of_betting() const noexcept -> poker::round_of_betting {
-    assert(hand_in_progress());
+inline auto dealer::round_of_betting() const POKER_DETAIL_NOEXCEPT -> poker::round_of_betting {
+    POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _round_of_betting;
 }
@@ -196,8 +197,8 @@ inline auto dealer::betting_round_in_progress() const noexcept -> bool {
     return _betting_round.in_progress();
 }
 
-inline auto dealer::legal_actions() const noexcept -> action_range {
-    assert(betting_round_in_progress());
+inline auto dealer::legal_actions() const POKER_DETAIL_NOEXCEPT -> action_range {
+    POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
 
     const auto& player = _players[_betting_round.player_to_act()];
     const auto actions = _betting_round.legal_actions();
@@ -221,8 +222,8 @@ inline auto dealer::legal_actions() const noexcept -> action_range {
     return ar;
 }
 
-inline auto dealer::pots() const noexcept -> span<const pot> {
-    assert(hand_in_progress());
+inline auto dealer::pots() const POKER_DETAIL_NOEXCEPT -> span<const pot> {
+    POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _pot_manager.pots();
 }
@@ -232,8 +233,8 @@ inline auto dealer::button() const noexcept -> seat_index {
     return _button;
 }
 
-inline void dealer::start_hand() noexcept {
-    assert(!hand_in_progress());
+inline void dealer::start_hand() POKER_DETAIL_NOEXCEPT {
+    POKER_DETAIL_ASSERT(!hand_in_progress(), "Hand must not be in progress");
 
     _betting_rounds_completed = false;
     _round_of_betting = round_of_betting::preflop;
@@ -246,9 +247,9 @@ inline void dealer::start_hand() noexcept {
     _hand_in_progress = true;
 }
 
-inline void dealer::action_taken(action a, chips bet/* = 0*/) noexcept {
-    assert(betting_round_in_progress());
-    assert(legal_actions().contains(a, bet));
+inline void dealer::action_taken(action a, chips bet/* = 0*/) POKER_DETAIL_NOEXCEPT {
+    POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
+    POKER_DETAIL_ASSERT(legal_actions().contains(a, bet), "Action must be legal");
 
     if (static_cast<bool>(a & action::check) || static_cast<bool>(a & action::call)) {
         _betting_round.action_taken(detail::betting_round::action::match);
@@ -262,9 +263,9 @@ inline void dealer::action_taken(action a, chips bet/* = 0*/) noexcept {
     }
 }
 
-inline void dealer::end_betting_round() noexcept {
-    assert(!_betting_rounds_completed);
-    assert(!betting_round_in_progress());
+inline void dealer::end_betting_round() POKER_DETAIL_NOEXCEPT {
+    POKER_DETAIL_ASSERT(!_betting_rounds_completed, "Betting rounds must not be completed");
+    POKER_DETAIL_ASSERT(!betting_round_in_progress(), "Betting round must not be in progress");
 
     _pot_manager.collect_bets_from(_players);
     if (_betting_round.num_active_players() <= 1) {
@@ -291,10 +292,10 @@ inline void dealer::end_betting_round() noexcept {
     }
 }
 
-inline void dealer::showdown() noexcept {
-    assert(_round_of_betting == round_of_betting::river);
-    assert(!betting_round_in_progress());
-    assert(betting_rounds_completed());
+inline void dealer::showdown() POKER_DETAIL_NOEXCEPT {
+    POKER_DETAIL_ASSERT(_round_of_betting == round_of_betting::river, "Round of betting must be river");
+    POKER_DETAIL_ASSERT(!betting_round_in_progress(), "Betting round must not be in progress");
+    POKER_DETAIL_ASSERT(betting_rounds_completed(), "Betting rounds must be completed");
 
     _hand_in_progress = false;
     if (_pot_manager.pots().size() == 1 && _pot_manager.pots()[0].eligible_players().size() == 1) {

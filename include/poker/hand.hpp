@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <cmath>
 #include <optional>
 #include <tuple>
@@ -10,6 +9,7 @@
 #include <poker/card.hpp>
 #include <poker/community_cards.hpp>
 #include <poker/hole_cards.hpp>
+#include "poker/detail/error.hpp"
 #include "poker/detail/span.hpp"
 
 namespace poker {
@@ -32,7 +32,7 @@ class hand {
     int _strength;
     std::array<card, 5> _cards;
 
-    hand(hand_ranking ranking, int strength, span<const card, 5> cards) noexcept
+    hand(hand_ranking ranking, int strength, span<const card, 5> cards)
         : _ranking{ranking}
         , _strength{strength}
     {
@@ -46,7 +46,7 @@ public:
 public:
     hand() = default;
 
-    hand(const hole_cards& hc, const community_cards& cc) noexcept;
+    hand(const hole_cards& hc, const community_cards& cc) POKER_DETAIL_NOEXCEPT;
 
     hand(span<card, 7> cards) noexcept;
 
@@ -277,8 +277,8 @@ inline auto hand::_straight_flush_eval(span<card, 7> cards) noexcept -> std::opt
     return std::nullopt;
 }
 
-inline hand::hand(const hole_cards& hc, const community_cards& cc) noexcept {
-    assert(cc.cards().size() == 5);
+inline hand::hand(const hole_cards& hc, const community_cards& cc) POKER_DETAIL_NOEXCEPT {
+    POKER_DETAIL_ASSERT(cc.cards().size() == 5, "All community cards must be dealt");
     auto cards = std::array<card, 7>{};
     cards[0] = hc.first;
     cards[1] = hc.second;

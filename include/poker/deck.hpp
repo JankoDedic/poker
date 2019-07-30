@@ -1,9 +1,9 @@
 #pragma once
 
 #include <array>
-#include <cassert>
 
 #include <poker/card.hpp>
+#include "poker/detail/error.hpp"
 #include "poker/detail/utility.hpp"
 
 namespace poker {
@@ -43,8 +43,8 @@ public:
     }
 
     [[nodiscard]]
-    auto draw() noexcept -> card {
-        assert(_size > 0);
+    auto draw() POKER_DETAIL_NOEXCEPT -> card {
+        POKER_DETAIL_ASSERT(_size > 0, "Cannot draw from an empty deck");
         return _cards[--_size];
     }
 
