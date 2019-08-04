@@ -268,7 +268,7 @@ inline auto table::round_of_betting() const POKER_DETAIL_NOEXCEPT -> poker::roun
 }
 
 inline auto table::community_cards() const POKER_DETAIL_NOEXCEPT -> const poker::community_cards& {
-    POKER_DETAIL_NOEXCEPT(hand_in_progress(), "Hand must be in progress");
+    POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _community_cards;
 }
