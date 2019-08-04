@@ -61,6 +61,7 @@ public:
     auto pots()                      const POKER_DETAIL_NOEXCEPT -> span<const pot>;
     auto round_of_betting()          const POKER_DETAIL_NOEXCEPT -> poker::round_of_betting;
     auto community_cards()           const POKER_DETAIL_NOEXCEPT -> const poker::community_cards&;
+    auto legal_actions()             const POKER_DETAIL_NOEXCEPT -> dealer::action_range;
 
     // Automatic actions
     auto automatic_actions()            const POKER_DETAIL_NOEXCEPT -> span<const std::optional<automatic_action>, num_seats>;
@@ -270,6 +271,12 @@ inline auto table::community_cards() const POKER_DETAIL_NOEXCEPT -> const poker:
     POKER_DETAIL_NOEXCEPT(hand_in_progress(), "Hand must be in progress");
 
     return _community_cards;
+}
+
+inline auto table::legal_actions() const POKER_DETAIL_NOEXCEPT -> dealer::action_range {
+    POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
+
+    return _dealer.legal_actions();
 }
 
 inline void table::action_taken(action a, chips bet) POKER_DETAIL_NOEXCEPT {
