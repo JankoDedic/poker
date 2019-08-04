@@ -46,7 +46,7 @@ public:
 public:
     hand() = default;
 
-    hand(const hole_cards& hc, const community_cards& cc) POKER_DETAIL_NOEXCEPT;
+    hand(const hole_cards& hc, const community_cards& cc) POKER_NOEXCEPT;
 
     hand(span<card, 7> cards) noexcept;
 
@@ -277,7 +277,7 @@ inline auto hand::_straight_flush_eval(span<card, 7> cards) noexcept -> std::opt
     return std::nullopt;
 }
 
-inline hand::hand(const hole_cards& hc, const community_cards& cc) POKER_DETAIL_NOEXCEPT {
+inline hand::hand(const hole_cards& hc, const community_cards& cc) POKER_NOEXCEPT {
     POKER_DETAIL_ASSERT(cc.cards().size() == 5, "All community cards must be dealt");
     auto cards = std::array<card, 7>{};
     cards[0] = hc.first;

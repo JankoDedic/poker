@@ -52,36 +52,36 @@ public:
 
     // Dealer
     auto hand_in_progress()          const noexcept -> bool;
-    auto betting_round_in_progress() const POKER_DETAIL_NOEXCEPT -> bool;
-    auto betting_rounds_completed()  const POKER_DETAIL_NOEXCEPT -> bool;
-    auto hand_players()              const POKER_DETAIL_NOEXCEPT -> seat_array_view;
-    auto button()                    const POKER_DETAIL_NOEXCEPT -> seat_index;
-    auto player_to_act()             const POKER_DETAIL_NOEXCEPT -> seat_index;
-    auto num_active_players()        const POKER_DETAIL_NOEXCEPT -> std::size_t;
-    auto pots()                      const POKER_DETAIL_NOEXCEPT -> span<const pot>;
-    auto round_of_betting()          const POKER_DETAIL_NOEXCEPT -> poker::round_of_betting;
-    auto community_cards()           const POKER_DETAIL_NOEXCEPT -> const poker::community_cards&;
-    auto legal_actions()             const POKER_DETAIL_NOEXCEPT -> dealer::action_range;
+    auto betting_round_in_progress() const POKER_NOEXCEPT -> bool;
+    auto betting_rounds_completed()  const POKER_NOEXCEPT -> bool;
+    auto hand_players()              const POKER_NOEXCEPT -> seat_array_view;
+    auto button()                    const POKER_NOEXCEPT -> seat_index;
+    auto player_to_act()             const POKER_NOEXCEPT -> seat_index;
+    auto num_active_players()        const POKER_NOEXCEPT -> std::size_t;
+    auto pots()                      const POKER_NOEXCEPT -> span<const pot>;
+    auto round_of_betting()          const POKER_NOEXCEPT -> poker::round_of_betting;
+    auto community_cards()           const POKER_NOEXCEPT -> const poker::community_cards&;
+    auto legal_actions()             const POKER_NOEXCEPT -> dealer::action_range;
 
     // Automatic actions
-    auto automatic_actions()            const POKER_DETAIL_NOEXCEPT -> span<const std::optional<automatic_action>, num_seats>;
-    auto can_set_automatic_action(seat_index) const POKER_DETAIL_NOEXCEPT -> bool;
-    auto legal_automatic_actions(seat_index)  const POKER_DETAIL_NOEXCEPT -> automatic_action;
+    auto automatic_actions()            const POKER_NOEXCEPT -> span<const std::optional<automatic_action>, num_seats>;
+    auto can_set_automatic_action(seat_index) const POKER_NOEXCEPT -> bool;
+    auto legal_automatic_actions(seat_index)  const POKER_NOEXCEPT -> automatic_action;
 
     //
     // Modifiers
     //
-    void set_forced_bets(poker::forced_bets) POKER_DETAIL_NOEXCEPT;
+    void set_forced_bets(poker::forced_bets) POKER_NOEXCEPT;
 
     // Adding/removing players
-    void sit_down(seat_index, chips buy_in) POKER_DETAIL_NOEXCEPT;
-    void stand_up(seat_index) POKER_DETAIL_NOEXCEPT;
+    void sit_down(seat_index, chips buy_in) POKER_NOEXCEPT;
+    void stand_up(seat_index) POKER_NOEXCEPT;
 
     // Dealer
-    template<class URBG> void start_hand(URBG&&) POKER_DETAIL_NOEXCEPT;
-    void action_taken(action, chips bet = {0})   POKER_DETAIL_NOEXCEPT;
-    void end_betting_round()                     POKER_DETAIL_NOEXCEPT;
-    void showdown()                              POKER_DETAIL_NOEXCEPT;
+    template<class URBG> void start_hand(URBG&&) POKER_NOEXCEPT;
+    void action_taken(action, chips bet = {0})   POKER_NOEXCEPT;
+    void end_betting_round()                     POKER_NOEXCEPT;
+    void showdown()                              POKER_NOEXCEPT;
 
     // Automatic actions
     void set_automatic_action(seat_index, automatic_action);
@@ -161,13 +161,13 @@ inline void table::amend_automatic_actions() noexcept {
     }
 }
 
-inline auto table::player_to_act() const POKER_DETAIL_NOEXCEPT -> seat_index {
+inline auto table::player_to_act() const POKER_NOEXCEPT -> seat_index {
     POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
 
     return _dealer.player_to_act();
 }
 
-inline auto table::button() const POKER_DETAIL_NOEXCEPT -> seat_index {
+inline auto table::button() const POKER_NOEXCEPT -> seat_index {
     POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _button;
@@ -177,19 +177,19 @@ inline auto table::seats() const noexcept -> const seat_array& {
     return _table_players;
 }
 
-inline auto table::hand_players() const POKER_DETAIL_NOEXCEPT -> seat_array_view {
+inline auto table::hand_players() const POKER_NOEXCEPT -> seat_array_view {
     POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _dealer.players();
 }
 
-inline auto table::num_active_players() const POKER_DETAIL_NOEXCEPT -> std::size_t {
+inline auto table::num_active_players() const POKER_NOEXCEPT -> std::size_t {
     POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _dealer.num_active_players();
 }
 
-inline auto table::pots() const POKER_DETAIL_NOEXCEPT -> span<const pot> {
+inline auto table::pots() const POKER_NOEXCEPT -> span<const pot> {
     POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _dealer.pots();
@@ -199,7 +199,7 @@ inline auto table::forced_bets() const noexcept -> poker::forced_bets {
     return _forced_bets;
 }
 
-inline void table::set_forced_bets(poker::forced_bets fb) POKER_DETAIL_NOEXCEPT {
+inline void table::set_forced_bets(poker::forced_bets fb) POKER_NOEXCEPT {
     POKER_DETAIL_ASSERT(!hand_in_progress(), "Hand must not be in progress");
 
     _forced_bets = fb;
@@ -228,7 +228,7 @@ inline void table::update_table_players() noexcept {
 }
 
 template<class URBG>
-inline void table::start_hand(URBG&& g) POKER_DETAIL_NOEXCEPT {
+inline void table::start_hand(URBG&& g) POKER_NOEXCEPT {
     POKER_DETAIL_ASSERT(!hand_in_progress(), "Hand must not be in progress");
     POKER_DETAIL_ASSERT(
         std::count(_table_players.occupancy().begin(), _table_players.occupancy().end(), true) >= 2,
@@ -249,37 +249,37 @@ inline auto table::hand_in_progress() const noexcept -> bool {
     return _dealer.hand_in_progress();
 }
 
-inline auto table::betting_round_in_progress() const POKER_DETAIL_NOEXCEPT -> bool {
+inline auto table::betting_round_in_progress() const POKER_NOEXCEPT -> bool {
     POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _dealer.betting_round_in_progress();
 }
 
-inline auto table::betting_rounds_completed() const POKER_DETAIL_NOEXCEPT -> bool {
+inline auto table::betting_rounds_completed() const POKER_NOEXCEPT -> bool {
     POKER_DETAIL_ASSERT(!betting_round_in_progress(), "Betting round must not be in progress");
 
     return _dealer.betting_rounds_completed();
 }
 
-inline auto table::round_of_betting() const POKER_DETAIL_NOEXCEPT -> poker::round_of_betting {
+inline auto table::round_of_betting() const POKER_NOEXCEPT -> poker::round_of_betting {
     POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _dealer.round_of_betting();
 }
 
-inline auto table::community_cards() const POKER_DETAIL_NOEXCEPT -> const poker::community_cards& {
+inline auto table::community_cards() const POKER_NOEXCEPT -> const poker::community_cards& {
     POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _community_cards;
 }
 
-inline auto table::legal_actions() const POKER_DETAIL_NOEXCEPT -> dealer::action_range {
+inline auto table::legal_actions() const POKER_NOEXCEPT -> dealer::action_range {
     POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
 
     return _dealer.legal_actions();
 }
 
-inline void table::action_taken(action a, chips bet) POKER_DETAIL_NOEXCEPT {
+inline void table::action_taken(action a, chips bet) POKER_NOEXCEPT {
     POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
 
     _dealer.action_taken(a, bet);
@@ -295,7 +295,7 @@ inline void table::action_taken(action a, chips bet) POKER_DETAIL_NOEXCEPT {
     update_table_players();
 }
 
-inline void table::end_betting_round() POKER_DETAIL_NOEXCEPT {
+inline void table::end_betting_round() POKER_NOEXCEPT {
     POKER_DETAIL_ASSERT(!betting_round_in_progress(), "Betting round must not be in progress");
     POKER_DETAIL_ASSERT(!betting_rounds_completed(), "Betting rounds must not be completed");
 
@@ -304,7 +304,7 @@ inline void table::end_betting_round() POKER_DETAIL_NOEXCEPT {
     update_table_players();
 }
 
-inline void table::showdown() POKER_DETAIL_NOEXCEPT {
+inline void table::showdown() POKER_NOEXCEPT {
     POKER_DETAIL_ASSERT(!betting_round_in_progress(), "Betting round must not be in progress");
     POKER_DETAIL_ASSERT(betting_rounds_completed(), "Betting rounds must be completed");
 
@@ -312,13 +312,13 @@ inline void table::showdown() POKER_DETAIL_NOEXCEPT {
     update_table_players();
 }
 
-inline auto table::automatic_actions() const POKER_DETAIL_NOEXCEPT -> span<const std::optional<automatic_action>, num_seats> {
+inline auto table::automatic_actions() const POKER_NOEXCEPT -> span<const std::optional<automatic_action>, num_seats> {
     POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _automatic_actions;
 }
 
-inline auto table::can_set_automatic_action(seat_index s) const POKER_DETAIL_NOEXCEPT -> bool {
+inline auto table::can_set_automatic_action(seat_index s) const POKER_NOEXCEPT -> bool {
     POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
 
     // (1) This is only ever true for players that have been in the hand since the start.
@@ -328,7 +328,7 @@ inline auto table::can_set_automatic_action(seat_index s) const POKER_DETAIL_NOE
     return !_staged[s] && _table_players.occupancy()[s];
 }
 
-inline auto table::legal_automatic_actions(seat_index s) const POKER_DETAIL_NOEXCEPT -> automatic_action {
+inline auto table::legal_automatic_actions(seat_index s) const POKER_NOEXCEPT -> automatic_action {
     POKER_DETAIL_ASSERT(can_set_automatic_action(s), "Player must be allowed to set automatic actions");
 
     // fold, all_in -- always viable
@@ -366,7 +366,7 @@ inline void table::set_automatic_action(seat_index s, automatic_action a) {
     _automatic_actions[s] = a;
 }
 
-inline void table::sit_down(seat_index s, chips buy_in) POKER_DETAIL_NOEXCEPT {
+inline void table::sit_down(seat_index s, chips buy_in) POKER_NOEXCEPT {
     POKER_DETAIL_ASSERT(s < table::num_seats, "Given seat index must be valid");
     POKER_DETAIL_ASSERT(!_table_players.occupancy()[s], "Given seat must not be occupied");
 
@@ -388,7 +388,7 @@ inline void table::act_passively() noexcept {
 }
 
 // TODO: return chips?
-inline void table::stand_up(seat_index s) POKER_DETAIL_NOEXCEPT {
+inline void table::stand_up(seat_index s) POKER_NOEXCEPT {
     POKER_DETAIL_ASSERT(s < table::num_seats, "Given seat index must be valid");
     POKER_DETAIL_ASSERT(_table_players.occupancy()[s], "Given seat must be occupied");
 

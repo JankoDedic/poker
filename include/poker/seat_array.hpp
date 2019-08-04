@@ -15,23 +15,23 @@ public:
         return _occupancy;
     }
 
-    constexpr auto operator[](seat_index seat) POKER_DETAIL_NOEXCEPT -> player& {
+    constexpr auto operator[](seat_index seat) POKER_NOEXCEPT -> player& {
         POKER_DETAIL_ASSERT(occupancy()[seat], "Given seat must be occupied");
         return _players[seat];
     }
 
-    constexpr auto operator[](seat_index seat) const POKER_DETAIL_NOEXCEPT -> const player& {
+    constexpr auto operator[](seat_index seat) const POKER_NOEXCEPT -> const player& {
         POKER_DETAIL_ASSERT(occupancy()[seat], "Given seat must be occupied");
         return _players[seat];
     }
 
-    constexpr void add_player(seat_index seat, player p) POKER_DETAIL_NOEXCEPT {
+    constexpr void add_player(seat_index seat, player p) POKER_NOEXCEPT {
         POKER_DETAIL_ASSERT(!occupancy()[seat], "Given seat must not be occupied");
         _players[seat] = p;
         _occupancy[seat] = true;
     }
 
-    constexpr void remove_player(seat_index seat) POKER_DETAIL_NOEXCEPT {
+    constexpr void remove_player(seat_index seat) POKER_NOEXCEPT {
         POKER_DETAIL_ASSERT(occupancy()[seat], "Given seat must be occupied");
         _occupancy[seat] = false;
     }
@@ -134,17 +134,17 @@ public:
         return _filter;
     }
 
-    constexpr auto operator[](seat_index seat) POKER_DETAIL_NOEXCEPT -> player& {
+    constexpr auto operator[](seat_index seat) POKER_NOEXCEPT -> player& {
         POKER_DETAIL_ASSERT(filter()[seat], "Given seat must be in the filter");
         return (*_players)[seat];
     }
 
-    constexpr auto operator[](seat_index seat) const POKER_DETAIL_NOEXCEPT -> const player& {
+    constexpr auto operator[](seat_index seat) const POKER_NOEXCEPT -> const player& {
         POKER_DETAIL_ASSERT(filter()[seat], "Given seat must be in the filter");
         return (*_players)[seat];
     }
 
-    constexpr void exclude_player(seat_index seat) POKER_DETAIL_NOEXCEPT {
+    constexpr void exclude_player(seat_index seat) POKER_NOEXCEPT {
         POKER_DETAIL_ASSERT(filter()[seat], "Given seat must be in the filter");
         _filter[seat] = false;
     }
