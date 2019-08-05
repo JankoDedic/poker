@@ -89,7 +89,7 @@ public:
     //
     // Construction
     //
-    dealer(seat_array_view players, seat_index button, forced_bets, deck&, community_cards&) noexcept;
+    dealer(seat_array_view players, seat_index button, forced_bets, deck&, community_cards&) POKER_NOEXCEPT;
 
     //
     // Observers
@@ -150,13 +150,15 @@ inline constexpr auto dealer::is_aggressive(action a) noexcept -> bool {
     return static_cast<bool>(a & action::bet) || static_cast<bool>(a & action::raise);
 }
 
-inline dealer::dealer(seat_array_view players, seat_index button, forced_bets fb, deck& d, community_cards& cc) noexcept
+inline dealer::dealer(seat_array_view players, seat_index button, forced_bets fb, deck& d, community_cards& cc) POKER_NOEXCEPT
     : _forced_bets{fb}
     , _deck{&d}
     , _community_cards{&cc}
     , _players{players}
     , _button{button}
 {
+    POKER_DETAIL_ASSERT(d.size() == 52, "Deck must be whole");
+    POKER_DETAIL_ASSERT(cc.cards().size() == 0, "No community cards must have been dealt");
 }
 
 inline auto dealer::hand_in_progress() const noexcept -> bool {
