@@ -257,7 +257,7 @@ inline auto table::betting_round_in_progress() const POKER_NOEXCEPT -> bool {
 }
 
 inline auto table::betting_rounds_completed() const POKER_NOEXCEPT -> bool {
-    POKER_DETAIL_ASSERT(!betting_round_in_progress(), "Betting round must not be in progress");
+    POKER_DETAIL_ASSERT(hand_in_progress(), "Hand must be in progress");
 
     return _dealer.betting_rounds_completed();
 }
