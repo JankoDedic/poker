@@ -315,7 +315,7 @@ inline void dealer::showdown() POKER_NOEXCEPT {
             return std::pair{i, hand{_players[i].hole_cards, *_community_cards}};
         });
         std::sort(player_results.begin(), player_results.end(), [] (auto&& lhs, auto&& rhs) {
-            return lhs.second < rhs.second;
+            return lhs.second > rhs.second;
         });
         auto first_winner = player_results.begin();
         auto last_winner = std::adjacent_find(player_results.begin(), player_results.end(), [] (auto&& lhs, auto&& rhs) {
