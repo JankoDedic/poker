@@ -240,6 +240,7 @@ inline void table::start_hand(URBG&& g) POKER_NOEXCEPT {
     _hand_players = _table_players;
     increment_button();
     _deck = {std::forward<URBG>(g)};
+    _community_cards = {};
     new (&_dealer) dealer{_hand_players, _button, _forced_bets, _deck, _community_cards};
     _dealer.start_hand();
     update_table_players();

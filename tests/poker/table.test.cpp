@@ -447,3 +447,19 @@ TEST_CASE("testing the special case") {
     t.action_taken(action::call);
     REQUIRE_FALSE(t.betting_round_in_progress());
 }
+
+TEST_CASE("Community cards get reset when a new hand begins") {
+    auto t = poker::table{poker::forced_bets{poker::blinds{25}}};
+    t.sit_down(0, 1000);
+    t.sit_down(1, 1000);
+    t.start_hand(std::default_random_engine{std::random_device{}()});
+    t.action_taken(poker::dealer::action::call);
+    t.action_taken(poker::dealer::action::check);
+    t.end_betting_round();
+    t.action_taken(poker::dealer::action::fold);
+    t.end_betting_round();
+    REQUIRE(t.betting_rounds_completed());
+    t.showdown();
+    t.start_hand(std::default_random_engine{std::random_device{}()});
+    REQUIRE_EQ(t.community_cards().cards().size(), 0);
+}
