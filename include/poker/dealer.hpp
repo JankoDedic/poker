@@ -158,7 +158,7 @@ inline dealer::dealer(seat_array_view players, seat_index button, forced_bets fb
     , _button{button}
 {
     POKER_DETAIL_ASSERT(d.size() == 52, "Deck must be whole");
-    POKER_DETAIL_ASSERT(cc.cards().size() == 0, "No community cards must have been dealt");
+    POKER_DETAIL_ASSERT(cc.cards().size() == 0, "No community cards should have been dealt");
 }
 
 inline auto dealer::hand_in_progress() const noexcept -> bool {
