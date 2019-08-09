@@ -219,7 +219,11 @@ inline void table::increment_button() noexcept {
     } else {
         auto it = seat_array::iterator{_hand_players, _button};
         ++it;
-        _button = it.index();
+        if (it.index() == num_seats) {
+            _button = _hand_players.begin().index();
+        } else {
+            _button = it.index();
+        }
     }
 }
 
