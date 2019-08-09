@@ -96,7 +96,8 @@ private:
 
 private:
     seat_array _hand_players;
-    bool                                                  _button_set_manually = true; // has the button been set manually
+    bool                                                  _first_time_button = true;
+    bool                                                  _button_set_manually = false; // has the button been set manually
     seat_index _button = 0;
     poker::forced_bets                                    _forced_bets       = {};
     deck                                                  _deck;
@@ -207,16 +208,18 @@ inline void table::set_forced_bets(poker::forced_bets fb) POKER_NOEXCEPT {
 }
 
 inline void table::increment_button() noexcept {
-    if (_button_set_manually) {
+    if (_first_time_button) {
         auto seat = seat_index{_hand_players.begin().index()};
         assert(seat != num_seats);
         _button = seat;
+        _first_time_button = false;
+    } else if (_button_set_manually) {
         _button_set_manually = false;
-        return;
+    } else {
+        auto it = seat_array::iterator{_hand_players, _button};
+        ++it;
+        _button = it.index();
     }
-    auto it = seat_array::iterator{_hand_players, _button};
-    ++it;
-    _button = it.index();
 }
 
 inline void table::update_table_players() noexcept {
