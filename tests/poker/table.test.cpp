@@ -463,3 +463,24 @@ TEST_CASE("Community cards get reset when a new hand begins") {
     t.start_hand(std::default_random_engine{std::random_device{}()});
     REQUIRE_EQ(t.community_cards().cards().size(), 0);
 }
+
+TEST_CASE("Setting the button manually works on the first, as well as the subsequent hands") {
+    auto t = poker::table{poker::forced_bets{poker::blinds{25}}};
+    t.sit_down(0, 1000);
+    t.sit_down(3, 1000);
+    t.sit_down(5, 1000);
+    t.sit_down(8, 1000);
+
+    // First hand
+    t.start_hand(std::default_random_engine{std::random_device{}()}, 8);
+    REQUIRE_EQ(t.button(), 8);
+    t.action_taken(poker::dealer::action::fold);
+    t.action_taken(poker::dealer::action::fold);
+    t.action_taken(poker::dealer::action::fold);
+    t.end_betting_round();
+    t.showdown();
+
+    // Second hand
+    t.start_hand(std::default_random_engine{std::random_device{}()}, 5);
+    REQUIRE_EQ(t.button(), 5);
+}

@@ -208,13 +208,14 @@ inline void table::set_forced_bets(poker::forced_bets fb) POKER_NOEXCEPT {
 }
 
 inline void table::increment_button() noexcept {
-    if (_first_time_button) {
+    if (_button_set_manually) {
+        _button_set_manually = false;
+        _first_time_button = false;
+    } else if (_first_time_button) {
         auto seat = seat_index{_hand_players.begin().index()};
         assert(seat != num_seats);
         _button = seat;
         _first_time_button = false;
-    } else if (_button_set_manually) {
-        _button_set_manually = false;
     } else {
         auto it = seat_array::iterator{_hand_players, _button};
         ++it;
