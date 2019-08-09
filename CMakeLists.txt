@@ -37,13 +37,13 @@ endif()
 add_executable(
   poker-tests
     tests/main.test.cpp
-    tests/poker/hand.test.cpp
-    tests/poker/detail/round.test.cpp
-    tests/poker/detail/betting_round.test.cpp
-    tests/poker/detail/pot.test.cpp
-    tests/poker/detail/pot_manager.test.cpp
     tests/poker/community_cards.test.cpp
     tests/poker/dealer.test.cpp
+    tests/poker/detail/betting_round.test.cpp
+    tests/poker/detail/pot_manager.test.cpp
+    tests/poker/detail/round.test.cpp
+    tests/poker/hand.test.cpp
+    tests/poker/pot.test.cpp
     tests/poker/table.test.cpp
 )
 target_include_directories ( poker-tests PRIVATE ${DOCTEST_INCLUDE_DIR} )
