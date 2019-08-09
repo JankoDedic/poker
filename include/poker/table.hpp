@@ -79,9 +79,10 @@ public:
 
     // Dealer
     template<class URBG> void start_hand(URBG&&) POKER_NOEXCEPT;
-    void action_taken(action, chips bet = {0})   POKER_NOEXCEPT;
-    void end_betting_round()                     POKER_NOEXCEPT;
-    void showdown()                              POKER_NOEXCEPT;
+    template<class URBG> void start_hand(URBG&&, seat_index) POKER_NOEXCEPT;
+    void action_taken(action, chips bet = {0}) POKER_NOEXCEPT;
+    void end_betting_round() POKER_NOEXCEPT;
+    void showdown() POKER_NOEXCEPT;
 
     // Automatic actions
     void set_automatic_action(seat_index, automatic_action);
@@ -95,7 +96,7 @@ private:
 
 private:
     seat_array _hand_players;
-    bool                                                  _first_time_button = true;
+    bool                                                  _button_set_manually = true; // has the button been set manually
     seat_index _button = 0;
     poker::forced_bets                                    _forced_bets       = {};
     deck                                                  _deck;
@@ -206,11 +207,11 @@ inline void table::set_forced_bets(poker::forced_bets fb) POKER_NOEXCEPT {
 }
 
 inline void table::increment_button() noexcept {
-    if (_first_time_button) {
+    if (_button_set_manually) {
         auto seat = seat_index{_hand_players.begin().index()};
         assert(seat != num_seats);
         _button = seat;
-        _first_time_button = false;
+        _button_set_manually = false;
         return;
     }
     auto it = seat_array::iterator{_hand_players, _button};
@@ -244,6 +245,17 @@ inline void table::start_hand(URBG&& g) POKER_NOEXCEPT {
     new (&_dealer) dealer{_hand_players, _button, _forced_bets, _deck, _community_cards};
     _dealer.start_hand();
     update_table_players();
+}
+
+template<class URBG>
+inline void table::start_hand(URBG&& g, seat_index s) POKER_NOEXCEPT {
+    POKER_DETAIL_ASSERT(s <= num_seats, "Given seat index must be valid");
+    POKER_DETAIL_ASSERT(_table_players.occupancy()[s], "Given seat must be occupied");
+    // other overload will assert the rest
+
+    _button = s;
+    _button_set_manually = true;
+    start_hand(std::forward<URBG>(g));
 }
 
 inline auto table::hand_in_progress() const noexcept -> bool {
