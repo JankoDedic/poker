@@ -80,7 +80,7 @@ public:
     // Dealer
     template<class URBG> void start_hand(URBG&&) POKER_NOEXCEPT;
     template<class URBG> void start_hand(URBG&&, seat_index) POKER_NOEXCEPT;
-    void action_taken(action, chips bet = {0}) POKER_NOEXCEPT;
+    void action_taken(action, chips bet = 0) POKER_NOEXCEPT;
     void end_betting_round() POKER_NOEXCEPT;
     void showdown() POKER_NOEXCEPT;
 
@@ -108,7 +108,7 @@ private:
     seat_array _table_players;
     // All players who took a seat before the .start_hand()
     std::array<bool,num_seats>                            _staged = {};
-    std::array<bool,num_seats>                            _sitting_out = {};
+    //std::array<bool,num_seats>                            _sitting_out = {}; // NOT USED
     std::array<std::optional<automatic_action>,num_seats> _automatic_actions;
 };
 

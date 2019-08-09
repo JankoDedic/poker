@@ -15,7 +15,7 @@ TEST_CASE("construction") {
 }
 
 TEST_CASE("Starting the hand") {
-    const auto b = forced_bets{25, 50};
+    const auto b = forced_bets{blinds{25, 50}};
     auto dck = deck{std::default_random_engine{std::random_device{}()}};
     auto cc = community_cards{};
 
@@ -95,7 +95,7 @@ TEST_CASE("Starting the hand") {
 }
 
 TEST_CASE("Ending the betting round") {
-    const auto b = forced_bets{25, 50};
+    const auto b = forced_bets{blinds{25, 50}};
     auto dck = deck{std::default_random_engine{std::random_device{}()}};
     auto cc = community_cards{};
     auto players = seat_array{};
@@ -225,7 +225,7 @@ TEST_CASE("flop, someone folded preflop, now others fold, when 1 remains, the ha
     // A bug where we pass a container of pointers where some are null to the betting_round => round.
     // round initializes _num_active_players to .size() of the container, instead of counting non-null pointers.
     //
-    const auto b = forced_bets{25, 50};
+    const auto b = forced_bets{blinds{25, 50}};
     auto dck = deck{std::default_random_engine{std::random_device{}()}};
     auto cc = community_cards{};
     auto players = seat_array{};
@@ -247,7 +247,7 @@ TEST_CASE("flop, someone folded preflop, now others fold, when 1 remains, the ha
 
 TEST_CASE("Showdown") {
     SUBCASE("single pot single player") {
-        const auto b = forced_bets{25, 50};
+        const auto b = forced_bets{blinds{25, 50}};
         auto dck = deck{std::default_random_engine{std::random_device{}()}};
         auto cc = community_cards{};
         auto players = seat_array{};
@@ -269,7 +269,7 @@ TEST_CASE("Showdown") {
     }
 
     SUBCASE("multiple pots, multiple winners") {
-        const auto b = forced_bets{25, 50};
+        const auto b = forced_bets{blinds{25, 50}};
         auto dck = deck{std::default_random_engine{std::random_device{}()}};
         auto cc = community_cards{};
         auto players = seat_array{};

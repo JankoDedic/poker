@@ -110,7 +110,7 @@ public:
     // Modifiers
     //
     void start_hand()                          POKER_NOEXCEPT;
-    void action_taken(action, chips bet = {0}) POKER_NOEXCEPT;
+    void action_taken(action, chips bet = 0) POKER_NOEXCEPT;
     void end_betting_round()                   POKER_NOEXCEPT;
     void showdown()                            POKER_NOEXCEPT;
 
@@ -151,11 +151,11 @@ inline constexpr auto dealer::is_aggressive(action a) noexcept -> bool {
 }
 
 inline dealer::dealer(seat_array_view players, seat_index button, forced_bets fb, deck& d, community_cards& cc) POKER_NOEXCEPT
-    : _forced_bets{fb}
+    : _players{players}
+    , _button{button}
+    , _forced_bets{fb}
     , _deck{&d}
     , _community_cards{&cc}
-    , _players{players}
-    , _button{button}
 {
     POKER_DETAIL_ASSERT(d.size() == 52, "Deck must be whole");
     POKER_DETAIL_ASSERT(cc.cards().size() == 0, "No community cards should have been dealt");

@@ -111,7 +111,10 @@ inline auto get_strength(span<const card, 5> arg_cards) noexcept -> int {
     auto sum = 0;
     auto multiplier = static_cast<int>(std::pow(13, 4));
     for (;;) {
-        const auto [rank, count] = next_rank(cards);
+        /* const auto [rank, count] = next_rank(cards); */
+        const auto tmp = next_rank(cards);
+        const auto rank = tmp.rank;
+        const auto count = tmp.count;
         sum += multiplier * static_cast<int>(rank);
         cards = cards.subspan(count);
         if (!cards.empty()) {
@@ -147,7 +150,10 @@ inline auto hand::_high_low_hand_eval(span<card, 7> cards) noexcept -> hand {
     std::sort(cards.begin(), cards.end(), cmp);
 
     auto ranking = hand_ranking{};
-    const auto [rank, count] = next_rank(cards);
+    /* const auto [rank, count] = next_rank(cards); */
+    const auto tmp = next_rank(cards);
+    /* const auto rank = tmp.rank; // UNUSED VARIABLE */
+    const auto count = tmp.count;
     if (count == 4) {
         const auto greater_rank = [] (card x, card y) -> bool {
             return x.rank > y.rank;
@@ -155,14 +161,20 @@ inline auto hand::_high_low_hand_eval(span<card, 7> cards) noexcept -> hand {
         std::sort(cards.begin() + 4, cards.end(), greater_rank);
         ranking = hand_ranking::four_of_a_kind;
     } else if (count == 3) {
-        const auto [rank, count] = next_rank(cards.last<4>());
+        /* const auto [rank, count] = next_rank(cards.last<4>()); */
+        const auto tmp = next_rank(cards.last<4>());
+        /* const auto rank = tmp.rank; // UNUSED VARIABLE */
+        const auto count = tmp.count;
         if (count == 2) {
             ranking = hand_ranking::full_house;
         } else {
             ranking = hand_ranking::three_of_a_kind;
         }
     } else if (count == 2) {
-        const auto [rank, count] = next_rank(cards.last<5>());
+        /* const auto [rank, count] = next_rank(cards.last<5>()); */
+        const auto tmp = next_rank(cards.last<5>());
+        /* const auto rank = tmp.rank; // UNUSED VARIABLE */
+        const auto count = tmp.count;
         if (count == 2) {
             ranking = hand_ranking::two_pair;
         } else {
