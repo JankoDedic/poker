@@ -49,7 +49,7 @@ public:
     //
     // Constructors
     //
-    betting_round(seat_array_view players, seat_index current, chips min_raise) noexcept;
+    betting_round(seat_array_view players, seat_index first_to_act, chips min_raise) noexcept;
 
     //
     // Observers
@@ -79,8 +79,8 @@ private:
     chips _min_raise = 0;
 };
 
-inline betting_round::betting_round(seat_array_view players, seat_index current, chips min_raise) noexcept
-    : _round{players.filter(), current}
+inline betting_round::betting_round(seat_array_view players, seat_index first_to_act, chips min_raise) noexcept
+    : _round{players.filter(), first_to_act}
     , _players{&players.underlying()}
     , _biggest_bet{min_raise}
     , _min_raise{min_raise}
