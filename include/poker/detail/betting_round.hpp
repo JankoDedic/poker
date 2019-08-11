@@ -89,14 +89,21 @@ inline betting_round::betting_round(seat_array_view players, seat_index first_to
     POKER_DETAIL_ASSERT(players.filter()[first_to_act], "First player to act must exist");
 }
 
-inline auto betting_round::in_progress()        const noexcept -> bool                             { return _round.in_progress();        }
+inline auto betting_round::in_progress() const noexcept -> bool {
+    return _round.in_progress();
+}
 
 inline auto betting_round::player_to_act() const noexcept -> seat_index {
     return _round.player_to_act();
 }
 
-inline auto betting_round::biggest_bet()        const noexcept -> chips                            { return _biggest_bet;                }
-inline auto betting_round::min_raise()          const noexcept -> chips                            { return _min_raise;                  }
+inline auto betting_round::biggest_bet() const noexcept -> chips {
+    return _biggest_bet;
+}
+
+inline auto betting_round::min_raise() const noexcept -> chips {
+    return _min_raise;
+}
 
 inline auto betting_round::players() const noexcept -> seat_array_view {
     return {*_players, _round.active_players()};
@@ -106,7 +113,9 @@ inline auto betting_round::active_players() const noexcept -> const std::array<b
     return _round.active_players();
 }
 
-inline auto betting_round::num_active_players() const noexcept -> std::size_t                      { return _round.num_active_players(); }
+inline auto betting_round::num_active_players() const noexcept -> std::size_t {
+    return _round.num_active_players();
+}
 
 inline auto betting_round::legal_actions() const noexcept -> action_range {
     // A player can raise if his stack+bet_size is greater than _biggest_bet
