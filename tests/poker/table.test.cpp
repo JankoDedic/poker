@@ -9,7 +9,7 @@ TEST_CASE("table construction") {
     auto t = poker::table{poker::forced_bets{poker::blinds{25, 50}}};
 
     REQUIRE(std::find(t.seats().occupancy().begin(), t.seats().occupancy().end(), true) == t.seats().occupancy().end());
-    REQUIRE_EQ(t.forced_bets(), poker::forced_bets{25, 50});
+    REQUIRE_EQ(t.forced_bets(), poker::forced_bets{poker::blinds{25, 50}});
     REQUIRE_FALSE(t.hand_in_progress());
 }
 
