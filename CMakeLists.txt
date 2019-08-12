@@ -8,26 +8,24 @@ cmake_minimum_required(VERSION 3.9.2 FATAL_ERROR)
 # =============================================================================
 project(poker LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD          17)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS        OFF)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # =============================================================================
 # Dependencies
 # =============================================================================
-add_subdirectory(third_party/span-lite EXCLUDE_FROM_ALL)
-# find_path(DOCTEST_INCLUDE_DIR doctest/doctest.h)
+set(SPAN_LITE_INCLUDE_DIR third_party/span-lite/include)
 set(DOCTEST_INCLUDE_DIR third_party/doctest)
 
 # =============================================================================
 # Library
 # =============================================================================
-add_library                ( poker INTERFACE                                     )
-target_include_directories ( poker INTERFACE include      ${DOCTEST_INCLUDE_DIR} )
-target_link_libraries      ( poker INTERFACE span-lite                           )
+add_library(poker INTERFACE)
+target_include_directories(poker INTERFACE include ${SPAN_LITE_INCLUDE_DIR})
 
 if(MSVC)
-  target_compile_options   ( poker INTERFACE /permissive-                        )
+  target_compile_options(poker INTERFACE /permissive-)
 endif()
 
 # =============================================================================
@@ -46,5 +44,5 @@ add_executable(
     tests/poker/pot.test.cpp
     tests/poker/table.test.cpp
 )
-target_include_directories ( poker-tests PRIVATE ${DOCTEST_INCLUDE_DIR} )
-target_link_libraries      ( poker-tests PRIVATE poker                  )
+target_include_directories(poker-tests PRIVATE ${DOCTEST_INCLUDE_DIR})
+target_link_libraries(poker-tests PRIVATE poker)
