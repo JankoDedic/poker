@@ -302,8 +302,7 @@ inline auto table::legal_actions() const POKER_NOEXCEPT -> dealer::action_range 
 }
 
 inline auto table::hole_cards() const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, num_seats> {
-    POKER_DETAIL_ASSERT(!hand_in_progress() ? betting_rounds_completed() : false,
-                        "Hand must be in progress or showdown must have ended");
+    POKER_DETAIL_ASSERT(hand_in_progress() || betting_rounds_completed(), "Hand must be in progress or showdown must have ended");
 
     return _dealer.hole_cards();
 }

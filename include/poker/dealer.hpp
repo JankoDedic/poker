@@ -239,8 +239,7 @@ inline auto dealer::button() const noexcept -> seat_index {
 }
 
 inline auto dealer::hole_cards() const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, max_players> {
-    POKER_DETAIL_ASSERT(!hand_in_progress() ? betting_rounds_completed() : false,
-                        "Hand must be in progress or showdown must have ended");
+    POKER_DETAIL_ASSERT(hand_in_progress() || betting_rounds_completed(), "Hand must be in progress or showdown must have ended");
 
     return {_hole_cards, _players.filter()};
 }
