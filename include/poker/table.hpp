@@ -51,7 +51,7 @@ public:
     auto forced_bets() const noexcept -> poker::forced_bets;
 
     // Dealer
-    auto hand_in_progress()          const noexcept -> bool;
+    auto hand_in_progress()          const noexcept       -> bool;
     auto betting_round_in_progress() const POKER_NOEXCEPT -> bool;
     auto betting_rounds_completed()  const POKER_NOEXCEPT -> bool;
     auto hand_players()              const POKER_NOEXCEPT -> seat_array_view;
@@ -64,7 +64,7 @@ public:
     auto legal_actions()             const POKER_NOEXCEPT -> dealer::action_range;
 
     // Automatic actions
-    auto automatic_actions()            const POKER_NOEXCEPT -> span<const std::optional<automatic_action>, num_seats>;
+    auto automatic_actions()                  const POKER_NOEXCEPT -> span<const std::optional<automatic_action>, num_seats>;
     auto can_set_automatic_action(seat_index) const POKER_NOEXCEPT -> bool;
     auto legal_automatic_actions(seat_index)  const POKER_NOEXCEPT -> automatic_action;
 
