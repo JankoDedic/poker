@@ -94,23 +94,23 @@ public:
     //
     // Observers
     //
-    auto hand_in_progress()          const noexcept -> bool;
+    auto hand_in_progress()          const noexcept       -> bool;
     auto betting_rounds_completed()  const POKER_NOEXCEPT -> bool;
     auto player_to_act()             const POKER_NOEXCEPT -> seat_index;
-    auto players()                   const noexcept -> seat_array_view;
+    auto players()                   const noexcept       -> seat_array_view;
     auto round_of_betting()          const POKER_NOEXCEPT -> poker::round_of_betting;
-    auto num_active_players()        const noexcept -> std::size_t;
-    auto biggest_bet()               const noexcept -> chips;
-    auto betting_round_in_progress() const noexcept -> bool;
+    auto num_active_players()        const noexcept       -> std::size_t;
+    auto biggest_bet()               const noexcept       -> chips;
+    auto betting_round_in_progress() const noexcept       -> bool;
     auto legal_actions()             const POKER_NOEXCEPT -> action_range;
     auto pots()                      const POKER_NOEXCEPT -> span<const pot>;
-    auto button()                    const noexcept -> seat_index;
+    auto button()                    const noexcept       -> seat_index;
 
     //
     // Modifiers
     //
     void start_hand()                          POKER_NOEXCEPT;
-    void action_taken(action, chips bet = 0) POKER_NOEXCEPT;
+    void action_taken(action, chips bet = 0)   POKER_NOEXCEPT;
     void end_betting_round()                   POKER_NOEXCEPT;
     void showdown()                            POKER_NOEXCEPT;
 
@@ -122,8 +122,8 @@ private:
     void deal_community_cards() noexcept; // Deals community cards up until the current round of betting.
 
 private:
-    seat_array_view _players;
-    seat_index _button = 0;
+    seat_array_view                     _players;
+    seat_index                          _button                   = 0;
 
     detail::betting_round               _betting_round;
     forced_bets                         _forced_bets;
