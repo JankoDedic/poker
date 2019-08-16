@@ -12,8 +12,6 @@ class player {
     chips _bet_size = {0};
 
 public:
-    poker::hole_cards hole_cards = {};
-
     player() = default;
 
     constexpr explicit player(chips stack) noexcept

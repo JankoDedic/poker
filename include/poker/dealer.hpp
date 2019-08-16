@@ -125,16 +125,17 @@ private:
     seat_array_view _players;
     seat_index _button = 0;
 
-    detail::betting_round      _betting_round;
-    forced_bets                _forced_bets;
+    detail::betting_round               _betting_round;
+    forced_bets                         _forced_bets;
 
-    deck*                      _deck                     = nullptr;
-    community_cards*           _community_cards          = nullptr;
+    deck*                               _deck                     = nullptr;
+    community_cards*                    _community_cards          = nullptr;
+    std::array<hole_cards, max_players> _hole_cards               = {};
 
-    bool                       _hand_in_progress         = false;
-    poker::round_of_betting    _round_of_betting         = poker::round_of_betting::preflop;
-    bool                       _betting_rounds_completed = false;
-    detail::pot_manager        _pot_manager              = {};
+    bool                                _hand_in_progress         = false;
+    poker::round_of_betting             _round_of_betting         = poker::round_of_betting::preflop;
+    bool                                _betting_rounds_completed = false;
+    detail::pot_manager                 _pot_manager              = {};
 };
 
 inline auto dealer::action_range::contains(dealer::action a, poker::chips bet/* = 0*/) const POKER_NOEXCEPT -> bool {
@@ -312,7 +313,8 @@ inline void dealer::showdown() POKER_NOEXCEPT {
         auto player_results = std::vector<std::pair<seat_index, hand>>{};
         player_results.reserve(p.eligible_players().size());
         std::transform(p.eligible_players().begin(), p.eligible_players().end(), std::back_inserter(player_results), [&] (seat_index i) {
-            return std::pair{i, hand{_players[i].hole_cards, *_community_cards}};
+            /* return std::pair{i, hand{_players[i].hole_cards, *_community_cards}}; */
+            return std::pair{i, hand{_hole_cards[i], *_community_cards}};
         });
         std::sort(player_results.begin(), player_results.end(), [] (auto&& lhs, auto&& rhs) {
             return lhs.second > rhs.second;
@@ -354,8 +356,10 @@ inline auto dealer::post_blinds() noexcept -> seat_index {
 }
 
 inline void dealer::deal_hole_cards() noexcept {
-    for (auto& p : _players) {
-        p.hole_cards = {_deck->draw(), _deck->draw()};
+    for (auto i = 0; i < max_players; ++i) {
+        if (_players.filter()[i]) {
+            _hole_cards[i] = {_deck->draw(), _deck->draw()};
+        }
     }
 }
 
