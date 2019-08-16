@@ -11,6 +11,7 @@
 #include <poker/hand.hpp>
 #include <poker/player.hpp>
 #include <poker/pot.hpp>
+#include <poker/slot_array.hpp>
 
 #include "poker/detail/betting_round.hpp"
 #include "poker/detail/error.hpp"
@@ -105,6 +106,7 @@ public:
     auto legal_actions()             const POKER_NOEXCEPT -> action_range;
     auto pots()                      const POKER_NOEXCEPT -> span<const pot>;
     auto button()                    const noexcept       -> seat_index;
+    auto hole_cards()                const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, max_players>;
 
     //
     // Modifiers
@@ -130,7 +132,7 @@ private:
 
     deck*                               _deck                     = nullptr;
     community_cards*                    _community_cards          = nullptr;
-    std::array<hole_cards, max_players> _hole_cards               = {};
+    std::array<poker::hole_cards, max_players> _hole_cards               = {};
 
     bool                                _hand_in_progress         = false;
     poker::round_of_betting             _round_of_betting         = poker::round_of_betting::preflop;
@@ -234,6 +236,13 @@ inline auto dealer::pots() const POKER_NOEXCEPT -> span<const pot> {
 
 inline auto dealer::button() const noexcept -> seat_index {
     return _button;
+}
+
+inline auto dealer::hole_cards() const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, max_players> {
+    POKER_DETAIL_ASSERT(!hand_in_progress() ? betting_rounds_completed() : false,
+                        "Hand must be in progress or showdown must have ended");
+
+    return {_hole_cards, _players.filter()};
 }
 
 inline void dealer::start_hand() POKER_NOEXCEPT {
