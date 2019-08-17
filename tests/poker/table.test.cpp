@@ -516,3 +516,31 @@ TEST_CASE("No crash when the player to act stands up with one player remaining")
     t.start_hand(std::default_random_engine{std::random_device{}()});
     t.stand_up(1);
 }
+
+TEST_CASE("Betting round ends when only a single active player remains") {
+    // Correct behavior after action_taken.
+    {
+        auto t = poker::table{poker::forced_bets{poker::blinds{25}}};
+        t.sit_down(1, 1000);
+        t.sit_down(5, 1000);
+        t.sit_down(8, 1000);
+        t.start_hand(std::default_random_engine{std::random_device{}()});
+        REQUIRE_EQ(t.player_to_act(), 1);
+        t.stand_up(8);
+        t.action_taken(poker::dealer::action::fold);
+        REQUIRE_FALSE(t.betting_round_in_progress());
+    }
+
+    // Correct behavior after stand_up.
+    {
+        auto t = poker::table{poker::forced_bets{poker::blinds{25}}};
+        t.sit_down(1, 1000);
+        t.sit_down(5, 1000);
+        t.sit_down(8, 1000);
+        t.start_hand(std::default_random_engine{std::random_device{}()});
+        REQUIRE_EQ(t.player_to_act(), 1);
+        t.action_taken(poker::dealer::action::fold);
+        t.stand_up(8);
+        REQUIRE_FALSE(t.betting_round_in_progress());
+    }
+}

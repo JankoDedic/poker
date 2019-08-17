@@ -94,6 +94,7 @@ private:
     void act_passively() noexcept;
     void increment_button() noexcept;
     void update_table_players() noexcept;
+    auto single_active_player_remaining() const noexcept -> bool;
 
 private:
     seat_array _hand_players;
@@ -237,6 +238,21 @@ inline void table::update_table_players() noexcept {
     }
 }
 
+// A player is considered active (in class table context) when
+// he is still within betting_round::players and did not stand up in this hand (!_staged[i]).
+// We need the second condition for the players who stood up, but are still technically
+// in the betting_round because betting_round does not handle players disappearing.
+inline auto table::single_active_player_remaining() const noexcept -> bool {
+    assert(betting_round_in_progress());
+
+    const auto& occupancy = _dealer.players().filter();
+    auto active_player_count = 0;
+    for (auto i = seat_index{0}; i < num_seats; ++i) {
+        active_player_count += (occupancy[i] && !_staged[i]);
+    }
+    return active_player_count == 1;
+}
+
 template<class URBG>
 inline void table::start_hand(URBG&& g) POKER_NOEXCEPT {
     POKER_DETAIL_ASSERT(!hand_in_progress(), "Hand must not be in progress");
@@ -320,6 +336,12 @@ inline void table::action_taken(action a, chips bet) POKER_NOEXCEPT {
             break;
         }
     }
+
+    if (betting_round_in_progress() && single_active_player_remaining()) {
+        // We only need to take action for this one player, and the other automatic actions will unfold automatically.
+        act_passively();
+    }
+
     update_table_players();
 }
 
@@ -433,13 +455,11 @@ inline void table::stand_up(seat_index s) POKER_NOEXCEPT {
             _table_players.remove_player(s);
             _staged[s] = true;
 
-            const auto player_count = std::count(_table_players.occupancy().begin(), _table_players.occupancy().end(), true);
-            if (player_count == 1) {
+            if (single_active_player_remaining()) {
                 // We only need to take action for this one player, and the other automatic actions will unfold automatically.
                 act_passively();
             }
         }
-        // TODO: Is there any case where we would want the act_passively() behavior for the first branch?
     } else {
         _table_players.remove_player(s);
     }
