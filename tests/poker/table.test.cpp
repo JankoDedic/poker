@@ -505,3 +505,14 @@ TEST_CASE("Buttons wraps around correctly when moved from the last position") {
     t.start_hand(std::default_random_engine{std::random_device{}()});
     REQUIRE_EQ(t.button(), 0);
 }
+
+TEST_CASE("No crash when the player to act stands up with one player remaining") {
+    // This was caused by act_passively() being called in the case
+    // of player_to_act standing up. Since the action is taken directly,
+    // the hand ends naturally by itself and no further actions can be taken.
+    auto t = poker::table{poker::forced_bets{poker::blinds{25}}};
+    t.sit_down(1, 1000);
+    t.sit_down(8, 1000);
+    t.start_hand(std::default_random_engine{std::random_device{}()});
+    t.stand_up(1);
+}

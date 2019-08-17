@@ -424,18 +424,22 @@ inline void table::stand_up(seat_index s) POKER_NOEXCEPT {
         assert(betting_round_in_progress());
         if (s == player_to_act()) {
             action_taken(action::fold);
+
+            _table_players.remove_player(s);
+            _staged[s] = true;
         } else if (_hand_players.occupancy()[s]) {
             set_automatic_action(s, automatic_action::fold);
-        }
 
-        _table_players.remove_player(s);
-        _staged[s] = true;
+            _table_players.remove_player(s);
+            _staged[s] = true;
 
-        const auto player_count = std::count(_table_players.occupancy().begin(), _table_players.occupancy().end(), true);
-        if (player_count == 1) {
-            // We only need to take action for this one player, and the other automatic actions will unfold automatically.
-            act_passively();
+            const auto player_count = std::count(_table_players.occupancy().begin(), _table_players.occupancy().end(), true);
+            if (player_count == 1) {
+                // We only need to take action for this one player, and the other automatic actions will unfold automatically.
+                act_passively();
+            }
         }
+        // TODO: Is there any case where we would want the act_passively() behavior for the first branch?
     } else {
         _table_players.remove_player(s);
     }
