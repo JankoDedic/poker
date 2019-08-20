@@ -308,3 +308,28 @@ TEST_CASE("Showdown") {
         /* REQUIRE_EQ(players[2].stack(), 100); */
     }
 }
+
+TEST_CASE("Calling on the big blind does not cause a crash") {
+    // dealer::action_taken did not deduct the bet from the folding player, but only read it.
+    // This caused player.bet() to fail, because a smaller bet than the existing one was placed.
+    // This is a design problem. If bet sizes did not outlive the dealer, accessing old ones would
+    // be outside of the realm of possibility.
+
+    const auto b = forced_bets{blinds{25, 50}};
+    auto dck = deck{std::default_random_engine{std::random_device{}()}};
+    auto cc = community_cards{};
+    auto players = seat_array{};
+    players.add_player(0, player{1000});
+    players.add_player(1, player{1000});
+    auto d = dealer{players, 0, b, dck, cc};
+    d.start_hand();
+    d.action_taken(poker::dealer::action::call);
+    d.action_taken(poker::dealer::action::fold);
+    d.end_betting_round();
+    d.showdown();
+
+    dck = deck{std::default_random_engine{std::random_device{}()}};
+    cc = {};
+    new (&d) dealer{players, 1, b, dck, cc};
+    d.start_hand();
+}

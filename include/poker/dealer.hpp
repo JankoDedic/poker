@@ -268,7 +268,9 @@ inline void dealer::action_taken(action a, chips bet/* = 0*/) POKER_NOEXCEPT {
         _betting_round.action_taken(detail::betting_round::action::raise, bet);
     } else {
         assert(static_cast<bool>(a & action::fold));
-        _pot_manager.bet_folded(_players[player_to_act()].bet_size());
+        auto& folding_player = _players[player_to_act()];
+        _pot_manager.bet_folded(folding_player.bet_size());
+        folding_player.take_from_bet(folding_player.bet_size());
         _players.exclude_player(player_to_act());
         _betting_round.action_taken(detail::betting_round::action::leave);
     }
