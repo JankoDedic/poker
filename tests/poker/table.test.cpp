@@ -544,3 +544,26 @@ TEST_CASE("Betting round ends when only a single active player remains") {
         REQUIRE_FALSE(t.betting_round_in_progress());
     }
 }
+
+TEST_CASE("Heads-up preflop first-to-act all-in does not cause the other player to automatically act passively") {
+    auto t = poker::table{poker::forced_bets{poker::blinds{25}}};
+    t.sit_down(0, 1000);
+    t.sit_down(1, 1000);
+    t.start_hand(std::default_random_engine{std::random_device{}()});
+    t.action_taken(poker::dealer::action::raise, 1000);
+    t.action_taken(poker::dealer::action::fold); // error: betting round must be in progress!
+    REQUIRE_FALSE(t.betting_round_in_progress());
+
+    SUBCASE("(addendum) Players who stood up or folded do not count as active") {
+        auto t = poker::table{poker::forced_bets{poker::blinds{25}}};
+        t.sit_down(0, 1000);
+        t.sit_down(1, 1000);
+        t.sit_down(2, 1000);
+        t.sit_down(3, 1000);
+        t.start_hand(std::default_random_engine{std::random_device{}()}, 1);
+        t.stand_up(3);
+        t.stand_up(2);
+        t.action_taken(poker::dealer::action::fold);
+        REQUIRE_FALSE(t.betting_round_in_progress());
+    }
+}

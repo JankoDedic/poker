@@ -99,6 +99,7 @@ public:
     auto betting_rounds_completed()  const POKER_NOEXCEPT -> bool;
     auto player_to_act()             const POKER_NOEXCEPT -> seat_index;
     auto players()                   const noexcept       -> seat_array_view;
+    auto betting_round_players()     const noexcept       -> seat_array_view;
     auto round_of_betting()          const POKER_NOEXCEPT -> poker::round_of_betting;
     auto num_active_players()        const noexcept       -> std::size_t;
     auto biggest_bet()               const noexcept       -> chips;
@@ -182,6 +183,11 @@ inline auto dealer::player_to_act() const POKER_NOEXCEPT -> seat_index {
 
 inline auto dealer::players() const noexcept -> seat_array_view {
     return _betting_round.players();
+}
+
+// All the players who started in the current betting round.
+inline auto dealer::betting_round_players() const noexcept -> seat_array_view {
+    return _players;
 }
 
 inline auto dealer::round_of_betting() const POKER_NOEXCEPT -> poker::round_of_betting {

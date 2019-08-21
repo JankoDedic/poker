@@ -108,7 +108,7 @@ private:
 
     // All the players physically present at the table
     seat_array _table_players;
-    // All players who took a seat before the .start_hand()
+    // All players who took a seat or stood up before the .start_hand()
     std::array<bool,num_seats>                            _staged = {};
     //std::array<bool,num_seats>                            _sitting_out = {}; // NOT USED
     std::array<std::optional<automatic_action>,num_seats> _automatic_actions;
@@ -238,17 +238,18 @@ inline void table::update_table_players() noexcept {
     }
 }
 
-// A player is considered active (in class table context) when
-// he is still within betting_round::players and did not stand up in this hand (!_staged[i]).
-// We need the second condition for the players who stood up, but are still technically
-// in the betting_round because betting_round does not handle players disappearing.
+// A player is considered active (in class table context) if
+// he started in the current betting round, has not stood up or folded.
 inline auto table::single_active_player_remaining() const noexcept -> bool {
     assert(betting_round_in_progress());
 
-    const auto& occupancy = _dealer.players().filter();
+    // What dealer::betting_round_players filter returns is all the players
+    // who started the current betting round and have not folded. Players who
+    // actually fold are manually discarded internally (to help with pot evaluation).
+    const auto& betting_round_players = _dealer.betting_round_players().filter();
     auto active_player_count = 0;
     for (auto i = seat_index{0}; i < num_seats; ++i) {
-        active_player_count += (occupancy[i] && !_staged[i]);
+        active_player_count += (betting_round_players[i] && !_staged[i]);
     }
     return active_player_count == 1;
 }
