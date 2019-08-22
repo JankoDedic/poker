@@ -11,7 +11,7 @@ TEST_CASE("testing valid actions") {
         players.add_player(0, player{1});
         players.add_player(1, player{1});
         players.add_player(2, player{1});
-        auto r = betting_round{players, 0, 50};
+        auto r = betting_round{players, 0, 50, 50};
         REQUIRE_EQ(r.player_to_act(), 0);
         REQUIRE_EQ(r.biggest_bet(), 50);
         REQUIRE_EQ(r.min_raise(), 50);
@@ -82,7 +82,7 @@ TEST_CASE("betting round actions map to round actions properly") {
         players.add_player(1, player{1000});
         players.add_player(2, player{1000});
         auto r = poker::detail::round{players.occupancy(), 0};
-        auto br = betting_round{players, 0, 50};
+        auto br = betting_round{players, 0, 50, 50};
         REQUIRE_EQ(r, br._round);
         REQUIRE_EQ(br.player_to_act(), 0);
 

@@ -259,7 +259,7 @@ inline void dealer::start_hand() POKER_NOEXCEPT {
     const auto first_action = next_or_wrap(post_blinds());
     deal_hole_cards();
     if (std::count_if(_players.begin(), _players.end(), [] (const auto& p) { return p.stack() != 0; }) > 1) {
-        new (&_betting_round) detail::betting_round{_players, first_action, _forced_bets.blinds.big};
+        new (&_betting_round) detail::betting_round{_players, first_action, _forced_bets.blinds.big, _forced_bets.blinds.big};
     }
     _hand_in_progress = true;
 }
@@ -301,7 +301,7 @@ inline void dealer::end_betting_round() POKER_NOEXCEPT {
         // Start the next betting round.
         _round_of_betting = next(_round_of_betting);
         _players = _betting_round.players();
-        new (&_betting_round) detail::betting_round{_players, next_or_wrap(_button), 0};
+        new (&_betting_round) detail::betting_round{_players, next_or_wrap(_button), _forced_bets.blinds.big};
         deal_community_cards();
         assert(_betting_rounds_completed == false);
     } else {

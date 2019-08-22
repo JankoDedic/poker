@@ -49,7 +49,7 @@ public:
     //
     // Constructors
     //
-    betting_round(seat_array_view players, seat_index first_to_act, chips min_raise) POKER_NOEXCEPT;
+    betting_round(seat_array_view players, seat_index first_to_act, chips min_raise, chips biggest_bet = 0) POKER_NOEXCEPT;
 
     //
     // Observers
@@ -79,10 +79,11 @@ private:
     chips _min_raise = 0;
 };
 
-inline betting_round::betting_round(seat_array_view players, seat_index first_to_act, chips min_raise) POKER_NOEXCEPT
+inline betting_round::betting_round(
+    seat_array_view players, seat_index first_to_act, chips min_raise, chips biggest_bet/*= 0*/) POKER_NOEXCEPT
     : _round{players.filter(), first_to_act}
     , _players{&players.underlying()}
-    , _biggest_bet{min_raise}
+    , _biggest_bet{biggest_bet}
     , _min_raise{min_raise}
 {
     POKER_DETAIL_ASSERT(first_to_act < max_players, "Seat index must be in the valid range");
