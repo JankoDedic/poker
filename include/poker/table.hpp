@@ -95,6 +95,7 @@ private:
     void increment_button() noexcept;
     void update_table_players() noexcept;
     auto single_active_player_remaining() const noexcept -> bool;
+    void stand_up_busted_players() noexcept;
 
 private:
     seat_array _hand_players;
@@ -254,6 +255,16 @@ inline auto table::single_active_player_remaining() const noexcept -> bool {
     return active_player_count == 1;
 }
 
+inline void table::stand_up_busted_players() noexcept {
+    assert(!hand_in_progress());
+
+    for (auto s = seat_index{}; s < num_seats; ++s) {
+        if (_table_players.occupancy()[s] && _table_players[s].total_chips() == 0) {
+            _table_players.remove_player(s);
+        }
+    }
+}
+
 template<class URBG>
 inline void table::start_hand(URBG&& g) POKER_NOEXCEPT {
     POKER_DETAIL_ASSERT(!hand_in_progress(), "Hand must not be in progress");
@@ -361,6 +372,7 @@ inline void table::showdown() POKER_NOEXCEPT {
 
     _dealer.showdown();
     update_table_players();
+    stand_up_busted_players();
 }
 
 inline auto table::automatic_actions() const POKER_NOEXCEPT -> span<const std::optional<automatic_action>, num_seats> {
