@@ -446,7 +446,7 @@ public:
     }
 
     friend constexpr auto operator==(const const_iterator& x, const const_iterator& y) noexcept -> bool {
-        return x._container == y._container && x._index == y._index;
+        return x._view == y._view && x._index == y._index;
     }
 
     friend constexpr auto operator!=(const const_iterator& x, const const_iterator& y) noexcept -> bool {
