@@ -4,6 +4,8 @@
 #include <cassert>
 
 #include <poker/seat_index.hpp>
+#include <poker/slot_array.hpp>
+
 #include "poker/detail/utility.hpp"
 
 namespace poker::detail {
@@ -37,7 +39,7 @@ public:
     // Observers
     //
     auto active_players()        const noexcept -> std::array<bool, num_players>;
-    auto player_states()         const noexcept -> std::array<player_state, num_players>;
+    auto player_states()         const noexcept -> slot_view<const player_state, num_players>;
     auto player_to_act()         const noexcept -> seat_index;
     auto last_aggressive_actor() const noexcept -> seat_index;
     auto num_active_players()    const noexcept -> std::size_t;
@@ -55,12 +57,13 @@ private:
     void increment_player() noexcept;
 
 private:
-    std::array<player_state, num_players> _player_states     = {};
-    seat_index                   _player_to_act;
-    seat_index                   _last_aggressive_actor;
-    bool                         _contested          = false;      // passive or aggressive action was taken this round
-    bool                         _first_action       = true;
-    std::size_t                  _num_active_players = 0;
+    std::array<bool, num_players>         _filter             = {}; // players who started this round
+    std::array<player_state, num_players> _player_states      = {};
+    seat_index                            _player_to_act;
+    seat_index                            _last_aggressive_actor;
+    bool                                  _contested          = false; // passive or aggressive action was taken this round
+    bool                                  _first_action       = true;
+    std::size_t                           _num_active_players = 0;
 };
 
 inline auto operator==(const round& x, const round& y) noexcept -> bool {
@@ -72,7 +75,8 @@ inline auto operator==(const round& x, const round& y) noexcept -> bool {
 }
 
 inline round::round(const std::array<bool, num_players>& active_players, seat_index first_to_act) noexcept
-    : _player_to_act{first_to_act}
+    : _filter{active_players}
+    , _player_to_act{first_to_act}
     , _last_aggressive_actor{first_to_act}
     , _num_active_players{static_cast<std::size_t>(std::count(std::cbegin(active_players), std::cend(active_players), true))}
 {
@@ -91,8 +95,8 @@ inline auto round::active_players() const noexcept -> std::array<bool, num_playe
     return active_players;
 }
 
-inline auto round::player_states() const noexcept -> std::array<player_state, num_players> {
-    return _player_states;
+inline auto round::player_states() const noexcept -> slot_view<const player_state, num_players> {
+    return {_player_states, _filter};
 }
 
 inline auto round::player_to_act() const noexcept -> seat_index {
