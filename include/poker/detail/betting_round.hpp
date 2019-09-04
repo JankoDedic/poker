@@ -3,6 +3,7 @@
 #include <poker/player.hpp>
 
 #include <poker/seat_array.hpp>
+
 #include "poker/detail/round.hpp"
 
 namespace poker {
@@ -62,6 +63,7 @@ public:
     auto active_players()     const noexcept -> const std::array<bool,max_players>&;
     auto num_active_players() const noexcept -> std::size_t;
     auto legal_actions()      const noexcept -> action_range;
+    auto player_states()      const noexcept -> slot_view<const round::player_state, max_players>;
 
     //
     // Modifiers
@@ -130,6 +132,10 @@ inline auto betting_round::legal_actions() const noexcept -> action_range {
     } else {
         return {can_raise};
     }
+}
+
+inline auto betting_round::player_states() const noexcept -> slot_view<const round::player_state, max_players> {
+    return _round.player_states();
 }
 
 inline void betting_round::action_taken(action a, chips bet/*= 0*/) noexcept {

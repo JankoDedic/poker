@@ -244,15 +244,14 @@ inline void table::update_table_players() noexcept {
 inline auto table::single_active_player_remaining() const noexcept -> bool {
     assert(betting_round_in_progress());
 
-    // What dealer::betting_round_players filter returns is all the players
-    // who started the current betting round and have not folded. Players who
-    // actually fold are manually discarded internally (to help with pot evaluation).
-    const auto& betting_round_players = _dealer.betting_round_players().filter();
-    auto active_player_count = 0;
-    for (auto i = seat_index{0}; i < num_seats; ++i) {
-        active_player_count += (betting_round_players[i] && !_staged[i]);
+    using detail::round;
+    const auto player_states = _dealer.player_states();
+    auto player_count = 0;
+    for (auto i = 0; i < num_seats; ++i) {
+        // In order: started the current betting round, did not fold, did not stand up.
+        player_count += (player_states.filter()[i] && player_states[i] != round::player_state::inactive && !_staged[i]);
     }
-    return active_player_count == 1;
+    return player_count == 1;
 }
 
 inline void table::stand_up_busted_players() noexcept {

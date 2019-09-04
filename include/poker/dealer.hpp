@@ -108,6 +108,7 @@ public:
     auto pots()                      const POKER_NOEXCEPT -> span<const pot>;
     auto button()                    const noexcept       -> seat_index;
     auto hole_cards()                const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, max_players>;
+    auto player_states()             const POKER_NOEXCEPT -> slot_view<const detail::round::player_state, max_players>;
 
     //
     // Modifiers
@@ -248,6 +249,12 @@ inline auto dealer::hole_cards() const POKER_NOEXCEPT -> slot_view<const poker::
     POKER_DETAIL_ASSERT(hand_in_progress() || betting_rounds_completed(), "Hand must be in progress or showdown must have ended");
 
     return {_hole_cards, _players.filter()};
+}
+
+inline auto dealer::player_states() const POKER_NOEXCEPT -> slot_view<const detail::round::player_state, max_players> {
+    POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
+
+    return _betting_round.player_states();
 }
 
 inline void dealer::start_hand() POKER_NOEXCEPT {
