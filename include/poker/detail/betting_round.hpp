@@ -26,7 +26,7 @@ public:
     //
     // Constants
     //
-    static constexpr auto max_players = 9;
+    static constexpr auto num_seats = 9;
 
     //
     // Types
@@ -62,11 +62,11 @@ public:
     auto biggest_bet()        const noexcept -> chips;
     auto min_raise()          const noexcept -> chips;
     auto players()            const noexcept -> seat_array_view;
-    auto active_players()     const noexcept -> const std::array<bool,max_players>&;
+    auto active_players()     const noexcept -> const std::array<bool,num_seats>&;
     auto num_active_players() const noexcept -> std::size_t;
     auto legal_actions()      const noexcept -> action_range;
     auto player_state(seat_index) const noexcept -> player;
-    auto filter() const noexcept -> std::array<bool, max_players>;
+    auto filter() const noexcept -> std::array<bool, num_seats>;
 
     //
     // Modifiers
@@ -91,7 +91,7 @@ inline betting_round::betting_round(
     , _biggest_bet{biggest_bet}
     , _min_raise{min_raise}
 {
-    POKER_DETAIL_ASSERT(first_to_act < max_players, "Seat index must be in the valid range");
+    POKER_DETAIL_ASSERT(first_to_act < num_seats, "Seat index must be in the valid range");
     POKER_DETAIL_ASSERT(players.filter()[first_to_act], "First player to act must exist");
 }
 
@@ -115,7 +115,7 @@ inline auto betting_round::players() const noexcept -> seat_array_view {
     return {*_players, _round.active_players()};
 }
 
-inline auto betting_round::active_players() const noexcept -> const std::array<bool,max_players>& {
+inline auto betting_round::active_players() const noexcept -> const std::array<bool,num_seats>& {
     return _round.active_players();
 }
 
@@ -143,7 +143,7 @@ inline auto betting_round::player_state(seat_index s) const noexcept -> player {
     return static_cast<player>(_round.player_state(s));
 }
 
-inline auto betting_round::filter() const noexcept -> std::array<bool, max_players> {
+inline auto betting_round::filter() const noexcept -> std::array<bool, num_seats> {
     return _round.filter();
 }
 
