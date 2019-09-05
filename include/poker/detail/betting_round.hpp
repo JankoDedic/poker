@@ -38,6 +38,8 @@ public:
         poker::chip_range chip_range = {0, 0};
     };
 
+    enum class player { folded, all_in, active };
+
     //
     // Special functions
     //
@@ -63,7 +65,7 @@ public:
     auto active_players()     const noexcept -> const std::array<bool,max_players>&;
     auto num_active_players() const noexcept -> std::size_t;
     auto legal_actions()      const noexcept -> action_range;
-    auto player_state(seat_index) const noexcept -> round::player ;
+    auto player_state(seat_index) const noexcept -> player;
     auto filter() const noexcept -> std::array<bool, max_players>;
 
     //
@@ -135,8 +137,10 @@ inline auto betting_round::legal_actions() const noexcept -> action_range {
     }
 }
 
-inline auto betting_round::player_state(seat_index s) const noexcept -> round::player {
-    return _round.player_state(s);
+inline auto betting_round::player_state(seat_index s) const noexcept -> player {
+    assert(filter()[s]);
+
+    return static_cast<player>(_round.player_state(s));
 }
 
 inline auto betting_round::filter() const noexcept -> std::array<bool, max_players> {

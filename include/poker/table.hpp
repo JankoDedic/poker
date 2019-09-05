@@ -244,11 +244,11 @@ inline void table::update_table_players() noexcept {
 inline auto table::single_active_player_remaining() const noexcept -> bool {
     assert(betting_round_in_progress());
 
-    using detail::round;
+    using detail::betting_round;
     auto player_count = 0;
     for (auto i = 0; i < num_seats; ++i) {
         // In order: started the current betting round, did not fold, did not stand up.
-        player_count += (_dealer.filter()[i] && _dealer.player_state(i) != round::player::inactive && !_staged[i]);
+        player_count += (_dealer.filter()[i] && _dealer.player_state(i) != betting_round::player::folded && !_staged[i]);
     }
     return player_count == 1;
 }
