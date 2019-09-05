@@ -63,7 +63,7 @@ public:
     auto active_players()     const noexcept -> const std::array<bool,max_players>&;
     auto num_active_players() const noexcept -> std::size_t;
     auto legal_actions()      const noexcept -> action_range;
-    auto player()      const noexcept -> slot_view<const enum round::player, max_players>;
+    enum round::player player(seat_index) const noexcept;
     auto filter() const noexcept -> std::array<bool, max_players>;
 
     //
@@ -135,8 +135,8 @@ inline auto betting_round::legal_actions() const noexcept -> action_range {
     }
 }
 
-inline auto betting_round::player() const noexcept -> slot_view<const enum round::player, max_players> {
-    return _round.player();
+inline auto betting_round::player(seat_index s) const noexcept -> enum round::player {
+    return _round.player(s);
 }
 
 inline auto betting_round::filter() const noexcept -> std::array<bool, max_players> {
