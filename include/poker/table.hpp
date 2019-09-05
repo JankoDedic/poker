@@ -249,7 +249,7 @@ inline auto table::single_active_player_remaining() const noexcept -> bool {
     auto player_count = 0;
     for (auto i = 0; i < num_seats; ++i) {
         // In order: started the current betting round, did not fold, did not stand up.
-        player_count += (player_states.filter()[i] && player_states[i] != round::player_state::inactive && !_staged[i]);
+        player_count += (player_states.filter()[i] && player_states[i] != round::player::inactive && !_staged[i]);
     }
     return player_count == 1;
 }

@@ -27,7 +27,7 @@ public:
     };
     POKER_DETAIL_DEFINE_FRIEND_FLAG_OPERATIONS(action)
 
-    enum class player_state { inactive, idle, active };
+    enum class player { inactive, idle, active };
 
     //
     // Constructors
@@ -39,7 +39,7 @@ public:
     // Observers
     //
     auto active_players()        const noexcept -> std::array<bool, num_players>;
-    auto player_states()         const noexcept -> slot_view<const player_state, num_players>;
+    auto player_states()         const noexcept -> slot_view<const player, num_players>;
     auto player_to_act()         const noexcept -> seat_index;
     auto last_aggressive_actor() const noexcept -> seat_index;
     auto num_active_players()    const noexcept -> std::size_t;
@@ -58,7 +58,7 @@ private:
 
 private:
     std::array<bool, num_players>         _filter             = {}; // players who started this round
-    std::array<player_state, num_players> _player_states      = {};
+    std::array<player, num_players> _player_states      = {};
     seat_index                            _player_to_act;
     seat_index                            _last_aggressive_actor;
     bool                                  _contested          = false; // passive or aggressive action was taken this round
@@ -83,19 +83,19 @@ inline round::round(const std::array<bool, num_players>& active_players, seat_in
     assert(first_to_act < num_players);
 
     std::transform(active_players.cbegin(), active_players.cend(), _player_states.begin(), [] (bool active) {
-        return active ? player_state::active : player_state::inactive;
+        return active ? player::active : player::inactive;
     });
 }
 
 inline auto round::active_players() const noexcept -> std::array<bool, num_players> {
     auto active_players = std::array<bool, num_players>{};
-    std::transform(_player_states.cbegin(), _player_states.cend(), active_players.begin(), [] (player_state ps) {
+    std::transform(_player_states.cbegin(), _player_states.cend(), active_players.begin(), [] (player ps) {
         return static_cast<bool>(ps);
     });
     return active_players;
 }
 
-inline auto round::player_states() const noexcept -> slot_view<const player_state, num_players> {
+inline auto round::player_states() const noexcept -> slot_view<const player, num_players> {
     return {_player_states, _filter};
 }
 
@@ -124,17 +124,17 @@ inline void round::action_taken(action a) noexcept {
         _last_aggressive_actor = _player_to_act;
         _contested = true;
         if (static_cast<bool>(a & action::leave)) {
-            _player_states[_player_to_act] = player_state::idle; // not relevant to class round, but might be to the user
+            _player_states[_player_to_act] = player::idle; // not relevant to class round, but might be to the user
             --_num_active_players;
         }
     } else if (static_cast<bool>(a & action::passive)) {
         _contested = true;
         if (static_cast<bool>(a & action::leave)) {
-            _player_states[_player_to_act] = player_state::idle;
+            _player_states[_player_to_act] = player::idle;
             --_num_active_players;
         }
     } else if (static_cast<bool>(a & action::leave)) {
-        _player_states[_player_to_act] = player_state::inactive;
+        _player_states[_player_to_act] = player::inactive;
         --_num_active_players;
     }
 
@@ -146,7 +146,7 @@ inline void round::increment_player() noexcept {
         ++_player_to_act;
         if (_player_to_act == num_players) _player_to_act = 0;
         if (_player_to_act == _last_aggressive_actor) break;
-    } while (_player_states[_player_to_act] == player_state::inactive);
+    } while (_player_states[_player_to_act] == player::inactive);
 }
 
 } // namespace poker::detail
