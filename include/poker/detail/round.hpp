@@ -40,6 +40,7 @@ public:
     //
     auto active_players()        const noexcept -> std::array<bool, num_players>;
     auto player_states()         const noexcept -> slot_view<const player, num_players>;
+    auto filter() const noexcept -> std::array<bool, num_players>;
     auto player_to_act()         const noexcept -> seat_index;
     auto last_aggressive_actor() const noexcept -> seat_index;
     auto num_active_players()    const noexcept -> std::size_t;
@@ -97,6 +98,10 @@ inline auto round::active_players() const noexcept -> std::array<bool, num_playe
 
 inline auto round::player_states() const noexcept -> slot_view<const player, num_players> {
     return {_player_states, _filter};
+}
+
+inline auto round::filter() const noexcept -> std::array<bool, num_players> {
+    return _filter;
 }
 
 inline auto round::player_to_act() const noexcept -> seat_index {

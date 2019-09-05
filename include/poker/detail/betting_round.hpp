@@ -64,6 +64,7 @@ public:
     auto num_active_players() const noexcept -> std::size_t;
     auto legal_actions()      const noexcept -> action_range;
     auto player_states()      const noexcept -> slot_view<const round::player, max_players>;
+    auto filter() const noexcept -> std::array<bool, max_players>;
 
     //
     // Modifiers
@@ -136,6 +137,10 @@ inline auto betting_round::legal_actions() const noexcept -> action_range {
 
 inline auto betting_round::player_states() const noexcept -> slot_view<const round::player, max_players> {
     return _round.player_states();
+}
+
+inline auto betting_round::filter() const noexcept -> std::array<bool, max_players> {
+    return _round.filter();
 }
 
 inline void betting_round::action_taken(action a, chips bet/*= 0*/) noexcept {
