@@ -39,7 +39,7 @@ public:
     // Observers
     //
     auto active_players()        const noexcept -> std::array<bool, num_players>;
-    auto player_states()         const noexcept -> slot_view<const player, num_players>;
+    auto player()         const noexcept -> slot_view<const player, num_players>;
     auto filter() const noexcept -> std::array<bool, num_players>;
     auto player_to_act()         const noexcept -> seat_index;
     auto last_aggressive_actor() const noexcept -> seat_index;
@@ -59,7 +59,7 @@ private:
 
 private:
     std::array<bool, num_players>         _filter             = {}; // players who started this round
-    std::array<player, num_players> _player_states      = {};
+    std::array<enum round::player, num_players> _player_states      = {};
     seat_index                            _player_to_act;
     seat_index                            _last_aggressive_actor;
     bool                                  _contested          = false; // passive or aggressive action was taken this round
@@ -90,13 +90,13 @@ inline round::round(const std::array<bool, num_players>& active_players, seat_in
 
 inline auto round::active_players() const noexcept -> std::array<bool, num_players> {
     auto active_players = std::array<bool, num_players>{};
-    std::transform(_player_states.cbegin(), _player_states.cend(), active_players.begin(), [] (player ps) {
+    std::transform(_player_states.cbegin(), _player_states.cend(), active_players.begin(), [] (enum round::player ps) {
         return static_cast<bool>(ps);
     });
     return active_players;
 }
 
-inline auto round::player_states() const noexcept -> slot_view<const player, num_players> {
+inline auto round::player() const noexcept -> slot_view<const enum round::player, num_players> {
     return {_player_states, _filter};
 }
 
