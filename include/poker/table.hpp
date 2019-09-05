@@ -240,7 +240,7 @@ inline void table::update_table_players() noexcept {
 }
 
 // A player is considered active (in class table context) if
-// he started in the current betting round, has not stood up or folded.
+// he started the current betting round, has not stood up or folded.
 inline auto table::single_active_player_remaining() const noexcept -> bool {
     assert(betting_round_in_progress());
 
@@ -248,7 +248,7 @@ inline auto table::single_active_player_remaining() const noexcept -> bool {
     auto player_count = 0;
     for (auto i = 0; i < num_seats; ++i) {
         // In order: started the current betting round, did not fold, did not stand up.
-        player_count += (_dealer.filter()[i] && _dealer.player(i) != round::player::inactive && !_staged[i]);
+        player_count += (_dealer.filter()[i] && _dealer.player_state(i) != round::player::inactive && !_staged[i]);
     }
     return player_count == 1;
 }

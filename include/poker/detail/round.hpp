@@ -39,7 +39,7 @@ public:
     // Observers
     //
     auto active_players()        const noexcept -> std::array<bool, num_players>;
-    enum round::player player(seat_index) const noexcept; // (compiler bug) MSVC error, GCC warning, cannot use trailing return
+    auto player_state(seat_index) const noexcept -> player;
     auto filter() const noexcept -> std::array<bool, num_players>;
     auto player_to_act()         const noexcept -> seat_index;
     auto last_aggressive_actor() const noexcept -> seat_index;
@@ -96,7 +96,7 @@ inline auto round::active_players() const noexcept -> std::array<bool, num_playe
     return active_players;
 }
 
-inline auto round::player(seat_index s) const noexcept -> enum round::player {
+inline auto round::player_state(seat_index s) const noexcept -> round::player {
     assert(_filter[s]);
 
     return _player_states[s];

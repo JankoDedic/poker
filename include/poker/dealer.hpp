@@ -108,7 +108,7 @@ public:
     auto pots()                      const POKER_NOEXCEPT -> span<const pot>;
     auto button()                    const noexcept       -> seat_index;
     auto hole_cards()                const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, max_players>;
-    enum detail::round::player player(seat_index) const POKER_NOEXCEPT;
+    auto player_state(seat_index) const POKER_NOEXCEPT -> detail::round::player;
     auto filter() const POKER_NOEXCEPT -> std::array<bool, max_players>;
 
     //
@@ -252,10 +252,10 @@ inline auto dealer::hole_cards() const POKER_NOEXCEPT -> slot_view<const poker::
     return {_hole_cards, _players.filter()};
 }
 
-inline auto dealer::player(seat_index s) const POKER_NOEXCEPT -> enum detail::round::player {
+inline auto dealer::player_state(seat_index s) const POKER_NOEXCEPT -> detail::round::player {
     POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
 
-    return _betting_round.player(s);
+    return _betting_round.player_state(s);
 }
 
 inline auto dealer::filter() const POKER_NOEXCEPT -> std::array<bool, max_players> {
