@@ -110,6 +110,7 @@ public:
     auto hole_cards()                const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, num_seats>;
     auto player_state(seat_index) const POKER_NOEXCEPT -> detail::betting_round::player;
     auto filter() const POKER_NOEXCEPT -> std::array<bool, num_seats>;
+    auto bet_size(seat_index) const POKER_NOEXCEPT -> chips;
 
     //
     // Modifiers
@@ -260,6 +261,13 @@ inline auto dealer::player_state(seat_index s) const POKER_NOEXCEPT -> detail::b
 
 inline auto dealer::filter() const POKER_NOEXCEPT -> std::array<bool, num_seats> {
     return _betting_round.filter();
+}
+
+inline auto dealer::bet_size(seat_index s) const POKER_NOEXCEPT -> chips {
+    POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
+    POKER_DETAIL_ASSERT(filter()[s], "Player must exist");
+
+    return _betting_round.bet_size(s);
 }
 
 inline void dealer::start_hand() POKER_NOEXCEPT {
