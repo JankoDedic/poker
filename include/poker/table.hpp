@@ -63,7 +63,6 @@ public:
     auto community_cards()           const POKER_NOEXCEPT -> const poker::community_cards&;
     auto legal_actions()             const POKER_NOEXCEPT -> dealer::action_range;
     auto hole_cards()                const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, num_seats>;
-    auto bet_size(seat_index)        const POKER_NOEXCEPT -> chips;
 
     // Automatic actions
     auto automatic_actions()                  const POKER_NOEXCEPT -> span<const std::optional<automatic_action>, num_seats>;
@@ -241,17 +240,19 @@ inline void table::update_table_players() noexcept {
 }
 
 // A player is considered active (in class table context) if
-// he started the current betting round, has not stood up or folded.
+// he started in the current betting round, has not stood up or folded.
 inline auto table::single_active_player_remaining() const noexcept -> bool {
     assert(betting_round_in_progress());
 
-    using detail::betting_round;
-    auto player_count = 0;
-    for (auto i = 0; i < num_seats; ++i) {
-        // In order: started the current betting round, did not fold, did not stand up.
-        player_count += (_dealer.filter()[i] && _dealer.player_state(i) != betting_round::player::folded && !_staged[i]);
+    // What dealer::betting_round_players filter returns is all the players
+    // who started the current betting round and have not folded. Players who
+    // actually fold are manually discarded internally (to help with pot evaluation).
+    const auto& betting_round_players = _dealer.betting_round_players().filter();
+    auto active_player_count = 0;
+    for (auto i = seat_index{0}; i < num_seats; ++i) {
+        active_player_count += (betting_round_players[i] && !_staged[i]);
     }
-    return player_count == 1;
+    return active_player_count == 1;
 }
 
 inline void table::stand_up_busted_players() noexcept {
@@ -332,13 +333,6 @@ inline auto table::hole_cards() const POKER_NOEXCEPT -> slot_view<const poker::h
     POKER_DETAIL_ASSERT(hand_in_progress() || betting_rounds_completed(), "Hand must be in progress or showdown must have ended");
 
     return _dealer.hole_cards();
-}
-
-inline auto table::bet_size(seat_index s) const POKER_NOEXCEPT -> chips {
-    POKER_DETAIL_ASSERT(betting_round_in_progress(), "Betting round must be in progress");
-    POKER_DETAIL_ASSERT(_dealer.filter()[s], "Player must be in the betting round");
-
-    return _dealer.bet_size(s);
 }
 
 inline void table::action_taken(action a, chips bet) POKER_NOEXCEPT {
