@@ -51,7 +51,7 @@ public:
     //
     // Constants
     //
-    static constexpr auto max_players = 9;
+    static constexpr auto num_seats = 9;
 
     //
     // Types
@@ -107,7 +107,7 @@ public:
     auto legal_actions()             const POKER_NOEXCEPT -> action_range;
     auto pots()                      const POKER_NOEXCEPT -> span<const pot>;
     auto button()                    const noexcept       -> seat_index;
-    auto hole_cards()                const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, max_players>;
+    auto hole_cards()                const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, num_seats>;
 
     //
     // Modifiers
@@ -133,7 +133,7 @@ private:
 
     deck*                               _deck                     = nullptr;
     community_cards*                    _community_cards          = nullptr;
-    std::array<poker::hole_cards, max_players> _hole_cards               = {};
+    std::array<poker::hole_cards, num_seats> _hole_cards               = {};
 
     bool                                _hand_in_progress         = false;
     poker::round_of_betting             _round_of_betting         = poker::round_of_betting::preflop;
@@ -244,7 +244,7 @@ inline auto dealer::button() const noexcept -> seat_index {
     return _button;
 }
 
-inline auto dealer::hole_cards() const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, max_players> {
+inline auto dealer::hole_cards() const POKER_NOEXCEPT -> slot_view<const poker::hole_cards, num_seats> {
     POKER_DETAIL_ASSERT(hand_in_progress() || betting_rounds_completed(), "Hand must be in progress or showdown must have ended");
 
     return {_hole_cards, _players.filter()};
@@ -350,7 +350,7 @@ inline void dealer::showdown() POKER_NOEXCEPT {
 inline auto dealer::next_or_wrap(seat_index seat) noexcept -> seat_index {
     do {
         ++seat;
-        if (seat == max_players) seat = 0;
+        if (seat == num_seats) seat = 0;
     } while (!_players.filter()[seat]);
     return seat;
 }
@@ -372,7 +372,7 @@ inline auto dealer::post_blinds() noexcept -> seat_index {
 }
 
 inline void dealer::deal_hole_cards() noexcept {
-    for (auto i = 0; i < max_players; ++i) {
+    for (auto i = 0; i < num_seats; ++i) {
         if (_players.filter()[i]) {
             _hole_cards[i] = {_deck->draw(), _deck->draw()};
         }

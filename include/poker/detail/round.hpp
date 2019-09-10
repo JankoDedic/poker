@@ -13,7 +13,7 @@ public:
     //
     // Constants
     //
-    static constexpr auto num_players = std::size_t{9};
+    static constexpr auto num_seats = std::size_t{9};
 
     //
     // Types
@@ -29,12 +29,12 @@ public:
     // Constructors
     //
     round() = default;
-    round(const std::array<bool, num_players>& active_players, seat_index first_to_act) noexcept;
+    round(const std::array<bool, num_seats>& active_players, seat_index first_to_act) noexcept;
 
     //
     // Observers
     //
-    auto active_players()        const noexcept -> const std::array<bool,num_players>&;
+    auto active_players()        const noexcept -> const std::array<bool,num_seats>&;
     auto player_to_act()         const noexcept -> seat_index;
     auto last_aggressive_actor() const noexcept -> seat_index;
     auto num_active_players()    const noexcept -> std::size_t;
@@ -52,7 +52,7 @@ private:
     void increment_player() noexcept;
 
 private:
-    std::array<bool,num_players> _active_players     = {};
+    std::array<bool,num_seats> _active_players     = {};
     seat_index                   _player_to_act;
     seat_index                   _last_aggressive_actor;
     bool                         _contested          = false;      // passive or aggressive action was taken this round
@@ -68,16 +68,16 @@ inline auto operator==(const round& x, const round& y) noexcept -> bool {
         && x._num_active_players    == y._num_active_players;
 }
 
-inline round::round(const std::array<bool, num_players>& active_players, seat_index first_to_act) noexcept
+inline round::round(const std::array<bool, num_seats>& active_players, seat_index first_to_act) noexcept
     : _active_players{active_players}
     , _player_to_act{first_to_act}
     , _last_aggressive_actor{first_to_act}
     , _num_active_players{static_cast<std::size_t>(std::count(std::cbegin(active_players), std::cend(active_players), true))}
 {
-    assert(first_to_act < num_players);
+    assert(first_to_act < num_seats);
 }
 
-inline auto round::active_players() const noexcept -> const std::array<bool,num_players>& {
+inline auto round::active_players() const noexcept -> const std::array<bool,num_seats>& {
     return _active_players;
 }
 
@@ -118,7 +118,7 @@ inline void round::action_taken(action a) noexcept {
 inline void round::increment_player() noexcept {
     do {
         ++_player_to_act;
-        if (_player_to_act == num_players) _player_to_act = 0;
+        if (_player_to_act == num_seats) _player_to_act = 0;
         if (_player_to_act == _last_aggressive_actor) break;
     } while (!_active_players[_player_to_act]);
 }
